@@ -23,16 +23,16 @@ public class PieceOfCake {
 
         hwMap = ahwMap;
 
-        dcMotor = hwMap.dcMotor.get("frontleftmotor");
+        dcMotor = hwMap.dcMotor.get("fl");
         SetFrontL(dcMotor);
 
-        dcMotor = hwMap.dcMotor.get("frontrightmotor");
+        dcMotor = hwMap.dcMotor.get("fr");
         SetFrontR(dcMotor);
 
-        dcMotor = hwMap.dcMotor.get("backleftmotor");
+        dcMotor = hwMap.dcMotor.get("bl");
         SetBackL(dcMotor);
 
-        dcMotor = hwMap.dcMotor.get("backrightmotor");
+        dcMotor = hwMap.dcMotor.get("br");
         SetBackR(dcMotor);
 
 
@@ -60,6 +60,13 @@ public class PieceOfCake {
     private void SetFrontR(DcMotor dcMotor) {FrontR = dcMotor; }
     private void SetBackL(DcMotor dcMotor) {BackL = dcMotor; }
     private void SetBackR(DcMotor dcMotor) {BackR = dcMotor; }
+
+    public void setMotorPower(double fl, double fr, double bl, double br){
+        getFrontL().setPower(fl);
+        getFrontR().setPower(fr);
+        getBackL().setPower(bl);
+        getBackR().setPower(br);
+    }
 }
 
 
