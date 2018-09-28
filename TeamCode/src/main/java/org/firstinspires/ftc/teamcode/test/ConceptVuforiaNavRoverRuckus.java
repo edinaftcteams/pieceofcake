@@ -32,6 +32,8 @@ package org.firstinspires.ftc.teamcode.test;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.vuforia.PIXEL_FORMAT;
+import com.vuforia.Vuforia;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
@@ -41,6 +43,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+import org.firstinspires.ftc.teamcode.utils.OCVUtils;
+import org.opencv.core.CvType;
 
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XYZ;
@@ -52,6 +56,8 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
 import java.util.ArrayList;
 import java.util.List;
 
+import android.graphics.Bitmap;
+import org.opencv.core.Mat;
 
 /**
  * This 2018-2019 OpMode illustrates the basics of using the Vuforia localizer to determine
@@ -128,7 +134,7 @@ public class ConceptVuforiaNavRoverRuckus extends LinearOpMode {
      */
     VuforiaLocalizer vuforia;
 
-    @Override public void runOpMode() {
+    @Override public void runOpMode() throws InterruptedException {
         /*
          * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
          * We can pass Vuforia the handle to a camera preview resource (on the RC phone);
@@ -268,11 +274,20 @@ public class ConceptVuforiaNavRoverRuckus extends LinearOpMode {
         /** Wait for the game to begin */
         telemetry.addData(">", "Press Play to start tracking");
         telemetry.update();
+
+        vuforia.setFrameQueueCapacity(1);
+        Vuforia.setFrameFormat(PIXEL_FORMAT.RGB565, true);
+
         waitForStart();
 
         /** Start tracking the data sets we care about. */
         targetsRoverRuckus.activate();
         while (opModeIsActive()) {
+
+            Bitmap b = OCVUtils.getVuforiaImage(vuforia.getFrameQueue().take(), PIXEL_FORMAT.RGB565);
+            if(b != null){
+                Mat mat = OCVUtils.bitmapToMat(b, CvType.CV_8UC3);
+            }
 
             // check all the trackable target to see which one (if any) is visible.
             targetVisible = false;
