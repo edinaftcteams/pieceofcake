@@ -54,7 +54,7 @@ public class GenericDetector {
     private Size newSize = new Size();
 
 
-    public Mat processFrame(Mat rgba) {
+    public void processFrame(Mat rgba) {
 
         Size initSize = rgba.size();
         newSize = new Size(initSize.width * downScaleFactor, initSize.height * downScaleFactor);
@@ -175,7 +175,7 @@ public class GenericDetector {
         preConvert.release();
         Imgproc.putText(workingMat, "DogeCV v1.1 Generic: " + newSize.toString() + " - " + speed.toString() + " - " + detectionMode.toString(), new Point(5, 30), 0, 1.2, new Scalar(0, 255, 255), 2);
 
-        return workingMat;
+        workingMat.release();
     }
 
     public Rect getRect() {

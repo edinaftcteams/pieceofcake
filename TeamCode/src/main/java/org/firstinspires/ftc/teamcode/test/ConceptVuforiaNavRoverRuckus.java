@@ -29,9 +29,14 @@
 
 package org.firstinspires.ftc.teamcode.test;
 
+import org.firstinspires.ftc.teamcode.utils.GenericDetector;
+import org.firstinspires.ftc.teamcode.utils.LeviColorFilter;
+import org.firstinspires.ftc.teamcode.utils.Enums;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.vuforia.PIXEL_FORMAT;
 import com.vuforia.Vuforia;
 
@@ -43,6 +48,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+import org.firstinspires.ftc.teamcode.utils.GenericDetector;
 import org.firstinspires.ftc.teamcode.utils.OCVUtils;
 import org.opencv.core.CvType;
 
@@ -58,6 +64,10 @@ import java.util.List;
 
 import android.graphics.Bitmap;
 import org.opencv.core.Mat;
+
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+
+
 
 /**
  * This 2018-2019 OpMode illustrates the basics of using the Vuforia localizer to determine
@@ -98,10 +108,20 @@ import org.opencv.core.Mat;
  */
 
 @TeleOp(name="Concept: Vuforia Rover Nav", group ="Concept")
-@Disabled
 public class ConceptVuforiaNavRoverRuckus extends LinearOpMode {
 
+
+
+    static {
+        System.loadLibrary("opencv_java3");
+    }
+
+    GenericDetector genericDetector = new GenericDetector();
+    //genericDetector.colorFilter = new HSVColorFilter(new Scalar(0,150,0), new Scalar(76,255,179));
+
+
     /*
+
      * IMPORTANT: You need to obtain your own license key to use Vuforia. The string below with which
      * 'parameters.vuforiaLicenseKey' is initialized is for illustration only, and will not function.
      * A Vuforia 'Development' license key, can be obtained free of charge from the Vuforia developer
@@ -113,7 +133,9 @@ public class ConceptVuforiaNavRoverRuckus extends LinearOpMode {
      * Once you've obtained a license key, copy the string from the Vuforia web site
      * and paste it in to your code on the next line, between the double quotes.
      */
-    private static final String VUFORIA_KEY = " -- YOUR NEW VUFORIA KEY GOES HERE  --- ";
+
+
+    private static final String VUFORIA_KEY = "ASA9XvT/////AAABmUnq30r9sU3Nmf/+RS+Xx0CHgJj/JtD5ycahnuM/0B2SFvbMRPIZCbLi4LeOkfse9Dymor5W7vNMYI+vmqVx9kpEaKE8VM7cFMUb/T1LLwlCPdX9QKOruzTcRdlYswR7ULh4K11GuFZDO/45pSks+Nf25kT5cnV+IN3TsscA0o7I6XPIeUoAJJPsjw+AycsmRk2uffr3Bnupexr93iRfHylniqP+ss4cRcT1lOqS5Zhh7FQaoelR58qL/RUorGpknjy9ufCn9ervc6Mz01u3ZkM/EOa5wUPT8bDzPZ6nMDaadqumorT5Py+GtJSUosUgz4Gd3iR++fdEk6faFZq3L9xfBSagNykwhiyYx+oqwVqe";
 
     // Since ImageTarget trackables use mm to specifiy their dimensions, we must use mm for all the physical dimension.
     // We will define some constants and conversions here
@@ -145,8 +167,12 @@ public class ConceptVuforiaNavRoverRuckus extends LinearOpMode {
 
         // VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
+        WebcamName webcamName;
+        webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
+
         parameters.vuforiaLicenseKey = VUFORIA_KEY ;
-        parameters.cameraDirection   = CAMERA_CHOICE;
+        //parameters.cameraDirection   = CAMERA_CHOICE;
+        parameters.cameraName = webcamName;
 
         //  Instantiate the Vuforia engine
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
@@ -278,16 +304,41 @@ public class ConceptVuforiaNavRoverRuckus extends LinearOpMode {
         vuforia.setFrameQueueCapacity(1);
         Vuforia.setFrameFormat(PIXEL_FORMAT.RGB565, true);
 
+        //Jewel Detector Settings
+        genericDetector.areaWeight = 0.02;
+        genericDetector.detectionMode = Enums.AreaScoringMethod.MAX_AREA; // PERFECT_AREA
+        //genericDeterctor.perfectArea = 6500; <- Needed for PERFECT_AREA
+        genericDetector.debugContours = true;
+        genericDetector.maxDiffrence = 15;
+        genericDetector.ratioWeight = 15;
+        genericDetector.minArea = 100;
+
+
+        ElapsedTime stopwatch = new ElapsedTime();
+
         waitForStart();
+
+        stopwatch.reset();
 
         /** Start tracking the data sets we care about. */
         targetsRoverRuckus.activate();
         while (opModeIsActive()) {
-
-            Bitmap b = OCVUtils.getVuforiaImage(vuforia.getFrameQueue().take(), PIXEL_FORMAT.RGB565);
-            if(b != null){
-                Mat mat = OCVUtils.bitmapToMat(b, CvType.CV_8UC3);
+            while (stopwatch.milliseconds() < 3000) {
+                Bitmap b = OCVUtils.getVuforiaImage(vuforia.getFrameQueue().take(), PIXEL_FORMAT.RGB565);
+                if(b != null){
+                    Mat mat = OCVUtils.bitmapToMat(b, CvType.CV_8UC3);
+                    genericDetector.processFrame(mat);
+                    if (genericDetector.getFound()) {
+                        telemetry.addData("rectangle", genericDetector.getRect());
+                        telemetry.addData("location", genericDetector.getLocation());
+                    }
+                    else {
+                        telemetry.addData("nothing to see here", "");
+                    }
+                    telemetry.update();
+                }
             }
+
 
             // check all the trackable target to see which one (if any) is visible.
             targetVisible = false;
