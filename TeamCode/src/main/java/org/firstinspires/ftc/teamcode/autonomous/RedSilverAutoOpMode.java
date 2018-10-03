@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.teleop;
+package org.firstinspires.ftc.teamcode.autonomous;
 
 public class RedSilverAutoOpMode extends BaseAutoOpMode {
 
