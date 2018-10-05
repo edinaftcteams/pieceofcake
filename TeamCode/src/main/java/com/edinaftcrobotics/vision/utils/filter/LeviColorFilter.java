@@ -1,8 +1,7 @@
-package org.firstinspires.ftc.teamcode.utils;
+package com.edinaftcrobotics.vision.utils.filter;
 
 
-import android.graphics.Color;
-import android.util.Log;
+import com.edinaftcrobotics.vision.utils.filter.ColorFilter;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;

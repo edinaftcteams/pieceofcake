@@ -1,5 +1,7 @@
-package org.firstinspires.ftc.teamcode.utils;
+package com.edinaftcrobotics.vision.utils.filter;
 
+
+import com.edinaftcrobotics.vision.utils.filter.ColorFilter;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -11,7 +13,7 @@ import org.opencv.imgproc.Imgproc;
  * Created by Victo on 1/1/2018.
  */
 
-public class HSVColorFilter extends ColorFilter{
+public class HSVColorFilter extends ColorFilter {
 
     private Scalar perfect = new Scalar(255,255,255);
     private Scalar range = new Scalar(0,0,0);
