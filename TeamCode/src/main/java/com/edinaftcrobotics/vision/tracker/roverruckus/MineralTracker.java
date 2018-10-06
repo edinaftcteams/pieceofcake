@@ -23,12 +23,6 @@ import org.opencv.android.Utils;
 public class MineralTracker extends BaseTracker {
     private GenericDetector _genericDetector;
 
-    public enum GoldMineralLocation {
-        LEFT,
-        MIDDLE,
-        RIGHT,
-        UNKNOWN,
-    }
 
     public MineralTracker(Camera camera) {
         _camera = camera;
@@ -48,9 +42,9 @@ public class MineralTracker extends BaseTracker {
         _genericDetector.minArea = 100;
     }
 
-    public GoldMineralLocation getGoldMineralLocation() throws InterruptedException
+    public Rect getGoldMineralLocation() throws InterruptedException
     {
-        GoldMineralLocation mineralLocation = GoldMineralLocation.UNKNOWN;
+        Rect mineralLocation = null;
         VuforiaLocalizer.CloseableFrame frame = _camera.getPOCVuforia().getFrameQueue().take();
         Bitmap b = getVuforiaImage(frame, PIXEL_FORMAT.RGB565);
 
@@ -58,13 +52,8 @@ public class MineralTracker extends BaseTracker {
             Mat map = bitmapToMat(b, CvType.CV_8UC3);
             _genericDetector.processFrame(map);
 
-            if (_genericDetector.getRect().x < 100) {
-                mineralLocation = GoldMineralLocation.LEFT;
-            } else if (_genericDetector.getRect().x > 100) {
-                mineralLocation = GoldMineralLocation.RIGHT;
-            } else {
-                mineralLocation = GoldMineralLocation.MIDDLE;
-            }
+            mineralLocation = _genericDetector.getRect();
+
 
             map.release();
         }
@@ -76,7 +65,7 @@ public class MineralTracker extends BaseTracker {
 
     public Rect getLastMineralRectangle() { return _genericDetector.getRect(); }
 
-    public Point getLatMineralLocation() { return _genericDetector.getLocation(); }
+    public Point getLastMineralLocation() { return _genericDetector.getLocation(); }
 
     private static Bitmap getVuforiaImage(VuforiaLocalizer.CloseableFrame frame, int format){
         Image img;

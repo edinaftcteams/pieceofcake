@@ -1,12 +1,14 @@
 package com.edinaftcrobotics.vision.tracker.roverruckus;
 
 import com.edinaftcrobotics.vision.camera.Camera;
+import com.edinaftcrobotics.vision.camera.WebCamCamera;
 import com.edinaftcrobotics.vision.tracker.BaseTracker;
 import com.edinaftcrobotics.vision.utils.Triple;
 
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
@@ -26,13 +28,21 @@ public class PictureTracker extends BaseTracker {
     private  List<VuforiaTrackable> _allTrackables = null;
     private OpenGLMatrix _lastLocation = null;
     VuforiaTrackables _targetsRoverRuckus = null;
+    private int _ForwardDisplacement = 0;
+    private int _VerticalDisplacement = 0;
+    private int _LeftDisplacement = 0;
+
+
 
     private static final float mmPerInch        = 25.4f;
     private static final float mmFTCFieldWidth  = (12*6) * mmPerInch;       // the width of the FTC field (from the center point to the outer panels)
     private static final float mmTargetHeight   = (6) * mmPerInch;          // the height of the center of the target image above the floor
 
-    public PictureTracker(Camera camera) {
+    public PictureTracker(Camera camera, int forwardDisplacement, int verticalDisplacement, int leftDisplacement) {
         _camera = camera;
+        _ForwardDisplacement = forwardDisplacement;
+        _VerticalDisplacement = verticalDisplacement;
+        _LeftDisplacement = leftDisplacement;
         // Load the data sets that for the trackable objects. These particular data
         // sets are stored in the 'assets' part of our application.
         _targetsRoverRuckus = this._camera.getPOCVuforia().loadTrackablesFromAsset("RoverRuckus");
@@ -44,6 +54,8 @@ public class PictureTracker extends BaseTracker {
         frontCraters.setName("Front-Craters");
         VuforiaTrackable backSpace = _targetsRoverRuckus.get(3);
         backSpace.setName("Back-Space");
+
+
 
         // For convenience, gather together all the trackable objects in one easily-iterable collection */
         List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
@@ -138,12 +150,9 @@ public class PictureTracker extends BaseTracker {
          * In this example, it is centered (left to right), but 110 mm forward of the middle of the robot, and 200 mm above ground level.
          */
 
-        final int CAMERA_FORWARD_DISPLACEMENT  = 110;   // eg: Camera is 110 mm in front of robot center
-        final int CAMERA_VERTICAL_DISPLACEMENT = 200;   // eg: Camera is 200 mm above ground
-        final int CAMERA_LEFT_DISPLACEMENT     = 0;     // eg: Camera is ON the robot's center line
 
         OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
-                .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
+                .translation(_ForwardDisplacement, _LeftDisplacement, _VerticalDisplacement)
                 .multiplied(Orientation.getRotationMatrix(EXTRINSIC, YZX, DEGREES,
                          90 , 0, 0));
 
