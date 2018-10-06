@@ -8,6 +8,8 @@ public class WebCamCamera extends Camera {
     public WebCamCamera(HardwareMap hardwareMap) {
         super();
 
+        _cameratype = CameraType.Web;
+
         WebcamName webcamName = hardwareMap.get (WebcamName.class, "Webcam 1");
 
         _params.cameraName = webcamName;
