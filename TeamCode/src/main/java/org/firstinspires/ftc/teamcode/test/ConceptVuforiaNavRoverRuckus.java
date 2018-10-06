@@ -32,6 +32,7 @@ package org.firstinspires.ftc.teamcode.test;
 import com.edinaftcrobotics.vision.camera.BackPhoneCamera;
 import com.edinaftcrobotics.vision.camera.Camera;
 import com.edinaftcrobotics.vision.camera.FrontPhoneCamera;
+import com.edinaftcrobotics.vision.camera.WebCamCamera;
 import com.edinaftcrobotics.vision.tracker.roverruckus.MineralTracker;
 import com.edinaftcrobotics.vision.tracker.roverruckus.PictureTracker;
 import com.edinaftcrobotics.vision.utils.Triple;
@@ -39,6 +40,7 @@ import com.edinaftcrobotics.vision.utils.detector.GenericDetector;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.vuforia.PIXEL_FORMAT;
 import com.vuforia.Vuforia;
@@ -117,7 +119,7 @@ public class ConceptVuforiaNavRoverRuckus extends LinearOpMode {
 
     @Override public void runOpMode() throws InterruptedException {
         ElapsedTime stopwatch = new ElapsedTime();
-        Camera camera = new BackPhoneCamera();
+        Camera camera = new WebCamCamera(hardwareMap);
 
         PictureTracker pictureTracker = null;
         boolean pictureTrackingStarted = false;
@@ -142,7 +144,7 @@ public class ConceptVuforiaNavRoverRuckus extends LinearOpMode {
             } else {
                 if (!pictureTrackingStarted) {
                     camera.deactivate();
-                    camera = new FrontPhoneCamera();
+                    camera = new BackPhoneCamera();
                     camera.activate();
                     pictureTracker = new PictureTracker(camera, 110, 200, 0);
                     pictureTrackingStarted = true;

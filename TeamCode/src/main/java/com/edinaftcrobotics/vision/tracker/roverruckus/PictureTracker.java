@@ -58,8 +58,8 @@ public class PictureTracker extends BaseTracker {
 
 
         // For convenience, gather together all the trackable objects in one easily-iterable collection */
-        List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
-        allTrackables.addAll(_targetsRoverRuckus);
+        _allTrackables = new ArrayList<VuforiaTrackable>();
+        _allTrackables.addAll(_targetsRoverRuckus);
 
         /**
          * In order for localization to work, we need to tell the system where each target is on the field, and
@@ -157,7 +157,7 @@ public class PictureTracker extends BaseTracker {
                          90 , 0, 0));
 
         /**  Let all the trackable listeners know where the phone is.  */
-        for (VuforiaTrackable trackable : allTrackables)
+        for (VuforiaTrackable trackable : _allTrackables)
         {
             ((VuforiaTrackableDefaultListener)trackable.getListener()).setPhoneInformation(phoneLocationOnRobot,
                     VuforiaLocalizer.CameraDirection.BACK);
