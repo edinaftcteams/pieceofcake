@@ -67,7 +67,7 @@ import android.graphics.Bitmap;
 import org.opencv.core.Mat;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-
+import org.opencv.core.Rect;
 
 
 /**
@@ -132,8 +132,8 @@ public class ConceptVuforiaNavRoverRuckus extends LinearOpMode {
         /** Start tracking the data sets we care about. */
         while (opModeIsActive()) {
             if (stopwatch.milliseconds() < 3000) {
-                MineralTracker.GoldMineralLocation location = mineralTracker.getGoldMineralLocation();
-                if (location != MineralTracker.GoldMineralLocation.UNKNOWN) {
+                Rect location = mineralTracker.getGoldMineralLocation();
+                if (location != null) {
                     telemetry.addData("Location: ", mineralTracker.getGoldMineralLocation());
                     telemetry.addData("Rectangle: ", mineralTracker.getLastMineralRectangle());
                 } else {
@@ -144,7 +144,7 @@ public class ConceptVuforiaNavRoverRuckus extends LinearOpMode {
                     camera.deactivate();
                     camera = new FrontPhoneCamera();
                     camera.activate();
-                    pictureTracker = new PictureTracker(camera);
+                    pictureTracker = new PictureTracker(camera, 110, 200, 0);
                     pictureTrackingStarted = true;
                     pictureTracker.startTracking();
                 } else {
