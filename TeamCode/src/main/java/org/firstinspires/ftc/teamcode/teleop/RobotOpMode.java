@@ -36,7 +36,7 @@ public class RobotOpMode extends OpMode {
         final double x = Math.pow(-gamepad1.left_stick_x, 1.0);
         final double y = Math.pow(gamepad1.left_stick_y, 1.0);
 
-        final double rotation = Math.pow(gamepad1.right_stick_x, 3.0);
+        final double rotation = Math.pow(-gamepad1.right_stick_x, 1.0);
         final double direction = Math.atan2(x, y);
         final double speed = Math.min(1.0, Math.sqrt(x * x + y * y));
 
