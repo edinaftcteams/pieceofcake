@@ -1,10 +1,9 @@
-package com.edinaftcrobotics.vision.utils.detector;
+package com.edinaftcrobotics.vision.detector.roverruckus;
 
+import com.edinaftcrobotics.vision.filter.ColorFilter;
+import com.edinaftcrobotics.vision.filter.HSVColorFilter;
+import com.edinaftcrobotics.vision.utils.Enums.*;
 
-
-
-import com.edinaftcrobotics.vision.utils.filter.ColorFilter;
-import com.edinaftcrobotics.vision.utils.filter.HSVColorFilter;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
@@ -23,26 +22,11 @@ import java.util.List;
      */
 public class GenericDetector {
 
-        public enum GenericDetectionSpeed {
-            VERY_FAST,
-            FAST,
-            BALANCED,
-            SLOW,
-            VERY_SLOW
-        }
-
-        public enum GenericDetectionMode {
-            MAX_AREA,
-            PERFECT_AREA
-        }
-
-
-
-    public GenericDetectionMode detectionMode = GenericDetectionMode.MAX_AREA;
+    public AreaScoringMethod detectionMode = AreaScoringMethod.MAX_AREA;
     public double downScaleFactor = 0.4;
     public double perfectRatio = 1;
     public boolean rotateMat = false;
-    public GenericDetectionSpeed speed = GenericDetectionSpeed.BALANCED;
+    public DetectionSpeed speed = DetectionSpeed.BALANCED;
 
     public ColorFilter colorFilter = new HSVColorFilter(new Scalar(50,50,50), new Scalar(50,50,50));
 

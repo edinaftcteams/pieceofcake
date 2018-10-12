@@ -1,7 +1,7 @@
-package com.edinaftcrobotics.vision.utils.filter;
+package com.edinaftcrobotics.vision.filter;
 
 
-import com.edinaftcrobotics.vision.utils.filter.ColorFilter;
+import com.edinaftcrobotics.vision.filter.ColorFilter;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;

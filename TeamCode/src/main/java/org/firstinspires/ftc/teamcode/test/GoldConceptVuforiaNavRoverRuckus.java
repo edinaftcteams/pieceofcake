@@ -32,17 +32,16 @@ package org.firstinspires.ftc.teamcode.test;
 import com.edinaftcrobotics.vision.camera.BackPhoneCamera;
 import com.edinaftcrobotics.vision.camera.Camera;
 import com.edinaftcrobotics.vision.camera.WebCamCamera;
+import com.edinaftcrobotics.vision.tracker.roverruckus.GoldMineralTracker;
 import com.edinaftcrobotics.vision.tracker.roverruckus.MineralTracker;
 import com.edinaftcrobotics.vision.tracker.roverruckus.PictureTracker;
 import com.edinaftcrobotics.vision.utils.Triple;
-
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
-
 import org.opencv.core.Rect;
 
 
@@ -84,8 +83,8 @@ import org.opencv.core.Rect;
  * is explained below.
  */
 
-@TeleOp(name="Concept: Vuforia Rover Nav", group ="Concept")
-public class ConceptVuforiaNavRoverRuckus extends LinearOpMode {
+@TeleOp(name="Concept: Gold Vuforia Rover Nav", group ="Concept")
+public class GoldConceptVuforiaNavRoverRuckus extends LinearOpMode {
 
     static {
         System.loadLibrary("opencv_java3");
@@ -99,7 +98,7 @@ public class ConceptVuforiaNavRoverRuckus extends LinearOpMode {
         boolean pictureTrackingStarted = false;
 
         camera.activate();
-        MineralTracker mineralTracker = new MineralTracker(camera);
+        GoldMineralTracker mineralTracker = new GoldMineralTracker(camera);
 
         waitForStart();
 
@@ -108,10 +107,9 @@ public class ConceptVuforiaNavRoverRuckus extends LinearOpMode {
         /** Start tracking the data sets we care about. */
         while (opModeIsActive()) {
             if (stopwatch.milliseconds() < 30000) {
-                Rect location = mineralTracker.getGoldMineralLocation();
-                if (location != null) {
-                    telemetry.addData("Location: ", mineralTracker.getGoldMineralLocation());
-                    telemetry.addData("Rectangle: ", mineralTracker.getLastMineralRectangle());
+                if (mineralTracker.getGoldMineralLocation()) {
+                    telemetry.addData("Location: ", mineralTracker.getXPosition());
+                    telemetry.addData("Aligned: ", mineralTracker.aligned());
                 } else {
                     telemetry.addData("Object Not Found", "");
                 }

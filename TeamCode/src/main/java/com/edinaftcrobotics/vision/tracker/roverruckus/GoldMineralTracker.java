@@ -2,69 +2,59 @@ package com.edinaftcrobotics.vision.tracker.roverruckus;
 
 import android.graphics.Bitmap;
 
-import org.opencv.core.Point;
-import org.opencv.core.Rect;
-
 import com.edinaftcrobotics.vision.camera.Camera;
-import com.edinaftcrobotics.vision.tracker.BaseTracker;
 import com.edinaftcrobotics.vision.detector.roverruckus.GenericDetector;
+import com.edinaftcrobotics.vision.detector.roverruckus.GoldAlignDetector;
 import com.edinaftcrobotics.vision.filter.LeviColorFilter;
+import com.edinaftcrobotics.vision.tracker.BaseTracker;
+import com.edinaftcrobotics.vision.utils.Enums.AreaScoringMethod;
+import com.vuforia.Image;
 import com.vuforia.PIXEL_FORMAT;
 import com.vuforia.Vuforia;
 
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.opencv.android.Utils;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.core.Rect;
 
-import com.vuforia.Image;
-import org.opencv.android.Utils;
-
-import com.edinaftcrobotics.vision.utils.Enums.*;
-
-public class MineralTracker extends BaseTracker {
-    private GenericDetector _genericDetector;
+public class GoldMineralTracker extends BaseTracker {
+    private GoldAlignDetector _goldDetector;
 
 
-    public MineralTracker(Camera camera) {
+    public GoldMineralTracker(Camera camera) {
         _camera = camera;
         _camera.getPOCVuforia().setFrameQueueCapacity(1);
         Vuforia.setFrameFormat(PIXEL_FORMAT.RGB565, true);
 
-        _genericDetector = new GenericDetector();
-        _genericDetector.colorFilter = new LeviColorFilter(LeviColorFilter.ColorPreset.YELLOW);
+        _goldDetector = new GoldAlignDetector();
 
-        //Jewel Detector Settings
-        _genericDetector.areaWeight = 0.02;
-        _genericDetector.detectionMode = AreaScoringMethod.MAX_AREA; // PERFECT_AREA
-        //genericDeterctor.perfectArea = 6500; <- Needed for PERFECT_AREA
-        _genericDetector.debugContours = true;
-        _genericDetector.maxDiffrence = 15;
-        _genericDetector.ratioWeight = 15;
-        _genericDetector.minArea = 100;
+        _goldDetector.yellowFilter = new LeviColorFilter(LeviColorFilter.ColorPreset.YELLOW, 100);
+        _goldDetector.useDefaults();
+        _goldDetector.areaScoringMethod = AreaScoringMethod.MAX_AREA; // Can also be PERFECT_AREA
     }
 
-    public Rect getGoldMineralLocation() throws InterruptedException
+    public boolean getGoldMineralLocation() throws InterruptedException
     {
-        Rect mineralLocation = null;
         VuforiaLocalizer.CloseableFrame frame = _camera.getPOCVuforia().getFrameQueue().take();
         Bitmap b = getVuforiaImage(frame, PIXEL_FORMAT.RGB565);
 
         if(b != null){
             Mat map = bitmapToMat(b, CvType.CV_8UC3);
 
-            _genericDetector.processFrame(map);
-            mineralLocation = _genericDetector.getRect();
+            _goldDetector.processFrame(map);
             map.release();
         }
 
         frame.close();
 
-        return mineralLocation;
+        return _goldDetector.isFound();
     }
 
-    public Rect getLastMineralRectangle() { return _genericDetector.getRect(); }
+    public double getXPosition() { return _goldDetector.getXPosition(); }
 
-    public Point getLastMineralLocation() { return _genericDetector.getLocation(); }
+    public boolean aligned() { return _goldDetector.getAligned(); }
 
     private Bitmap getVuforiaImage(VuforiaLocalizer.CloseableFrame frame, int format){
         Image img;

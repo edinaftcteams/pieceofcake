@@ -1,4 +1,4 @@
-package com.edinaftcrobotics.vision.utils.filter;
+package com.edinaftcrobotics.vision.filter;
 
 
 import org.opencv.core.Mat;
