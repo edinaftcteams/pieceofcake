@@ -154,7 +154,7 @@ public class PictureTracker extends BaseTracker {
         OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
                 .translation(_ForwardDisplacement, _LeftDisplacement, _VerticalDisplacement)
                 .multiplied(Orientation.getRotationMatrix(EXTRINSIC, YZX, DEGREES,
-                         90 , 0, 0));
+                         -90 , 0, 0));
 
         /**  Let all the trackable listeners know where the phone is.  */
         for (VuforiaTrackable trackable : _allTrackables)

@@ -90,7 +90,8 @@ public class GoldConceptVuforiaNavRoverRuckus extends LinearOpMode {
         System.loadLibrary("opencv_java3");
     }
 
-    @Override public void runOpMode() throws InterruptedException {
+    @Override
+    public void runOpMode() throws InterruptedException {
         ElapsedTime stopwatch = new ElapsedTime();
         Camera camera = new WebCamCamera(hardwareMap);
 

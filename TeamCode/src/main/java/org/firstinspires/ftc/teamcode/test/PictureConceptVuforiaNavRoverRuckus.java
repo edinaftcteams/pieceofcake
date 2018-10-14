@@ -35,14 +35,12 @@ import com.edinaftcrobotics.vision.camera.WebCamCamera;
 import com.edinaftcrobotics.vision.tracker.roverruckus.MineralTracker;
 import com.edinaftcrobotics.vision.tracker.roverruckus.PictureTracker;
 import com.edinaftcrobotics.vision.utils.Triple;
-
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
-
 import org.opencv.core.Rect;
 
 
@@ -84,8 +82,8 @@ import org.opencv.core.Rect;
  * is explained below.
  */
 
-@TeleOp(name="Concept: Picture and Mineral", group ="Concept")
-public class ConceptVuforiaNavRoverRuckus extends LinearOpMode {
+@TeleOp(name="Concept: Picture Only", group ="Concept")
+public class PictureConceptVuforiaNavRoverRuckus extends LinearOpMode {
 
     static {
         System.loadLibrary("opencv_java3");
@@ -93,49 +91,30 @@ public class ConceptVuforiaNavRoverRuckus extends LinearOpMode {
 
     @Override public void runOpMode() throws InterruptedException {
         ElapsedTime stopwatch = new ElapsedTime();
-        Camera camera = new WebCamCamera(hardwareMap);
-
-        PictureTracker pictureTracker = null;
-        boolean pictureTrackingStarted = false;
+        Camera camera = new BackPhoneCamera();
 
         camera.activate();
-        MineralTracker mineralTracker = new MineralTracker(camera);
 
+        PictureTracker pictureTracker = null;
+        pictureTracker = new PictureTracker(camera, 110, 200, 0);
+
+        pictureTracker.startTracking();
         waitForStart();
 
         stopwatch.reset();
 
         /** Start tracking the data sets we care about. */
         while (opModeIsActive()) {
-            if (stopwatch.milliseconds() < 30000) {
-                Rect location = mineralTracker.getGoldMineralLocation();
-                if (location != null) {
-                    telemetry.addData("Location: ", mineralTracker.getGoldMineralLocation());
-                    telemetry.addData("Rectangle: ", mineralTracker.getLastMineralRectangle());
-                } else {
-                    telemetry.addData("Object Not Found", "");
-                }
-            } else {
-                if (!pictureTrackingStarted) {
-                    camera.deactivate();
-                    camera = new BackPhoneCamera();
-                    camera.activate();
-                    pictureTracker = new PictureTracker(camera, 110, 200, 0);
-                    pictureTrackingStarted = true;
-                    pictureTracker.startTracking();
-                } else {
-                    Triple trackableObject = pictureTracker.getTrackableObject();
+            Triple trackableObject = pictureTracker.getTrackableObject();
 
-                    if (trackableObject != null) {
-                        telemetry.addData("Visible Target", trackableObject.PictureName);
-                        telemetry.addData("Pos (in) ", "{X, Y, Z} = %.1f, %.1f, %.1f",
-                                trackableObject.Point.x, trackableObject.Point.y, trackableObject.Point.z);
-                        telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f}", trackableObject.Orientation.firstAngle,
-                                trackableObject.Orientation.secondAngle, trackableObject.Orientation.thirdAngle);
-                    } else {
-                        telemetry.addData("Picture", "not found");
-                    }
-                }
+            if (trackableObject != null) {
+                telemetry.addData("Visible Target", trackableObject.PictureName);
+                telemetry.addData("Pos (in) ", "{X, Y, Z} = %.1f, %.1f, %.1f",
+                        trackableObject.Point.x, trackableObject.Point.y, trackableObject.Point.z);
+                telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f}", trackableObject.Orientation.firstAngle,
+                        trackableObject.Orientation.secondAngle, trackableObject.Orientation.thirdAngle);
+            } else {
+                telemetry.addData("Picture", "not found");
             }
             telemetry.update();
         }
