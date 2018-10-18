@@ -83,8 +83,8 @@ import org.opencv.core.Rect;
  * is explained below.
  */
 
-@TeleOp(name="Concept: Gold Vuforia Rover Nav", group ="Concept")
-public class GoldConceptVuforiaNavRoverRuckus extends LinearOpMode {
+@TeleOp(name="Test: Picture and Gold Mineral", group ="Test")
+public class PictureAndGoldMineralTest extends LinearOpMode {
 
     static {
         System.loadLibrary("opencv_java3");
@@ -123,7 +123,7 @@ public class GoldConceptVuforiaNavRoverRuckus extends LinearOpMode {
                     pictureTrackingStarted = true;
                     pictureTracker.startTracking();
                 } else {
-                    Triple trackableObject = pictureTracker.getTrackableObject();
+                    Triple trackableObject = pictureTracker.getTrackableObject(telemetry);
 
                     if (trackableObject != null) {
                         telemetry.addData("Visible Target", trackableObject.PictureName);

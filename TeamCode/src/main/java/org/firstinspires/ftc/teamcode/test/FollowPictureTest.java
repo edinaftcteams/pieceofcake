@@ -11,8 +11,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.robot.PieceOfCake;
 
-@TeleOp(name="Concept: FollowRobot", group ="Concept")
-public class FollowPicture extends LinearOpMode {
+@TeleOp(name="Test: Follow Picture", group ="Test")
+public class FollowPictureTest extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -31,7 +31,7 @@ public class FollowPicture extends LinearOpMode {
 
         waitForStart();
         while (opModeIsActive()) {
-            Triple trackableObject = pictureTracker.getTrackableObject();
+            Triple trackableObject = pictureTracker.getTrackableObject(telemetry);
 
             if (trackableObject != null) {
                 telemetry.addData("Visible Target", trackableObject.PictureName);
@@ -47,7 +47,7 @@ public class FollowPicture extends LinearOpMode {
 
                 if (targetPoint < 58) {
                     telemetry.addData("Moving robot", "closer");
-                    drivetrain.SlideLeft(.2);
+                    drivetrain.SlideLeft(.8);
                 } else {
                     telemetry.addData("Moving robot", "stopped");
                     drivetrain.SlideLeft(0);

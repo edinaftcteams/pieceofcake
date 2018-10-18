@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import com.edinaftcrobotics.drivetrain.Mecanum;
 import com.edinaftcrobotics.vision.camera.BackPhoneCamera;
 import com.edinaftcrobotics.vision.camera.Camera;
 import com.edinaftcrobotics.vision.camera.WebCamCamera;
@@ -15,17 +16,17 @@ import org.firstinspires.ftc.teamcode.robot.PieceOfCake;
 
 @TeleOp(name="Basic: Iterative OpMode", group="Iterative Opmode")
 public class RobotOpMode extends OpMode {
-
     private PieceOfCake robot = new PieceOfCake();
-    Camera camera = null;
-    PictureTracker pictureTracker = null;
+    private Mecanum mecanum = null;
+    private Camera camera = null;
+    private PictureTracker pictureTracker = null;
 
     @Override
     public void init(){
         robot.init(hardwareMap);
 
-        robot.getBackL().setDirection(DcMotorSimple.Direction.REVERSE);
-        robot.getFrontL().setDirection(DcMotorSimple.Direction.REVERSE);
+        mecanum = new Mecanum(robot.getFrontL(), robot.getFrontR(), robot.getBackL(), robot.getBackR());
+
         camera = new BackPhoneCamera();
         camera.activate();
         pictureTracker = new PictureTracker(camera, 110, 200, 0);
@@ -34,14 +35,14 @@ public class RobotOpMode extends OpMode {
 
     @Override
     public void loop() {
-        ProcessMecanumV1();
+        mecanum.Drive(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
 
         telemetry.addData("Left front: ", "%d", robot.getFrontL().getCurrentPosition());
         telemetry.addData("Right front: ", "%d", robot.getFrontR().getCurrentPosition());
         telemetry.addData("Left back: ", "%d", robot.getBackL().getCurrentPosition());
         telemetry.addData("Right back: ", "%d", robot.getBackR().getCurrentPosition());
 
-        Triple trackableObject = pictureTracker.getTrackableObject();
+        Triple trackableObject = pictureTracker.getTrackableObject(telemetry);
 
         if (trackableObject != null) {
             telemetry.addData("Visible Target", trackableObject.PictureName);
@@ -54,26 +55,5 @@ public class RobotOpMode extends OpMode {
         }
 
         telemetry.update();
-    }
-
-    private void ProcessMecanumV1(){
-        final double x = Math.pow(-gamepad1.left_stick_x, 3.0);
-        final double y = Math.pow(gamepad1.left_stick_y, 3.0);
-
-        final double rotation = Math.pow(-gamepad1.right_stick_x, 3.0);
-        final double direction = Math.atan2(x, y);
-        final double speed = Math.min(1.0, Math.sqrt(x * x + y * y)) * 1.4;
-
-        telemetry.addData("Speed, direction, rotation, sin, cos", "%f %f %f %f %f", speed, direction, rotation, Math.sin(direction + Math.PI / 4.0),
-                Math.cos(direction + Math.PI / 4.0));
-
-        final double fl = speed * Math.sin(direction + Math.PI / 4.0) + rotation;
-        final double fr = speed * Math.cos(direction + Math.PI / 4.0) - rotation;
-        final double bl = speed * Math.cos(direction + Math.PI / 4.0) + rotation;
-        final double br = speed * Math.sin(direction + Math.PI / 4.0) - rotation;
-
-        telemetry.addData("Power", "%f %f %f %f", fl, fr, bl, br);
-
-        robot.setMotorPower(fl, fr, bl, br);
     }
 }

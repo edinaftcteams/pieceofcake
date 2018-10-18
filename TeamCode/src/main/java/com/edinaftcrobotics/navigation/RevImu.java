@@ -21,30 +21,8 @@ public class RevImu extends Thread {
     private Telemetry _telemetry;
     private ReentrantLock _lock = new ReentrantLock();
 
-    public RevImu(HardwareMap hardwareMap, Telemetry telemetry)
+    public RevImu(HardwareMap hardwareMap, Telemetry telemetry) throws InterruptedException
     {
-        _telemetry = telemetry;
-        try {
-            initGyro(hardwareMap);
-        } catch (Exception ex) {
-        }
-    }
-
-    public void run() {
-        while (true) {
-            try {
-                sleep(100);
-                _lock.tryLock(10, TimeUnit.MILLISECONDS);
-                pollForAngle();
-            } catch (Exception ex) {
-
-            } finally {
-                _lock.unlock();
-            }
-        }
-    }
-
-    private void initGyro (HardwareMap hardwareMap) throws InterruptedException{
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
 
         parameters.mode = BNO055IMU.SensorMode.IMU;
@@ -59,21 +37,38 @@ public class RevImu extends Thread {
 
         _imu.initialize(parameters);
 
-        _telemetry.addData("Mode", "calibrating...");
-        _telemetry.update();
+        telemetry.addData("Mode", "calibrating...");
+        telemetry.update();
 
         // make sure the imu gyro is calibrated before continuing.
         while (!_imu.isGyroCalibrated()) {
             sleep(50);
         }
 
+        telemetry.addData("Mode", "ready...");
+        telemetry.update();
+        _telemetry = telemetry;
         resetAngle();
     }
 
-    private void resetAngle ()
+    public void run() {
+        while (true) {
+            try {
+                sleep(100);
+                _lock.tryLock(100, TimeUnit.MILLISECONDS);
+                pollForAngle();
+            } catch (Exception ex) {
+
+            } finally {
+                _lock.unlock();
+            }
+        }
+    }
+
+    public void resetAngle ()
     {
         try {
-            _lock.tryLock(10, TimeUnit.MILLISECONDS);
+            _lock.tryLock(100, TimeUnit.MILLISECONDS);
             _lastAngles = _imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
             _globalAngle = 0;
         } catch (Exception ex) {
@@ -109,7 +104,7 @@ public class RevImu extends Thread {
         double currentAngle = 0;
 
         try {
-            _lock.tryLock(10, TimeUnit.MILLISECONDS);
+            _lock.tryLock(100, TimeUnit.MILLISECONDS);
             currentAngle = _globalAngle;
         } catch (Exception ex) {
 

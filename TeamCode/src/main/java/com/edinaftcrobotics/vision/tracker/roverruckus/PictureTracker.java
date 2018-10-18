@@ -5,6 +5,7 @@ import com.edinaftcrobotics.vision.camera.WebCamCamera;
 import com.edinaftcrobotics.vision.tracker.BaseTracker;
 import com.edinaftcrobotics.vision.utils.Triple;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
@@ -169,7 +170,7 @@ public class PictureTracker extends BaseTracker {
 
     public void stopTracking() { _targetsRoverRuckus.deactivate(); }
 
-    public Triple getTrackableObject()
+    public Triple getTrackableObject(Telemetry telemetry)
     {
         // check all the trackable target to see which one (if any) is visible.
         boolean targetVisible = false;
@@ -192,6 +193,7 @@ public class PictureTracker extends BaseTracker {
 
         // Provide feedback as to where the robot is located (if we know).
         if (targetVisible) {
+            telemetry.addData("Found Target", "true");
             // express position (translation) of robot in inches.
             VectorF translation = _lastLocation.getTranslation();
             Point3 robotPosition = new Point3(translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
@@ -201,6 +203,7 @@ public class PictureTracker extends BaseTracker {
             return new Triple(pictureName, robotPosition, rotation);
         }
         else {
+            telemetry.addData("Found Target", "false");
             return null;
         }
 

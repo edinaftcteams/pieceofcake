@@ -1,6 +1,7 @@
 package com.edinaftcrobotics.drivetrain;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 public class Mecanum {
     private DcMotor _frontLeft;
@@ -14,20 +15,23 @@ public class Mecanum {
         _frontRight = fr;
         _backLeft = bl;
         _backRight = br;
+
+        _backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        _frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     public void SlideLeft(double power){
-        _frontLeft.setPower(-power);
-        _frontRight.setPower(power);
-        _backLeft.setPower(power);
-        _backRight.setPower(-power);
-    }
-
-    public void SlideRight(double power){
         _frontLeft.setPower(power);
         _frontRight.setPower(-power);
         _backLeft.setPower(-power);
         _backRight.setPower(power);
+    }
+
+    public void SlideRight(double power){
+        _frontLeft.setPower(-power);
+        _frontRight.setPower(power);
+        _backLeft.setPower(power);
+        _backRight.setPower(-power);
     }
 
     public void MoveNE(double power) {
@@ -130,6 +134,6 @@ public class Mecanum {
         _frontLeft.setPower(fl);
         _frontRight.setPower(fr);
         _backLeft.setPower(bl);
-        _backRight.setPower(-br);
+        _backRight.setPower(br);
     }
 }
