@@ -10,16 +10,17 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class RevImu extends Thread {
+    private Semaphore _semaphore;
     private BNO055IMU _imu;
     private Orientation _lastAngles = new Orientation();
     private double _globalAngle;
     private Telemetry _telemetry;
-    private ReentrantLock _lock = new ReentrantLock();
 
     public RevImu(HardwareMap hardwareMap, Telemetry telemetry) throws InterruptedException
     {
@@ -48,19 +49,20 @@ public class RevImu extends Thread {
         telemetry.addData("Mode", "ready...");
         telemetry.update();
         _telemetry = telemetry;
+        _semaphore = new Semaphore(1);
         resetAngle();
     }
 
     public void run() {
         while (true) {
             try {
+                _semaphore.acquire();
                 sleep(100);
-                _lock.tryLock(100, TimeUnit.MILLISECONDS);
                 pollForAngle();
             } catch (Exception ex) {
 
             } finally {
-                _lock.unlock();
+                _semaphore.release();
             }
         }
     }
@@ -68,13 +70,13 @@ public class RevImu extends Thread {
     public void resetAngle ()
     {
         try {
-            _lock.tryLock(100, TimeUnit.MILLISECONDS);
+            _semaphore.acquire();
             _lastAngles = _imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
             _globalAngle = 0;
         } catch (Exception ex) {
 
         } finally {
-            _lock.unlock();
+            _semaphore.release();
         }
     }
 
@@ -104,12 +106,12 @@ public class RevImu extends Thread {
         double currentAngle = 0;
 
         try {
-            _lock.tryLock(100, TimeUnit.MILLISECONDS);
+            _semaphore.acquire();
             currentAngle = _globalAngle;
         } catch (Exception ex) {
 
         } finally {
-            _lock.unlock();
+            _semaphore.release();
         }
 
         return currentAngle;

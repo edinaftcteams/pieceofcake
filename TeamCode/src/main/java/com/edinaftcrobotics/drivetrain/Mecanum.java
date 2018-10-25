@@ -34,28 +34,28 @@ public class Mecanum {
         _backRight.setPower(-power);
     }
 
-    public void MoveNE(double power) {
+    public void MoveSW(double power) { // SW
         _frontLeft.setPower(power);
         _frontRight.setPower(0);
         _backLeft.setPower(0);
         _backRight.setPower(power);
     }
 
-    public void MoveSE(double power) {
+    public void MoveNW(double power) { // NW
         _frontLeft.setPower(0);
         _frontRight.setPower(-power);
         _backLeft.setPower(-power);
         _backRight.setPower(0);
     }
 
-    public void MoveNW(double power) {
+    public void MoveSE(double power) { // SE
         _frontLeft.setPower(0);
         _frontRight.setPower(power);
         _backLeft.setPower(power);
         _backRight.setPower(0);
     }
 
-    public void MoveSW(double power) {
+    public void MoveNE(double power) { // NE
         _frontLeft.setPower(-power);
         _frontRight.setPower(0);
         _backLeft.setPower(0);
@@ -63,59 +63,38 @@ public class Mecanum {
     }
 
     public void MoveForward(double power) {
-        _frontLeft.setPower(power);
-        _frontRight.setPower(power);
-        _backLeft.setPower(power);
-        _backRight.setPower(power);
-    }
-
-    public void MoveBackwards(double power) {
         _frontLeft.setPower(-power);
         _frontRight.setPower(-power);
         _backLeft.setPower(-power);
         _backRight.setPower(-power);
     }
 
-    public void TurnRight(double power) {
+    public void MoveBackwards(double power) {
         _frontLeft.setPower(power);
-        _frontRight.setPower(0);
+        _frontRight.setPower(power);
         _backLeft.setPower(power);
-        _backRight.setPower(0);
+        _backRight.setPower(power);
+    }
+
+    public void TurnRight(double power) {
+        _frontLeft.setPower(-power);
+        _frontRight.setPower(power);
+        _backLeft.setPower(-power);
+        _backRight.setPower(power);
     }
 
     public void TurnLeft(double power) {
         _frontLeft.setPower(power);
-        _frontRight.setPower(0);
-        _backLeft.setPower(0);
-        _backRight.setPower(power);
-    }
-
-    public void TurnRightOnRearAxis(double power) {
-        _frontLeft.setPower(power);
         _frontRight.setPower(-power);
-        _backLeft.setPower(0);
-        _backRight.setPower(0);
-    }
-
-    public void TurnLeftOnRearAxis(double power){
-        _frontLeft.setPower(-power);
-        _frontRight.setPower(power);
-        _backLeft.setPower(0);
-        _backRight.setPower(0);
-    }
-
-    public void TurnRightOnFrontAxis(double power) {
-        _frontLeft.setPower(0);
-        _frontRight.setPower(0);
-        _backLeft.setPower(-power);
-        _backRight.setPower(power);
-    }
-
-    public void TurnLeftOnFrontAxis(double power){
-        _frontLeft.setPower(0);
-        _frontRight.setPower(0);
         _backLeft.setPower(power);
         _backRight.setPower(-power);
+    }
+
+    public void Stop() {
+        _frontLeft.setPower(0);
+        _frontRight.setPower(0);
+        _backLeft.setPower(0);
+        _backRight.setPower(0);
     }
 
     public void Drive(double leftStickX, double leftStickY, double rightStickY) {

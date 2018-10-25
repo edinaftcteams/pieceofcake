@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.test;
+package org.firstinspires.ftc.teamcode.test.teleop;
 
 import com.edinaftcrobotics.drivetrain.Mecanum;
 import com.edinaftcrobotics.navigation.RevImu;
@@ -14,6 +14,7 @@ public class ImuTest extends LinearOpMode {
         PieceOfCake robot = new PieceOfCake();
         RevImu revImu = null;
         boolean isTurning = false;
+        boolean turningLeft = false;
         robot.init(hardwareMap);
         Mecanum mecanum = new Mecanum(robot.getFrontL(), robot.getFrontR(), robot.getBackL(), robot.getBackR());
 
@@ -28,25 +29,34 @@ public class ImuTest extends LinearOpMode {
 
         while (this.opModeIsActive())
         {
-            if (isTurning) {
-                if (Math.abs(revImu.getAngle()) > 90) {
+            idle();
+            double turnPower = .2;
+            double currentAngle = Math.abs(revImu.getAngle());
+            double power = (85 - currentAngle )/ 90;
 
+            if (isTurning) {
+                if (currentAngle > 80) {
+                    mecanum.Stop();
+                    isTurning = false;
                 }
-                isTurning = false;
             } else {
                 if (gamepad1.x) {
                     revImu.resetAngle();
                     isTurning = true;
-                    mecanum.TurnLeft(.2);
+                    turningLeft = true;
+                    mecanum.TurnLeft(turnPower);
                 }
 
                 if (gamepad1.b) {
                     revImu.resetAngle();
                     isTurning = true;
-                    mecanum.TurnRight(.2);
+                    turningLeft = false;
+                    mecanum.TurnRight(turnPower);
                 }
             }
-            telemetry.addData("Current Angle", "%f", revImu.getAngle());
+            telemetry.addData("Current Angle", "%f", currentAngle);
+            telemetry.addData("Current Power", "%f", power);
+            telemetry.addData("Turn Power", "%f", turnPower);
             telemetry.update();
         }
 
