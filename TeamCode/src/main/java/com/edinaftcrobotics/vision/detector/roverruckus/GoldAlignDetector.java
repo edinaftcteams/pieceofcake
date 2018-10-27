@@ -26,6 +26,7 @@ public class GoldAlignDetector extends BaseDetector {
     private boolean found    = false; // Is the gold mineral found
     private boolean aligned  = false; // Is the gold mineral aligned
     private double  goldXPos = 0;     // X Position (in pixels) of the gold element
+    private double  goldYPos = 0;
 
     // Detector settings
     public boolean debugAlignment = true; // Show debug lines to show alignment settings
@@ -97,6 +98,7 @@ public class GoldAlignDetector extends BaseDetector {
             // Set align X pos
             xPos = bestRect.x + (bestRect.width / 2);
             goldXPos = xPos;
+            goldYPos = bestRect.y + (bestRect.width /2 );
 
             // Draw center point
             Imgproc.circle(displayMat, new Point( xPos, bestRect.y + (bestRect.height / 2)), 5, new Scalar(0,255,0),2);
@@ -175,6 +177,9 @@ public class GoldAlignDetector extends BaseDetector {
         return goldXPos;
     }
 
+    public double getYPosition() {
+        return goldYPos;
+    }
     /**
      * Returns if a gold mineral is being tracked/detected
      * @return if a gold mineral is being tracked/detected
