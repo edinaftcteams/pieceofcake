@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import org.firstinspires.ftc.teamcode.robot.PieceOfCake;
 
 import org.firstinspires.ftc.teamcode.robot.PieceOfCake;
 
@@ -18,19 +19,19 @@ import org.firstinspires.ftc.teamcode.robot.PieceOfCake;
 public class RobotOpMode extends OpMode {
     private PieceOfCake robot = new PieceOfCake();
     private Mecanum mecanum = null;
-    private Camera camera = null;
-    private PictureTracker pictureTracker = null;
+    private int MiddleFlip = 0;
+    private int BottomFlip = 0;
+    private int TopFlip = 0;
+
 
     @Override
     public void init(){
         robot.init(hardwareMap);
 
-        mecanum = new Mecanum(robot.getFrontL(), robot.getFrontR(), robot.getBackL(), robot.getBackR());
+        robot.getFlip().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.getFlip().setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        camera = new BackPhoneCamera();
-        camera.activate();
-        pictureTracker = new PictureTracker(camera, 110, 200, 0);
-        pictureTracker.startTracking();
+        mecanum = new Mecanum(robot.getFrontL(), robot.getFrontR(), robot.getBackL(), robot.getBackR());
     }
 
     @Override
@@ -42,18 +43,45 @@ public class RobotOpMode extends OpMode {
         telemetry.addData("Left back: ", "%d", robot.getBackL().getCurrentPosition());
         telemetry.addData("Right back: ", "%d", robot.getBackR().getCurrentPosition());
 
-        Triple trackableObject = pictureTracker.getTrackableObject(telemetry);
+        ProcessArm();
+        ProcessIntake();
+        ProcessFlip();
+        ProcessLift();
 
-        if (trackableObject != null) {
-            telemetry.addData("Visible Target", trackableObject.PictureName);
-            telemetry.addData("Pos (in) ", "{X, Y, Z} = %.1f, %.1f, %.1f",
-                    trackableObject.Point.x, trackableObject.Point.y, trackableObject.Point.z);
-            telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f}", trackableObject.Orientation.firstAngle,
-                    trackableObject.Orientation.secondAngle, trackableObject.Orientation.thirdAngle);
-        } else {
-            telemetry.addData("Picture", "not found");
+    }
+    private void ProcessArm() {
+        if (gamepad1.left_trigger > 0) {
+            robot.getSlide().setPower(1);
         }
-
-        telemetry.update();
+        if (gamepad1.right_trigger > 0) {
+            robot.getSlide().setPower(-1);
+        }
+    }
+    private void ProcessIntake() {
+        if (gamepad1.left_bumper == true) {
+            robot.getIntake().setPower(1);
+        }
+        if (gamepad1.right_bumper == true) {
+            robot.getIntake().setPower(-1);
+        }
+    }
+    private void ProcessFlip() {
+        if (gamepad1.x || gamepad1.b) {
+            robot.getFlip().setTargetPosition(MiddleFlip);
+        }
+        if (gamepad1.y == true) {
+            robot.getFlip().setTargetPosition(TopFlip);
+        }
+        if (gamepad1.a == true) {
+            robot.getFlip().setTargetPosition(BottomFlip);
+        }
+    }
+    private void ProcessLift() {
+        if (gamepad2.left_stick_y > 0) {
+            robot.getLift().setPower(1);
+        }
+        if (gamepad1.left_stick_y < -0) {
+            robot.getLift().setPower(-1);
+        }
     }
 }
