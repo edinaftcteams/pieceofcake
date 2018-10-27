@@ -54,6 +54,8 @@ public class GoldMineralTracker extends BaseTracker {
 
     public double getXPosition() { return _goldDetector.getXPosition(); }
 
+    public double getYPosition() { return _goldDetector.getYPosition(); }
+
     public boolean aligned() { return _goldDetector.getAligned(); }
 
     private Bitmap getVuforiaImage(VuforiaLocalizer.CloseableFrame frame, int format){
