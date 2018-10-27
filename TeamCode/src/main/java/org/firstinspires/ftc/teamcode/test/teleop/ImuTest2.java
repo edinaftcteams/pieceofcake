@@ -1,8 +1,9 @@
-package org.firstinspires.ftc.teamcode.test.autonomous;
+package org.firstinspires.ftc.teamcode.test.teleop;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -11,7 +12,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.teamcode.robot.PieceOfCake;
 
-@Autonomous(name="Test: IMU2", group ="Test")
+@TeleOp(name="Test: IMU2", group ="Autonomous Test")
 //@Disabled
 public class ImuTest2 extends LinearOpMode {
 
@@ -37,22 +38,22 @@ public class ImuTest2 extends LinearOpMode {
 
         PieceOfCake robot = new PieceOfCake();
 
-        robot.init(hardwareMap);
+        //robot.init(hardwareMap);
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
         //DC MOTORS
-        front_left = robot.getFrontL();
-        back_left = robot.getBackL();
-        front_right = robot.getFrontR();
-        back_right = robot.getBackR();
+        //front_left = robot.getFrontL();
+        //back_left = robot.getBackL();
+        //front_right = robot.getFrontR();
+        //back_right = robot.getBackR();
 
         //SET THE DRIVE MOTOR DIRECTIONS
-        front_left.setDirection(DcMotor.Direction.FORWARD);
-        back_left.setDirection(DcMotor.Direction.FORWARD);
-        front_right.setDirection(DcMotor.Direction.REVERSE);
-        back_right.setDirection(DcMotor.Direction.REVERSE);
+        //front_left.setDirection(DcMotor.Direction.FORWARD);
+        //back_left.setDirection(DcMotor.Direction.FORWARD);
+        //front_right.setDirection(DcMotor.Direction.REVERSE);
+        //back_right.setDirection(DcMotor.Direction.REVERSE);
 
         //SET THE RUN MODE FOR THE MOTORS
         //back_left.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -84,9 +85,10 @@ public class ImuTest2 extends LinearOpMode {
 
             final double heading = this.getRelativeHeading();
 
-            boolean doneTurn1 = this.gyroCorrect(90.0, 1., heading, 0.1, 0.3) > 10;
+            boolean doneTurn1 = this.gyroCorrect(-90.0, 1., heading, 0.1, 0.3) > 10;
             this.telemetry.addData("Heading", heading);
             this.telemetry.addData("Done Turn", doneTurn1);
+            this.telemetry.update();
         }
     }
 
@@ -114,6 +116,7 @@ public class ImuTest2 extends LinearOpMode {
     public int gyroCorrect(double gyroTarget, double gyroRange, double gyroActual, double minSpeed, double addSpeed) {
         double delta = (gyroTarget - gyroActual + 360.0) % 360.0; //the difference between target and actual mod 360
         if (delta > 180.0) delta -= 360.0; //makes delta between -180 and 180
+        telemetry.addData("Delta", delta);
         if (Math.abs(delta) > gyroRange) { //checks if delta is out of range
             this.correctCount = 0;
             double gyroMod = delta / 45.0; //scale from -1 to 1 if delta is less than 45 degrees
@@ -128,9 +131,10 @@ public class ImuTest2 extends LinearOpMode {
     }
 
     public void turn(double sPower) {
-        front_left.setPower(- sPower);
-        back_left.setPower(- sPower);
-        front_right.setPower(+ sPower);
-        back_right.setPower(+ sPower);
+        telemetry.addData("Wheel Power", sPower);
+        //front_left.setPower(- sPower);
+        //back_left.setPower(- sPower);
+        //front_right.setPower(+ sPower);
+        //back_right.setPower(+ sPower);
     }
 }

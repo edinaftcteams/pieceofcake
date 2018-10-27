@@ -82,7 +82,7 @@ import org.opencv.core.Rect;
  * is explained below.
  */
 
-@TeleOp(name="Test: Picture Only", group ="Test")
+@TeleOp(name="Test: Picture Only", group ="Teleop Test")
 public class PictureOnlyTest extends LinearOpMode {
 
     static {

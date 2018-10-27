@@ -84,7 +84,7 @@ import org.opencv.core.Rect;
  * is explained below.
  */
 
-@TeleOp(name="Test: Picture and Yellow Mineral", group ="Test")
+@TeleOp(name="Test: Picture and Yellow Mineral", group ="Teleop Test")
 public class PictureAndYellowMineralTest extends LinearOpMode {
 
     static {

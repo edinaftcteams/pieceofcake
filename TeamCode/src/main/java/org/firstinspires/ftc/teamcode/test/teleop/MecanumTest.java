@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.robot.PieceOfCake;
 
-@TeleOp(name = "Test: Mecanum", group = "Test")
+@TeleOp(name = "Test: Mecanum", group = "Teleop Test")
 public class MecanumTest extends LinearOpMode {
     private Mecanum _mecanum;
 

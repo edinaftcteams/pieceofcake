@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.robot.PieceOfCake;
 
-@TeleOp(name="Test: Follow Picture", group ="Test")
+@TeleOp(name="Test: Follow Picture", group ="Teleop Test")
 public class FollowPictureTest extends LinearOpMode {
 
     @Override

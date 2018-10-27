@@ -50,7 +50,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
  *
  * @see <a href="http://revrobotics.com">REV Robotics Web Page</a>
  */
-@TeleOp(name = "Test: Double REV2mDistance", group = "Test")
+@TeleOp(name = "Test: Double REV2mDistance", group = "Teleop Test")
 //@Disabled
 public class DoubleSensorREV2mDistanceTest extends LinearOpMode {
 

@@ -1,9 +1,9 @@
-package org.firstinspires.ftc.teamcode.test.autonomous;
+package org.firstinspires.ftc.teamcode.test.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-@Autonomous(name = "Test: Startup", group = "Test")
+@Autonomous(name = "Test: Startup", group = "Autonomous Test")
 public class StartupTest extends OpMode {
     @Override
     public void internalPreInit() {

@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.robot.PieceOfCake;
 
-@TeleOp(name = "Test: IMU", group = "Test")
+@TeleOp(name = "Test: IMU", group = "Teleop Test")
 public class ImuTest extends LinearOpMode {
     public void runOpMode() {
         PieceOfCake robot = new PieceOfCake();

@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.robot.PieceOfCake;
 
-@TeleOp(name="Test: Follow Gold Mineral", group ="Test")
+@TeleOp(name="Test: Follow Gold Mineral", group ="Teleop Test")
 public class FollowMineralTest extends LinearOpMode {
     static {
         System.loadLibrary("opencv_java3");
