@@ -27,48 +27,20 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode.test;
+package org.firstinspires.ftc.teamcode.test.teleop;
 
 import com.edinaftcrobotics.vision.camera.BackPhoneCamera;
 import com.edinaftcrobotics.vision.camera.Camera;
-import com.edinaftcrobotics.vision.camera.FrontPhoneCamera;
 import com.edinaftcrobotics.vision.camera.WebCamCamera;
 import com.edinaftcrobotics.vision.tracker.roverruckus.MineralTracker;
 import com.edinaftcrobotics.vision.tracker.roverruckus.PictureTracker;
 import com.edinaftcrobotics.vision.utils.Triple;
-import com.edinaftcrobotics.vision.utils.detector.GenericDetector;
-
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.vuforia.PIXEL_FORMAT;
-import com.vuforia.Vuforia;
 
-import org.firstinspires.ftc.robotcore.external.ClassFactory;
-import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
-import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
-import org.opencv.core.CvType;
-
-import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;
-import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XYZ;
-import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.YZX;
-import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.EXTRINSIC;
-import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
-import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.FRONT;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import android.graphics.Bitmap;
-import org.opencv.core.Mat;
-
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.opencv.core.Rect;
 
 
@@ -110,8 +82,8 @@ import org.opencv.core.Rect;
  * is explained below.
  */
 
-@TeleOp(name="Concept: Vuforia Rover Nav", group ="Concept")
-public class ConceptVuforiaNavRoverRuckus extends LinearOpMode {
+@TeleOp(name="Test: Picture Only", group ="Teleop Test")
+public class PictureOnlyTest extends LinearOpMode {
 
     static {
         System.loadLibrary("opencv_java3");
@@ -119,51 +91,33 @@ public class ConceptVuforiaNavRoverRuckus extends LinearOpMode {
 
     @Override public void runOpMode() throws InterruptedException {
         ElapsedTime stopwatch = new ElapsedTime();
-        Camera camera = new WebCamCamera(hardwareMap);
-
-        PictureTracker pictureTracker = null;
-        boolean pictureTrackingStarted = false;
+        Camera camera = new BackPhoneCamera();
 
         camera.activate();
-        MineralTracker mineralTracker = new MineralTracker(camera);
 
+        PictureTracker pictureTracker = null;
+        pictureTracker = new PictureTracker(camera, 110, 200, 0);
+
+        pictureTracker.startTracking();
         waitForStart();
 
         stopwatch.reset();
 
         /** Start tracking the data sets we care about. */
         while (opModeIsActive()) {
-            if (stopwatch.milliseconds() < 3000) {
-                Rect location = mineralTracker.getGoldMineralLocation();
-                if (location != null) {
-                    telemetry.addData("Location: ", mineralTracker.getGoldMineralLocation());
-                    telemetry.addData("Rectangle: ", mineralTracker.getLastMineralRectangle());
-                } else {
-                    telemetry.addData("Object Not Found", "");
-                }
-            } else {
-                if (!pictureTrackingStarted) {
-                    camera.deactivate();
-                    camera = new BackPhoneCamera();
-                    camera.activate();
-                    pictureTracker = new PictureTracker(camera, 110, 200, 0);
-                    pictureTrackingStarted = true;
-                    pictureTracker.startTracking();
-                } else {
-                    Triple trackableObject = pictureTracker.getTrackableObject();
+            Triple trackableObject = pictureTracker.getTrackableObject(telemetry);
 
-                    if (trackableObject != null) {
-                        telemetry.addData("Visible Target", trackableObject.PictureName);
-                        telemetry.addData("Pos (in) ", "{X, Y, Z} = %.1f, %.1f, %.1f",
-                                trackableObject.Point.x, trackableObject.Point.y, trackableObject.Point.z);
-                        telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f}", trackableObject.Orientation.firstAngle,
-                                trackableObject.Orientation.secondAngle, trackableObject.Orientation.thirdAngle);
-                    } else {
-                        telemetry.addData("Picture", "not found");
-                    }
-                }
+            if (trackableObject != null) {
+                telemetry.addData("Visible Target", trackableObject.PictureName);
+                telemetry.addData("Pos (in) ", "{X, Y, Z} = %.1f, %.1f, %.1f",
+                        trackableObject.Point.x, trackableObject.Point.y, trackableObject.Point.z);
+                telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f}", trackableObject.Orientation.firstAngle,
+                        trackableObject.Orientation.secondAngle, trackableObject.Orientation.thirdAngle);
+            } else {
+                telemetry.addData("Picture", "not found");
             }
             telemetry.update();
+            idle();
         }
 
         pictureTracker.stopTracking();
