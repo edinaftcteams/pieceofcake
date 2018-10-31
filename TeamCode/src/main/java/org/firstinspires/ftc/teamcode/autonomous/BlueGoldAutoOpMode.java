@@ -1,9 +1,16 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
+import android.graphics.drawable.GradientDrawable;
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.enums.AutonomousStates;
+import org.firstinspires.ftc.teamcode.enums.MineralLocation;
 
 @Autonomous(name="Blue Gold", group="Autonomous")
 public class BlueGoldAutoOpMode extends BaseAutoOpMode {
@@ -107,6 +114,9 @@ public class BlueGoldAutoOpMode extends BaseAutoOpMode {
                 bumperRightPressed = false;
             }
 
+            Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+
+            telemetry.addData("Orientation Z, Y, X", "%f %f %f", angles.firstAngle, angles.secondAngle, angles.thirdAngle);
             telemetry.addData("Bumper L/R to control latch power, currently", "%f", latchPower);
             telemetry.addData("Latch Height, currently", "%f", robot.getLift().getCurrentPosition());
             telemetry.addData("Press X", "to lock in settings");
@@ -121,6 +131,16 @@ public class BlueGoldAutoOpMode extends BaseAutoOpMode {
                 try {
                     this.wait();
                     LocateMineral();
+                    if (mineralLocation == MineralLocation.LEFT) {
+                        telemetry.addData("Mineral Location", "Left");
+                    } else if (mineralLocation == MineralLocation.MIDDLE) {
+                        telemetry.addData("Mineral Location", "Middle");
+                    } else if (mineralLocation == MineralLocation.RIGHT) {
+                        telemetry.addData("Mineral Location", "Right");
+                    } else {
+                        telemetry.addData("Mineral Location", "Lost");
+                    }
+                    telemetry.update();
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     return;
@@ -129,6 +149,7 @@ public class BlueGoldAutoOpMode extends BaseAutoOpMode {
         }
 
         DeactivateCamera();
+
         while (opModeIsActive() && (currentState != AutonomousStates.DROPPED_MARKER)) {
             if (currentState == AutonomousStates.LATCHED) {
                 currentState = Drop();

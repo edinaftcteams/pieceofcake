@@ -4,6 +4,9 @@ import com.edinaftcrobotics.drivetrain.Mecanum;
 import com.edinaftcrobotics.vision.camera.BackPhoneCamera;
 import com.edinaftcrobotics.vision.camera.Camera;
 import com.edinaftcrobotics.vision.tracker.roverruckus.GoldMineralTracker;
+import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.bosch.BNO055IMUImpl;
+import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
@@ -18,11 +21,26 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     protected PieceOfCake robot = new PieceOfCake();
     protected Mecanum mecanum = null;
     protected int latchHeight = 0;
+    protected BNO055IMUImpl imu = null;
 
     protected void InitRobot() {
         robot.init(hardwareMap);
 
         mecanum = new Mecanum(robot.getFrontL(), robot.getFrontR(), robot.getBackL(), robot.getBackR());
+    }
+
+    protected void InitGyro() {
+        imu = hardwareMap.get(BNO055IMUImpl.class, "imu");
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        //Add calibration file?
+        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();  //Figure out why the naive one doesn't have a public constructor
+        parameters.loggingEnabled = true;   //For debugging
+        parameters.loggingTag = "IMU";      //For debugging
+
+        imu.initialize(parameters);
+        while (!imu.isGyroCalibrated());
     }
 
     protected void ActivateCamera() throws InterruptedException {
@@ -76,6 +94,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         } else {
             mineralLocation = MineralLocation.RIGHT;
         }
+
         telemetry.update();
 
         return AutonomousStates.MINERAL_LOCATED;
