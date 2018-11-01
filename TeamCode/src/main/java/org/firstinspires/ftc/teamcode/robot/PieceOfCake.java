@@ -12,14 +12,10 @@ public class PieceOfCake {
     private DcMotor BackL = null;
     private DcMotor Lift = null;
     private DcMotor Slide = null;
-    private DcMotor Flip = null;
+    private DcMotor FrontFlip = null;
     private DcMotor Intake = null;
-    private Servo LeftFlip = null;
-    private Servo RightFlip = null;
-
-
+    private Servo TopFlip = null;
     private HardwareMap hwMap = null;
-
 
     //constructor
     public PieceOfCake() {
@@ -50,17 +46,13 @@ public class PieceOfCake {
         SetSlide(dcMotor);
 
         dcMotor = hwMap.dcMotor.get("flip");
-        SetFlip(dcMotor);
+        SetFrontFlip(dcMotor);
 
         dcMotor = hwMap.dcMotor.get("intake");
         SetIntake(dcMotor);
 
-        servo = hwMap.servo.get("lflip");
-        SetLeftFlip(servo);
-
-        servo = hwMap.servo.get("rflip");
-        SetRightFlip(servo);
-
+        servo = hwMap.servo.get("topflip");
+        SetTopFlip(servo);
     }
 
 
@@ -84,13 +76,11 @@ public class PieceOfCake {
 
     public DcMotor getSlide() { return Slide; }
 
-    public DcMotor getFlip() { return Flip; }
+    public DcMotor getFrontFlip() { return FrontFlip; }
 
     public DcMotor getIntake() { return Intake; }
 
-    public Servo getLeftFlip() { return LeftFlip; }
-
-    public Servo getRightFlip() { return RightFlip; }
+    public Servo getTopFlip() { return TopFlip; }
 
 
     private void SetFrontL(DcMotor dcMotor) {FrontL = dcMotor; }
@@ -99,10 +89,9 @@ public class PieceOfCake {
     private void SetBackR(DcMotor dcMotor) {BackR = dcMotor; }
     private void SetLift(DcMotor dcMotor) {Lift = dcMotor; }
     private void SetSlide(DcMotor dcMotor) {Slide = dcMotor; }
-    private void SetFlip(DcMotor dcMotor) {Flip = dcMotor; }
+    private void SetFrontFlip(DcMotor dcMotor) {FrontFlip = dcMotor; }
     private void SetIntake(DcMotor dcMotor) {Intake = dcMotor; }
-    private void SetLeftFlip(Servo servo) {LeftFlip = servo; }
-    private void SetRightFlip(Servo servo) {RightFlip = servo; }
+    private void SetTopFlip(Servo servo) {TopFlip = servo; }
 
     public void setMotorPower(double fl, double fr, double bl, double br){
         getFrontL().setPower(fl);

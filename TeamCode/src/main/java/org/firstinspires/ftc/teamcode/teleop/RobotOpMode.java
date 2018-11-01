@@ -28,8 +28,8 @@ public class RobotOpMode extends OpMode {
     public void init(){
         robot.init(hardwareMap);
 
-        robot.getFlip().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.getFlip().setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.getFrontFlip().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.getFrontFlip().setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         mecanum = new Mecanum(robot.getFrontL(), robot.getFrontR(), robot.getBackL(), robot.getBackR());
     }
@@ -45,9 +45,10 @@ public class RobotOpMode extends OpMode {
 
         ProcessArm();
         ProcessIntake();
-        ProcessFlip();
+        ProcessFrontFlip();
         ProcessLift();
 
+        telemetry.update();
     }
     private void ProcessArm() {
         if (gamepad1.left_trigger > 0) {
@@ -65,15 +66,15 @@ public class RobotOpMode extends OpMode {
             robot.getIntake().setPower(-1);
         }
     }
-    private void ProcessFlip() {
+    private void ProcessFrontFlip() {
         if (gamepad1.x || gamepad1.b) {
-            robot.getFlip().setTargetPosition(MiddleFlip);
+            robot.getFrontFlip().setTargetPosition(MiddleFlip);
         }
         if (gamepad1.y == true) {
-            robot.getFlip().setTargetPosition(TopFlip);
+            robot.getFrontFlip().setTargetPosition(TopFlip);
         }
         if (gamepad1.a == true) {
-            robot.getFlip().setTargetPosition(BottomFlip);
+            robot.getFrontFlip().setTargetPosition(BottomFlip);
         }
     }
     private void ProcessLift() {

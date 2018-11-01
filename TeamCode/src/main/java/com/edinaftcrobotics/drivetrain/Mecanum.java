@@ -1,5 +1,7 @@
 package com.edinaftcrobotics.drivetrain;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
@@ -27,11 +29,43 @@ public class Mecanum {
         _backRight.setPower(power);
     }
 
+    public void SlideLeft(double power, int distance, LinearOpMode opMode) {
+        StopAndResetMotors();
+        SetDistance(distance);
+
+        int error = Math.abs((int)(distance * 0.95));
+        int currentPosition =  Math.abs(_frontRight.getCurrentPosition());
+        SlideLeft(power);
+
+        while (_frontLeft.isBusy() && _frontRight.isBusy() && _backLeft.isBusy() && _backRight.isBusy() && (currentPosition < error)) {
+            currentPosition =  Math.abs(_frontRight.getCurrentPosition());
+            opMode.idle();
+        }
+
+        SlideLeft(0);
+    }
+
     public void SlideRight(double power){
         _frontLeft.setPower(-power);
         _frontRight.setPower(power);
         _backLeft.setPower(power);
         _backRight.setPower(-power);
+    }
+
+    public void SlideRight(double power, int distance, LinearOpMode opMode) {
+        StopAndResetMotors();
+        SetDistance(distance);
+
+        int error = Math.abs((int)(distance * 0.95));
+        int currentPosition =  Math.abs(_frontRight.getCurrentPosition());
+        SlideRight(power);
+
+        while (_frontLeft.isBusy() && _frontRight.isBusy() && _backLeft.isBusy() && _backRight.isBusy() && (currentPosition < error)) {
+            currentPosition =  Math.abs(_frontRight.getCurrentPosition());
+            opMode.idle();
+        }
+
+        SlideRight(0);
     }
 
     public void MoveSW(double power) { // SW
@@ -69,11 +103,43 @@ public class Mecanum {
         _backRight.setPower(-power);
     }
 
+    public void MoveForward(double power, int distance, LinearOpMode opMode) {
+        StopAndResetMotors();
+        SetDistance(distance);
+
+        int error = Math.abs((int)(distance * 0.95));
+        int currentPosition =  Math.abs(_frontRight.getCurrentPosition());
+        MoveForward(power);
+
+        while (_frontLeft.isBusy() && _frontRight.isBusy() && _backLeft.isBusy() && _backRight.isBusy() && (currentPosition < error)) {
+            currentPosition =  Math.abs(_frontRight.getCurrentPosition());
+            opMode.idle();
+        }
+
+        MoveForward(0);
+    }
+
     public void MoveBackwards(double power) {
         _frontLeft.setPower(power);
         _frontRight.setPower(power);
         _backLeft.setPower(power);
         _backRight.setPower(power);
+    }
+
+    public void MoveBackwards(double power, int distance, LinearOpMode opMode) {
+        StopAndResetMotors();
+        SetDistance(distance);
+
+        int error = Math.abs((int)(distance * 0.95));
+        int currentPosition =  Math.abs(_frontRight.getCurrentPosition());
+        MoveBackwards(power);
+
+        while (_frontLeft.isBusy() && _frontRight.isBusy() && _backLeft.isBusy() && _backRight.isBusy() && (currentPosition < error)) {
+            currentPosition =  Math.abs(_frontRight.getCurrentPosition());
+            opMode.idle();
+        }
+
+        MoveBackwards(0);
     }
 
     public void TurnRight(double power) {
@@ -114,5 +180,23 @@ public class Mecanum {
         _frontRight.setPower(fr);
         _backLeft.setPower(bl);
         _backRight.setPower(br);
+    }
+
+    private void StopAndResetMotors() {
+        _frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        _frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        _frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        _frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        _backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        _backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        _backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        _backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+
+    private void SetDistance(int distance) {
+        _frontLeft.setTargetPosition(distance);
+        _frontRight.setTargetPosition(distance);
+        _backLeft.setTargetPosition(distance);
+        _backRight.setTargetPosition(distance);
     }
 }
