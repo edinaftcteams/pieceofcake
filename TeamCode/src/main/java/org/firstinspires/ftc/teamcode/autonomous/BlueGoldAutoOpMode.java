@@ -151,16 +151,22 @@ public class BlueGoldAutoOpMode extends BaseAutoOpMode {
         DeactivateCamera();
 
         while (opModeIsActive() && (currentState != AutonomousStates.DROPPED_MARKER)) {
-            if (currentState == AutonomousStates.LATCHED) {
-                currentState = Drop();
-            } else if (currentState == AutonomousStates.DROPPED) {
-                currentState = DriveToMineral(driveForwardPosition, slideLeftPosition, slideRightPosition);
-            } else if (currentState == AutonomousStates.AT_MINERAL) {
-                currentState = PushMineral(knockForwardPosition);
-            } else if (currentState == AutonomousStates.MINERAL_PUSHED) {
-                currentState = MoveToMiddle(slideLeftPosition, slideRightPosition);
-            } else if (currentState == AutonomousStates.AT_MIDDLE) {
-                currentState = DropMarker();
+            switch (currentState) {
+                case LATCHED:
+                    currentState = Drop();
+                    break;
+                case DROPPED:
+                    currentState = DriveToMineral(driveForwardPosition, slideLeftPosition, slideRightPosition);
+                    break;
+                case AT_MINERAL:
+                    currentState = PushMineral(knockForwardPosition);
+                    break;
+                case MINERAL_PUSHED:
+                    currentState = MoveToMiddle(slideLeftPosition, slideRightPosition);
+                    break;
+                case AT_MIDDLE:
+                    currentState = DropMarker();
+                    break;
             }
         }
     }

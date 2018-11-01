@@ -84,11 +84,11 @@ abstract class BaseAutoOpMode extends LinearOpMode {
 
     public AutonomousStates LocateMineral() throws InterruptedException {
         if (mineralTracker.getGoldMineralLocation()) {
-            if (mineralTracker.getYPosition() < 100) {
+            if (mineralTracker.getYPosition() > 150) {
                 mineralLocation = MineralLocation.LEFT;
-            } else if ((mineralTracker.getYPosition() > 100) && (mineralTracker.getYPosition() < 500)) {
+            } else if (mineralTracker.getYPosition() < 150) {
                 mineralLocation = MineralLocation.MIDDLE;
-            } else if (mineralTracker.getYPosition() > 500) {
+            } else {
                 mineralLocation = MineralLocation.RIGHT;
             }
         } else {
