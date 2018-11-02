@@ -96,7 +96,24 @@ public class GoldMineralPhoneTest extends LinearOpMode {
         camera.activate();
         GoldMineralTracker mineralTracker = new GoldMineralTracker(camera);
 
-        waitForStart();
+        while (!isStarted()) {
+            synchronized (this) {
+                try {
+                    this.wait();
+                    if (mineralTracker.getGoldMineralLocation()) {
+                        telemetry.addData("Pre Location: ", "%f %f", mineralTracker.getXPosition(), mineralTracker.getYPosition());
+                        telemetry.addData("Pre Aligned: ", mineralTracker.aligned());
+                    } else {
+                        telemetry.addData("Pre Object Not Found", "");
+                    }
+                    telemetry.update();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+            }
+        }
+        //waitForStart();
 
         stopwatch.reset();
 
