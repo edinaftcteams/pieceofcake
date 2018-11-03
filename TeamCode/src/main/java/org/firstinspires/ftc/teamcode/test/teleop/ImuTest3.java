@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.test.teleop;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.BNO055IMUImpl;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.Range;
@@ -13,6 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.opencv.core.Mat;
 
 @TeleOp(name = "Test: IMU3", group = "Test")
+@Disabled
 public class ImuTest3 extends LinearOpMode {
     private double KP;
 

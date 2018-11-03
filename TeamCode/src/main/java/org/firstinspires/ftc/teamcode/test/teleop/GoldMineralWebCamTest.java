@@ -33,6 +33,7 @@ import com.edinaftcrobotics.vision.camera.BackPhoneCamera;
 import com.edinaftcrobotics.vision.camera.Camera;
 import com.edinaftcrobotics.vision.camera.WebCamCamera;
 import com.edinaftcrobotics.vision.tracker.roverruckus.GoldMineralTracker;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -80,6 +81,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefau
  */
 
 @TeleOp(name="Test: Gold Mineral WebCam", group ="Teleop Test")
+@Disabled
 public class GoldMineralWebCamTest extends LinearOpMode {
 
     static {

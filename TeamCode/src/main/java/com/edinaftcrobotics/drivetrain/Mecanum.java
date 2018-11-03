@@ -19,7 +19,7 @@ public class Mecanum {
         _backRight = br;
 
         _backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-        _frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        _frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     public void SlideLeft(double power){
@@ -142,11 +142,43 @@ public class Mecanum {
         MoveBackwards(0);
     }
 
+    public void TurnRight(double power, int distance, LinearOpMode opMode) {
+        StopAndResetMotors();
+        SetDistance(distance);
+
+        int error = Math.abs((int)(distance * 0.95));
+        int currentPosition =  Math.abs(_frontRight.getCurrentPosition());
+        TurnRight(power);
+
+        while (_frontLeft.isBusy() && _frontRight.isBusy() && _backLeft.isBusy() && _backRight.isBusy() && (currentPosition < error)) {
+            currentPosition =  Math.abs(_frontRight.getCurrentPosition());
+            opMode.idle();
+        }
+
+        MoveBackwards(0);
+    }
+
     public void TurnRight(double power) {
         _frontLeft.setPower(-power);
         _frontRight.setPower(power);
         _backLeft.setPower(-power);
         _backRight.setPower(power);
+    }
+
+    public void TurnLeft(double power, int distance, LinearOpMode opMode) {
+        StopAndResetMotors();
+        SetDistance(distance);
+
+        int error = Math.abs((int)(distance * 0.95));
+        int currentPosition =  Math.abs(_frontRight.getCurrentPosition());
+        TurnLeft(power);
+
+        while (_frontLeft.isBusy() && _frontRight.isBusy() && _backLeft.isBusy() && _backRight.isBusy() && (currentPosition < error)) {
+            currentPosition =  Math.abs(_frontRight.getCurrentPosition());
+            opMode.idle();
+        }
+
+        MoveBackwards(0);
     }
 
     public void TurnLeft(double power) {

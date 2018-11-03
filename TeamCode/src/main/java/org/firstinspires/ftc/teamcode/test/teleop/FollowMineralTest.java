@@ -5,6 +5,7 @@ import com.edinaftcrobotics.vision.camera.Camera;
 import com.edinaftcrobotics.vision.camera.WebCamCamera;
 import com.edinaftcrobotics.vision.tracker.roverruckus.GoldMineralTracker;
 import com.edinaftcrobotics.vision.tracker.roverruckus.PictureTracker;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -12,6 +13,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.robot.PieceOfCake;
 
 @TeleOp(name="Test: Follow Gold Mineral", group ="Teleop Test")
+@Disabled
 public class FollowMineralTest extends LinearOpMode {
     static {
         System.loadLibrary("opencv_java3");

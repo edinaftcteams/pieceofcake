@@ -6,12 +6,14 @@ import com.edinaftcrobotics.vision.camera.Camera;
 import com.edinaftcrobotics.vision.camera.WebCamCamera;
 import com.edinaftcrobotics.vision.tracker.roverruckus.PictureTracker;
 import com.edinaftcrobotics.vision.utils.Triple;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.robot.PieceOfCake;
 
 @TeleOp(name="Test: Follow Picture", group ="Teleop Test")
+@Disabled
 public class FollowPictureTest extends LinearOpMode {
 
     @Override

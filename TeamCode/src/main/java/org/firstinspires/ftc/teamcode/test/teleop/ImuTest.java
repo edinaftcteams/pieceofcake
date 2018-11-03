@@ -3,12 +3,14 @@ package org.firstinspires.ftc.teamcode.test.teleop;
 import com.edinaftcrobotics.drivetrain.Mecanum;
 import com.edinaftcrobotics.navigation.RevImu;
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.robot.PieceOfCake;
 
 @TeleOp(name = "Test: IMU", group = "Teleop Test")
+@Disabled
 public class ImuTest extends LinearOpMode {
     public void runOpMode() {
         PieceOfCake robot = new PieceOfCake();

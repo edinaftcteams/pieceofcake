@@ -36,6 +36,7 @@ import com.edinaftcrobotics.vision.tracker.roverruckus.MineralTracker;
 import com.edinaftcrobotics.vision.tracker.roverruckus.PictureTracker;
 import com.edinaftcrobotics.vision.utils.Triple;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -85,6 +86,7 @@ import org.opencv.core.Rect;
  */
 
 @TeleOp(name="Test: Picture and Yellow Mineral", group ="Teleop Test")
+@Disabled
 public class PictureAndYellowMineralTest extends LinearOpMode {
 
     static {

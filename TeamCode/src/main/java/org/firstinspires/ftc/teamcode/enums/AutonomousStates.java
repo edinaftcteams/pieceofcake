@@ -6,6 +6,7 @@ public enum AutonomousStates {
     LATCHED,
     DROPPED,
     MINERAL_LOCATED,
+    MOVED_FORWARD,
     AT_MINERAL,
     MINERAL_PUSHED,
     AT_MIDDLE,

@@ -17,10 +17,10 @@ public class BlueGoldAutoOpMode extends BaseAutoOpMode {
 
     public void runOpMode()throws InterruptedException{
         AutonomousStates currentState = AutonomousStates.START;
-        int slideRightPosition = 0;
-        int slideLeftPosition = 0;
-        int knockForwardPosition = 0;
-        int driveForwardPosition = 0;
+        int slideRightPosition = DrivePerInch * 8;
+        int slideLeftPosition = DrivePerInch * 8;
+        int knockForwardPosition = DrivePerInch * 8;
+        int driveForwardPosition = DrivePerInch * 12;
         boolean yPressed = false;
         boolean aPressed = false;
         boolean dPadLeftPressed = false;
@@ -29,61 +29,61 @@ public class BlueGoldAutoOpMode extends BaseAutoOpMode {
         boolean dPadDownPressed = false;
         boolean bumperLeftPressed = false;
         boolean bumperRightPressed = false;
-        double latchPower = 0;
+        double latchPower = .3;
         InitRobot();
 
         while (!gamepad1.x) {
             if (gamepad1.y && !yPressed) {
-                driveForwardPosition += 50;
+                driveForwardPosition += (int) (DrivePerInch * .5);
                 yPressed = true;
             } else if (!gamepad1.y) {
                 yPressed = false;
             }
 
             if (gamepad1.a && !aPressed) {
-                driveForwardPosition -= 50;
+                driveForwardPosition -= (int) (DrivePerInch * .5);
                 aPressed = true;
             } else if (!gamepad1.a) {
                 aPressed = false;
             }
 
             if (gamepad1.dpad_left && !dPadLeftPressed) {
-                slideRightPosition -= 50;
+                slideRightPosition -= (int) (DrivePerInch * .5);
                 dPadLeftPressed = true;
             } else if (!gamepad1.dpad_left) {
                 dPadLeftPressed = false;
             }
 
             if (gamepad1.dpad_right && !dPadRightPressed) {
-                slideRightPosition += 50;
+                slideRightPosition += (int) (DrivePerInch * .5);
                 dPadRightPressed = true;
             } else if (!gamepad1.dpad_right) {
                 dPadRightPressed = false;
             }
 
             if (gamepad1.dpad_up && !dPadUpPressed) {
-                knockForwardPosition += 50;
+                knockForwardPosition += (int) (DrivePerInch * .5);
                 dPadUpPressed = true;
             } else if (!gamepad1.dpad_up) {
                 dPadUpPressed = false;
             }
 
             if (gamepad1.dpad_down && !dPadDownPressed) {
-                knockForwardPosition -= 50;
+                knockForwardPosition -= (int) (DrivePerInch * .5);
                 dPadDownPressed = true;
             } else if (!gamepad1.dpad_down) {
                 dPadDownPressed = false;
             }
 
             if (gamepad1.left_bumper && !bumperLeftPressed) {
-                slideLeftPosition -= 50;
+                slideLeftPosition -= (int) (DrivePerInch * .5);
                 bumperLeftPressed = true;
             } else if (!gamepad1.left_bumper) {
                 bumperLeftPressed = false;
             }
 
             if (gamepad1.right_bumper && !bumperRightPressed) {
-                slideLeftPosition += 50;
+                slideLeftPosition += (int) (DrivePerInch * .5);
                 bumperRightPressed = true;
             } else if (!gamepad1.right_bumper) {
                 bumperRightPressed = false;
@@ -124,13 +124,13 @@ public class BlueGoldAutoOpMode extends BaseAutoOpMode {
             currentState = Latch(latchPower);
         }
 
-        ActivateCamera();
+        ActivateTFCamera();
 
         while (!isStarted()) {
             synchronized (this) {
                 try {
                     this.wait();
-                    LocateMineral();
+                    LocateTFMineral();
                     if (mineralLocation == MineralLocation.LEFT) {
                         telemetry.addData("Mineral Location", "Left");
                     } else if (mineralLocation == MineralLocation.MIDDLE) {
@@ -148,24 +148,26 @@ public class BlueGoldAutoOpMode extends BaseAutoOpMode {
             }
         }
 
-        DeactivateCamera();
+        LocateTFMineral();
 
-        while (opModeIsActive() && (currentState != AutonomousStates.DROPPED_MARKER)) {
+        DeactivateTFCamera();
+
+        while (opModeIsActive() && (currentState != AutonomousStates.MINERAL_PUSHED)) {
             switch (currentState) {
                 case LATCHED:
                     currentState = Drop();
                     break;
                 case DROPPED:
-                    currentState = DriveToMineral(driveForwardPosition, slideLeftPosition, slideRightPosition);
+                    currentState = MoveForward(driveForwardPosition);
+                    break;
+                case MOVED_FORWARD:
+                    currentState = DropMarker();
+                    break;
+                case DROPPED_MARKER:
+                    currentState = DriveToMineral(slideLeftPosition, slideRightPosition);
                     break;
                 case AT_MINERAL:
                     currentState = PushMineral(knockForwardPosition);
-                    break;
-                case MINERAL_PUSHED:
-                    currentState = MoveToMiddle(slideLeftPosition, slideRightPosition);
-                    break;
-                case AT_MIDDLE:
-                    currentState = DropMarker();
                     break;
             }
         }
