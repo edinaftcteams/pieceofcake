@@ -19,7 +19,7 @@ public class Mecanum {
         _backRight = br;
 
         _backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-        _frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        _frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     public void SlideLeft(double power){
@@ -31,7 +31,7 @@ public class Mecanum {
 
     public void SlideLeft(double power, int distance, LinearOpMode opMode) {
         StopAndResetMotors();
-        SetDistance(distance);
+        SetDistance(distance, distance, distance, distance);
 
         int error = Math.abs((int)(distance * 0.95));
         int currentPosition =  Math.abs(_frontRight.getCurrentPosition());
@@ -54,7 +54,7 @@ public class Mecanum {
 
     public void SlideRight(double power, int distance, LinearOpMode opMode) {
         StopAndResetMotors();
-        SetDistance(distance);
+        SetDistance(distance, distance, distance, distance);
 
         int error = Math.abs((int)(distance * 0.95));
         int currentPosition =  Math.abs(_frontRight.getCurrentPosition());
@@ -105,7 +105,7 @@ public class Mecanum {
 
     public void MoveForward(double power, int distance, LinearOpMode opMode) {
         StopAndResetMotors();
-        SetDistance(distance);
+        SetDistance(distance, distance, -distance, -distance);
 
         int error = Math.abs((int)(distance * 0.95));
         int currentPosition =  Math.abs(_frontRight.getCurrentPosition());
@@ -128,7 +128,7 @@ public class Mecanum {
 
     public void MoveBackwards(double power, int distance, LinearOpMode opMode) {
         StopAndResetMotors();
-        SetDistance(distance);
+        SetDistance(-distance, -distance, distance, distance);
 
         int error = Math.abs((int)(distance * 0.95));
         int currentPosition =  Math.abs(_frontRight.getCurrentPosition());
@@ -144,7 +144,7 @@ public class Mecanum {
 
     public void TurnRight(double power, int distance, LinearOpMode opMode) {
         StopAndResetMotors();
-        SetDistance(distance);
+        SetDistance(distance, distance, distance, distance);
 
         int error = Math.abs((int)(distance * 0.95));
         int currentPosition =  Math.abs(_frontRight.getCurrentPosition());
@@ -167,7 +167,7 @@ public class Mecanum {
 
     public void TurnLeft(double power, int distance, LinearOpMode opMode) {
         StopAndResetMotors();
-        SetDistance(distance);
+        SetDistance(-distance, -distance, -distance, -distance);
 
         int error = Math.abs((int)(distance * 0.95));
         int currentPosition =  Math.abs(_frontRight.getCurrentPosition());
@@ -201,15 +201,15 @@ public class Mecanum {
 
         final double rotation = Math.pow(-rightStickY, 3.0);
         final double direction = Math.atan2(x, y);
-        final double speed = Math.min(1.0, Math.sqrt(x * x + y * y)) * 1.4;
+        final double speed = Math.min(1.0, Math.sqrt(x * x + y * y));
 
         final double fl = speed * Math.sin(direction + Math.PI / 4.0) + rotation;
         final double fr = speed * Math.cos(direction + Math.PI / 4.0) - rotation;
         final double bl = speed * Math.cos(direction + Math.PI / 4.0) + rotation;
         final double br = speed * Math.sin(direction + Math.PI / 4.0) - rotation;
 
-        _frontLeft.setPower(fl);
-        _frontRight.setPower(fr);
+        _frontLeft.setPower(-fl);
+        _frontRight.setPower(-fr);
         _backLeft.setPower(bl);
         _backRight.setPower(br);
     }
@@ -225,10 +225,10 @@ public class Mecanum {
         _backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
-    private void SetDistance(int distance) {
-        _frontLeft.setTargetPosition(distance);
-        _frontRight.setTargetPosition(distance);
-        _backLeft.setTargetPosition(distance);
-        _backRight.setTargetPosition(distance);
+    private void SetDistance(int lf, int lb, int rf, int rb) {
+        _frontLeft.setTargetPosition(lf);
+        _frontRight.setTargetPosition(rf);
+        _backLeft.setTargetPosition(lb);
+        _backRight.setTargetPosition(rb);
     }
 }

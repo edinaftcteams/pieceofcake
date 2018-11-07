@@ -9,6 +9,7 @@ import com.qualcomm.hardware.bosch.BNO055IMUImpl;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
@@ -26,11 +27,9 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     private static final String LABEL_SILVER_MINERAL = "Silver Mineral";
     protected int DrivePerInch = (int)(1120 / 12.56);
     private int ArmDistancePerSecond = 19;
-    private int DropArmPerDegree = (int)(8640 / 360);
     private int BackFlip = 0;
-    private int VerticalFlip = (int)(DropArmPerDegree * 22);
-    private int FlatFlip = (int)(DropArmPerDegree * 102.5);
-    private int BottomFlip = (int)(DropArmPerDegree * 143.5);
+    private int VerticalFlip = 880;
+    private int FlatFlip = 1860;
 
     protected MineralLocation mineralLocation = MineralLocation.RIGHT;
     protected Camera camera = null;
@@ -40,6 +39,19 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     protected int latchHeight = (int)(4.5 * 288 / 1.75);
     protected BNO055IMUImpl imu = null;
     protected TFObjectDetector tfod;
+
+    protected int slideRightPosition = DrivePerInch * 8;
+    protected int slideLeftPosition = DrivePerInch * 8;
+    protected int knockForwardPosition = DrivePerInch * 8;
+    protected int driveForwardPosition = DrivePerInch * 12;
+    protected boolean yPressed = false;
+    protected boolean aPressed = false;
+    protected boolean dPadLeftPressed = false;
+    protected boolean dPadRightPressed = false;
+    protected boolean dPadUpPressed = false;
+    protected boolean dPadDownPressed = false;
+    protected boolean bumperLeftPressed = false;
+    protected boolean bumperRightPressed = false;
 
     protected void InitRobot() {
         robot.init(hardwareMap);
@@ -61,6 +73,72 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         while (!imu.isGyroCalibrated());
     }
 
+    protected void InitSetup() {
+        while (!gamepad1.x) {
+            if (gamepad1.y && !yPressed) {
+                driveForwardPosition += (int) (DrivePerInch * .5);
+                yPressed = true;
+            } else if (!gamepad1.y) {
+                yPressed = false;
+            }
+
+            if (gamepad1.a && !aPressed) {
+                driveForwardPosition -= (int) (DrivePerInch * .5);
+                aPressed = true;
+            } else if (!gamepad1.a) {
+                aPressed = false;
+            }
+
+            if (gamepad1.dpad_left && !dPadLeftPressed) {
+                slideRightPosition -= (int) (DrivePerInch * .5);
+                dPadLeftPressed = true;
+            } else if (!gamepad1.dpad_left) {
+                dPadLeftPressed = false;
+            }
+
+            if (gamepad1.dpad_right && !dPadRightPressed) {
+                slideRightPosition += (int) (DrivePerInch * .5);
+                dPadRightPressed = true;
+            } else if (!gamepad1.dpad_right) {
+                dPadRightPressed = false;
+            }
+
+            if (gamepad1.dpad_up && !dPadUpPressed) {
+                knockForwardPosition += (int) (DrivePerInch * .5);
+                dPadUpPressed = true;
+            } else if (!gamepad1.dpad_up) {
+                dPadUpPressed = false;
+            }
+
+            if (gamepad1.dpad_down && !dPadDownPressed) {
+                knockForwardPosition -= (int) (DrivePerInch * .5);
+                dPadDownPressed = true;
+            } else if (!gamepad1.dpad_down) {
+                dPadDownPressed = false;
+            }
+
+            if (gamepad1.left_bumper && !bumperLeftPressed) {
+                slideLeftPosition -= (int) (DrivePerInch * .5);
+                bumperLeftPressed = true;
+            } else if (!gamepad1.left_bumper) {
+                bumperLeftPressed = false;
+            }
+
+            if (gamepad1.right_bumper && !bumperRightPressed) {
+                slideLeftPosition += (int) (DrivePerInch * .5);
+                bumperRightPressed = true;
+            } else if (!gamepad1.right_bumper) {
+                bumperRightPressed = false;
+            }
+
+            telemetry.addData("DPad L/R controls slide right position, currently", "%d", slideRightPosition);
+            telemetry.addData("DPad U/D controls knock forward position, currently", "%d", knockForwardPosition);
+            telemetry.addData("Bumper L/R controls slide left position, currently", "%d", slideLeftPosition);
+            telemetry.addData("Buttons Y/A controls drive forward position, currently", "%d", driveForwardPosition);
+            telemetry.addData("Press X", "to lock in settings");
+            telemetry.update();
+        }
+    }
     protected void ActivateCamera() throws InterruptedException {
         camera = new BackPhoneCamera();
 
@@ -103,46 +181,47 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         camera = null;
     }
 
-    public AutonomousStates Latch (double powerLevel) {
-        //robot.getLift().setPower(powerLevel);
-        robot.getLockServo().setPower(1);
+    public void SearchForTFMineral() {
+        ActivateTFCamera();
 
-        return AutonomousStates.LATCHED;
-    }
-
-    public AutonomousStates Drop() {
-        // do something to drop
-        robot.getFrontFlip().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.getFrontFlip().setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.getFrontFlip().setTargetPosition(VerticalFlip);
-        robot.getFrontFlip().setPower(.2);
-        robot.getLift().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.getLift().setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        while (robot.getFrontFlip().isBusy()) {
-            idle();
+        while (!isStarted()) {
+            synchronized (this) {
+                try {
+                    this.wait();
+                    LocateTFMineral();
+                    if (mineralLocation == MineralLocation.LEFT) {
+                        telemetry.addData("Mineral Location", "Left");
+                    } else if (mineralLocation == MineralLocation.MIDDLE) {
+                        telemetry.addData("Mineral Location", "Middle");
+                    } else if (mineralLocation == MineralLocation.RIGHT) {
+                        telemetry.addData("Mineral Location", "Right");
+                    } else {
+                        telemetry.addData("Mineral Location", "Lost");
+                    }
+                    telemetry.update();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+            }
         }
 
-        robot.getFrontFlip().setPower(0);
-
-        robot.getLift().setTargetPosition(latchHeight);
-        robot.getLockServo().setPower(0);
-        robot.getLift().setPower(-.5);
-
-        int error = Math.abs((int)(latchHeight * 0.95));
-        int currentPosition =  Math.abs(robot.getLift().getCurrentPosition());
-
-        while (robot.getLift().isBusy() && currentPosition < error) {
-            currentPosition =  Math.abs(robot.getLift().getCurrentPosition());
-            idle();
+        LocateTFMineral();
+        if (mineralLocation == MineralLocation.LEFT) {
+            telemetry.addData("Mineral Location", "Left");
+        } else if (mineralLocation == MineralLocation.MIDDLE) {
+            telemetry.addData("Mineral Location", "Middle");
+        } else if (mineralLocation == MineralLocation.RIGHT) {
+            telemetry.addData("Mineral Location", "Right");
+        } else {
+            telemetry.addData("Mineral Location", "Lost, Default to Right");
         }
+        telemetry.update();
 
-        robot.getLift().setPower(0);
-
-        return AutonomousStates.DROPPED;
+        DeactivateTFCamera();
     }
 
-    public AutonomousStates LocateTFMineral() {
+    private void LocateTFMineral() {
         if (tfod != null) {
             // getUpdatedRecognitions() will return null if no new information is available since
             // the last time that call was made.
@@ -170,8 +249,41 @@ abstract class BaseAutoOpMode extends LinearOpMode {
                 }
             }
         }
+    }
 
-        return AutonomousStates.MINERAL_LOCATED;
+    public AutonomousStates Latch () {
+        robot.getLockServo().setDirection(DcMotorSimple.Direction.FORWARD);
+        robot.getLockServo().setPower(1);
+
+        return AutonomousStates.LATCHED;
+    }
+
+    public AutonomousStates Drop() {
+        // do something to drop
+        robot.getFrontFlip().setTargetPosition(VerticalFlip);
+        robot.getFrontFlip().setPower(.5);
+
+        while (robot.getFrontFlip().isBusy()) {
+            idle();
+        }
+
+        robot.getFrontFlip().setPower(0);
+
+        robot.getLift().setTargetPosition(latchHeight);
+        robot.getLockServo().setPower(0);
+        robot.getLift().setPower(.5);
+
+        int error = Math.abs((int)(latchHeight * 0.95));
+        int currentPosition =  Math.abs(robot.getLift().getCurrentPosition());
+
+        while (robot.getLift().isBusy() && currentPosition < error) {
+            currentPosition =  Math.abs(robot.getLift().getCurrentPosition());
+            idle();
+        }
+
+        robot.getLift().setPower(0);
+
+        return AutonomousStates.DROPPED;
     }
 
     public AutonomousStates LocateMineral() throws InterruptedException {
@@ -193,46 +305,42 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     }
 
     public AutonomousStates MoveForward(int forwardDistance) {
-        mecanum.MoveForward(.5, forwardDistance, this);
+        mecanum.MoveForward(.2, forwardDistance, this);
 
         return AutonomousStates.MOVED_FORWARD;
     }
 
     public AutonomousStates DriveToMineral (int slideLeftDistance, int slideRightDistance) {
         if (mineralLocation == MineralLocation.LEFT) {
-            mecanum.SlideLeft(.5, slideLeftDistance, this);
+            mecanum.SlideLeft(.2, slideLeftDistance, this);
         } else if (mineralLocation == MineralLocation.RIGHT) {
-            mecanum.SlideRight(.5, slideRightDistance, this);
+            mecanum.SlideRight(.2, slideRightDistance, this);
         }
 
         return AutonomousStates.AT_MINERAL;
     }
 
     public AutonomousStates PushMineral (int pushDistance) {
-        mecanum.MoveForward(.5, pushDistance, this);
+        mecanum.MoveForward(.2, pushDistance, this);
         return AutonomousStates.MINERAL_PUSHED;
     }
 
-    public AutonomousStates MoveToMiddle(int slideLeftDistance, int slideRightDistanc) {
+    public AutonomousStates PushMineralAndDriveToDepot(int knockForwardPosition) {
         if (mineralLocation == MineralLocation.LEFT) {
-            mecanum.SlideRight(.5, slideLeftDistance, this);
-            mecanum.TurnLeft(.5 , 100, this);
-        } else if (mineralLocation == MineralLocation.RIGHT) {
-            mecanum.SlideLeft(.5, slideRightDistanc, this);
             mecanum.TurnRight(.5 , 100, this);
+        } else if (mineralLocation == MineralLocation.RIGHT) {
+            mecanum.TurnLeft(.5 , 100, this);
         }
 
-        return AutonomousStates.AT_MIDDLE;
-    }
-
-    public AutonomousStates DriveToDepot () {
+        mecanum.MoveForward(.2, knockForwardPosition, this);
         return AutonomousStates.AT_DEPOT;
     }
 
-    public AutonomousStates DropMarker () {
+    public AutonomousStates ExtendArm() {
         ElapsedTime watch = new ElapsedTime();
         watch.reset();
 
+        // slide arm out
         robot.getSlide().setPower(.5);
         // run for 1500 milliseconds
         while (watch.milliseconds() < 1500) {
@@ -241,26 +349,59 @@ abstract class BaseAutoOpMode extends LinearOpMode {
 
         robot.getSlide().setPower(0);
 
-        robot.getFrontFlip().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.getFrontFlip().setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.getFrontFlip().setPower(.5);
-        robot.getFrontFlip().setTargetPosition(FlatFlip);
-        while (robot.getFrontFlip().isBusy()) {
-            idle();;
-        }
+        return AutonomousStates.ARM_EXTENDED;
+    }
 
-        robot.getIntake().setPower(.5);
-        robot.getIntake().setTargetPosition(1000);
-        while (robot.getIntake().isBusy()) {
-            idle();
-        }
-
+    public AutonomousStates FlipToBack() {
         robot.getFrontFlip().setPower(.5);
         robot.getFrontFlip().setTargetPosition(BackFlip);
         while (robot.getFrontFlip().isBusy()) {
             idle();;
         }
 
+        robot.getFrontFlip().setPower(0);
+
+        return AutonomousStates.FLIP_AT_BACK;
+    }
+
+    public AutonomousStates DropMarker () {
+        ElapsedTime watch = new ElapsedTime();
+        watch.reset();
+
+        // slide arm out
+        robot.getSlide().setPower(.5);
+        // run for 1500 milliseconds
+        while (watch.milliseconds() < 1500) {
+            idle();
+        }
+
+        robot.getSlide().setPower(0);
+
+        // flip intake to flat
+        robot.getFrontFlip().setPower(.5);
+        robot.getFrontFlip().setTargetPosition(FlatFlip);
+        while (robot.getFrontFlip().isBusy()) {
+            idle();;
+        }
+
+        robot.getFrontFlip().setPower(0);
+        // spin the intake to dump marker
+        robot.getIntake().setPower(.5);
+        watch.reset();
+        while (watch.milliseconds() < 1500) {
+            idle();
+        }
+
+        // flip intake back to 0
+        robot.getIntake().setPower(0);
+        robot.getFrontFlip().setPower(.5);
+        robot.getFrontFlip().setTargetPosition(BackFlip);
+        while (robot.getFrontFlip().isBusy()) {
+            idle();;
+        }
+
+        robot.getFrontFlip().setPower(0);
+        // move slide back in
         watch.reset();
         robot.getSlide().setPower(-.5);
         // run for 1500 milliseconds
