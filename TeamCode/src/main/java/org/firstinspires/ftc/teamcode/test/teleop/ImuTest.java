@@ -18,7 +18,7 @@ public class ImuTest extends LinearOpMode {
         boolean isTurning = false;
         boolean turningLeft = false;
         robot.init(hardwareMap);
-        Mecanum mecanum = new Mecanum(robot.getFrontL(), robot.getFrontR(), robot.getBackL(), robot.getBackR());
+        Mecanum mecanum = new Mecanum(robot.getFrontL(), robot.getFrontR(), robot.getBackL(), robot.getBackR(), true);
 
         try {
             revImu = new RevImu(hardwareMap, telemetry);

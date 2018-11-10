@@ -23,8 +23,6 @@ public class DepotAutoOpMode extends BaseAutoOpMode {
 
         InitSetup();
 
-        robot.getLift().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.getLift().setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.getFrontFlip().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.getFrontFlip().setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
@@ -32,7 +30,7 @@ public class DepotAutoOpMode extends BaseAutoOpMode {
 
         SearchForTFMineral();
 
-        while (opModeIsActive() && (currentState != AutonomousStates.MOVED_FORWARD)) {
+        while (opModeIsActive() && (currentState != AutonomousStates.AT_DEPOT)) {
             switch (currentState) {
                 case LATCHED:
                     currentState = Drop();

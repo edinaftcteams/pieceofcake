@@ -27,7 +27,7 @@ public class CraterAutoOpMode extends BaseAutoOpMode {
 
         SearchForTFMineral();
 
-        while (opModeIsActive() && (currentState != AutonomousStates.MOVED_FORWARD)) {
+        while (opModeIsActive() && (currentState != AutonomousStates.DROPPED)) {
             switch (currentState) {
                 case LATCHED:
                     currentState = Drop();

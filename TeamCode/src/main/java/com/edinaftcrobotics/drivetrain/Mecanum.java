@@ -11,15 +11,17 @@ public class Mecanum {
     private DcMotor _backLeft;
     private DcMotor _backRight;
 
-    public Mecanum(DcMotor fl, DcMotor fr, DcMotor bl, DcMotor br)
+    public Mecanum(DcMotor fl, DcMotor fr, DcMotor bl, DcMotor br, boolean isTeleop)
     {
         _frontLeft = fl;
         _frontRight = fr;
         _backLeft = bl;
         _backRight = br;
 
-        _backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-        _frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        if (isTeleop) {
+            _backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+            _frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        }
     }
 
     public void SlideLeft(double power){
@@ -54,7 +56,7 @@ public class Mecanum {
 
     public void SlideRight(double power, int distance, LinearOpMode opMode) {
         StopAndResetMotors();
-        SetDistance(distance, distance, distance, distance);
+        SetDistance(-distance, -distance, -distance, -distance);
 
         int error = Math.abs((int)(distance * 0.95));
         int currentPosition =  Math.abs(_frontRight.getCurrentPosition());
@@ -105,7 +107,7 @@ public class Mecanum {
 
     public void MoveForward(double power, int distance, LinearOpMode opMode) {
         StopAndResetMotors();
-        SetDistance(distance, distance, -distance, -distance);
+        SetDistance(-distance, distance, distance, -distance);
 
         int error = Math.abs((int)(distance * 0.95));
         int currentPosition =  Math.abs(_frontRight.getCurrentPosition());
@@ -128,7 +130,7 @@ public class Mecanum {
 
     public void MoveBackwards(double power, int distance, LinearOpMode opMode) {
         StopAndResetMotors();
-        SetDistance(-distance, -distance, distance, distance);
+        SetDistance(distance, -distance, -distance, distance);
 
         int error = Math.abs((int)(distance * 0.95));
         int currentPosition =  Math.abs(_frontRight.getCurrentPosition());
@@ -144,7 +146,7 @@ public class Mecanum {
 
     public void TurnRight(double power, int distance, LinearOpMode opMode) {
         StopAndResetMotors();
-        SetDistance(distance, distance, distance, distance);
+        SetDistance(-distance, distance, -distance, distance);
 
         int error = Math.abs((int)(distance * 0.95));
         int currentPosition =  Math.abs(_frontRight.getCurrentPosition());
@@ -167,7 +169,7 @@ public class Mecanum {
 
     public void TurnLeft(double power, int distance, LinearOpMode opMode) {
         StopAndResetMotors();
-        SetDistance(-distance, -distance, -distance, -distance);
+        SetDistance(distance, -distance, distance, -distance);
 
         int error = Math.abs((int)(distance * 0.95));
         int currentPosition =  Math.abs(_frontRight.getCurrentPosition());

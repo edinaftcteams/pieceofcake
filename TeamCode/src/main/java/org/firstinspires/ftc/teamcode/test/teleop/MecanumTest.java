@@ -20,7 +20,7 @@ public class MecanumTest extends LinearOpMode {
 
         robot.init(hardwareMap);
 
-        _mecanum = new Mecanum(robot.getFrontL(), robot.getFrontR(), robot.getBackL(), robot.getBackR());
+        _mecanum = new Mecanum(robot.getFrontL(), robot.getFrontR(), robot.getBackL(), robot.getBackR(), true);
 
         waitForStart();
 

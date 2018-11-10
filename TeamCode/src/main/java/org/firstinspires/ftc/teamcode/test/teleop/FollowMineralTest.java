@@ -31,7 +31,7 @@ public class FollowMineralTest extends LinearOpMode {
         camera.activate();
         GoldMineralTracker mineralTracker = new GoldMineralTracker(camera);
 
-        _mecanum = new Mecanum(robot.getFrontL(), robot.getFrontR(), robot.getBackL(), robot.getBackR());
+        _mecanum = new Mecanum(robot.getFrontL(), robot.getFrontR(), robot.getBackL(), robot.getBackR(), true);
 
         waitForStart();
         while (opModeIsActive()) {

@@ -36,7 +36,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     protected GoldMineralTracker mineralTracker = null;
     protected PieceOfCake robot = new PieceOfCake();
     protected Mecanum mecanum = null;
-    protected int latchHeight = (int)(4.5 * 288 / 1.75);
+    protected int latchHeight = 100;
     protected BNO055IMUImpl imu = null;
     protected TFObjectDetector tfod;
 
@@ -56,7 +56,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     protected void InitRobot() {
         robot.init(hardwareMap);
 
-        mecanum = new Mecanum(robot.getFrontL(), robot.getFrontR(), robot.getBackL(), robot.getBackR());
+        mecanum = new Mecanum(robot.getFrontL(), robot.getFrontR(), robot.getBackL(), robot.getBackR(), false);
     }
 
     protected void InitGyro() {
@@ -252,16 +252,19 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     }
 
     public AutonomousStates Latch () {
-        robot.getLockServo().setDirection(DcMotorSimple.Direction.FORWARD);
+        robot.getLift().setPower(-.3);
         robot.getLockServo().setPower(1);
 
         return AutonomousStates.LATCHED;
     }
 
     public AutonomousStates Drop() {
+        ElapsedTime watch = new ElapsedTime();
+        robot.getSlide().setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         // do something to drop
+        robot.getTopFlip().setPosition(1);
         robot.getFrontFlip().setTargetPosition(VerticalFlip);
-        robot.getFrontFlip().setPower(.5);
+        robot.getFrontFlip().setPower(.7);
 
         while (robot.getFrontFlip().isBusy()) {
             idle();
@@ -269,15 +272,17 @@ abstract class BaseAutoOpMode extends LinearOpMode {
 
         robot.getFrontFlip().setPower(0);
 
-        robot.getLift().setTargetPosition(latchHeight);
         robot.getLockServo().setPower(0);
-        robot.getLift().setPower(.5);
+        robot.getLift().setPower(0);
 
-        int error = Math.abs((int)(latchHeight * 0.95));
-        int currentPosition =  Math.abs(robot.getLift().getCurrentPosition());
+        watch.reset();
+        while (watch.milliseconds() < 5000) {
+            idle();
+        }
 
-        while (robot.getLift().isBusy() && currentPosition < error) {
-            currentPosition =  Math.abs(robot.getLift().getCurrentPosition());
+        robot.getLift().setPower(.3);
+        watch.reset();
+        while (watch.milliseconds() < 1500) {
             idle();
         }
 
@@ -327,9 +332,9 @@ abstract class BaseAutoOpMode extends LinearOpMode {
 
     public AutonomousStates PushMineralAndDriveToDepot(int knockForwardPosition) {
         if (mineralLocation == MineralLocation.LEFT) {
-            mecanum.TurnRight(.5 , 100, this);
+            mecanum.TurnRight(.5 , 1000, this);
         } else if (mineralLocation == MineralLocation.RIGHT) {
-            mecanum.TurnLeft(.5 , 100, this);
+            mecanum.TurnLeft(.5 , 1000, this);
         }
 
         mecanum.MoveForward(.2, knockForwardPosition, this);
@@ -369,7 +374,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         watch.reset();
 
         // slide arm out
-        robot.getSlide().setPower(.5);
+        robot.getSlide().setPower(-.5);
         // run for 1500 milliseconds
         while (watch.milliseconds() < 1500) {
             idle();
@@ -403,9 +408,9 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         robot.getFrontFlip().setPower(0);
         // move slide back in
         watch.reset();
-        robot.getSlide().setPower(-.5);
+        robot.getSlide().setPower(.5);
         // run for 1500 milliseconds
-        while (watch.milliseconds() < 1500) {
+        while (watch.milliseconds() < 1700) {
             idle();
         }
 

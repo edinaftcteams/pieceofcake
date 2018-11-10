@@ -22,7 +22,7 @@ public class FollowPictureTest extends LinearOpMode {
         double targetPoint = 0;
         robot.init(hardwareMap);
 
-        Mecanum drivetrain = new Mecanum(robot.getFrontL(), robot.getFrontR(), robot.getBackL(), robot.getBackR());
+        Mecanum drivetrain = new Mecanum(robot.getFrontL(), robot.getFrontR(), robot.getBackL(), robot.getBackR(), true);
 
         Camera camera = new BackPhoneCamera();
         PictureTracker pictureTracker = null;

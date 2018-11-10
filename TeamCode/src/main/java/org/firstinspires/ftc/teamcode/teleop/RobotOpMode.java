@@ -24,6 +24,10 @@ public class RobotOpMode extends OpMode {
     private boolean intakeAPressed = false;
     private boolean flipBPressed = false;
     private boolean bumpersPressed = false;
+    private boolean intakeInToggledOn = false;
+    private boolean intakeOutToggledOn = false;
+    private boolean listenToGamePad1 = false;
+    private boolean listenToGamePad2 = false;
     private Mecanum mecanum = null;
 
     @Override
@@ -35,7 +39,7 @@ public class RobotOpMode extends OpMode {
         robot.getFrontFlip().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.getFrontFlip().setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        mecanum = new Mecanum(robot.getFrontL(), robot.getFrontR(), robot.getBackL(), robot.getBackR());
+        mecanum = new Mecanum(robot.getFrontL(), robot.getFrontR(), robot.getBackL(), robot.getBackR(), true);
     }
 
     @Override
@@ -44,10 +48,15 @@ public class RobotOpMode extends OpMode {
 
         telemetry.addData("Lift", "%d", robot.getLift().getCurrentPosition());
         telemetry.addData("Front Flip", "%d", robot.getFrontFlip().getCurrentPosition());
-        telemetry.addData("Left front: ", "%d", robot.getFrontL().getCurrentPosition());
-        telemetry.addData("Right front: ", "%d", robot.getFrontR().getCurrentPosition());
-        telemetry.addData("Left back: ", "%d", robot.getBackL().getCurrentPosition());
-        telemetry.addData("Right back: ", "%d", robot.getBackR().getCurrentPosition());
+        telemetry.addData("Lf, rf, lb, rb: ", "%d %d %d %d", robot.getFrontL().getCurrentPosition(),
+                robot.getFrontR().getCurrentPosition(), robot.getBackL().getCurrentPosition(),
+                robot.getBackR().getCurrentPosition());
+        telemetry.addData("y:", "%s", gamepad1.y);
+        telemetry.addData("a:", "%s", gamepad1.a);
+        telemetry.addData("intakeYPressed", "%s", intakeYPressed);
+        telemetry.addData("intakeAPressed", "%s", intakeAPressed);
+        telemetry.addData("intakeInToggledOn", "%s", intakeInToggledOn);
+        telemetry.addData("intakeOutToggledOn", "%s", intakeOutToggledOn);
 
         ProcessSlide();
         ProcessIntake();
@@ -68,27 +77,64 @@ public class RobotOpMode extends OpMode {
     }
 
     private void ProcessIntake() {
-        if ((gamepad1.y || gamepad2.y) && !intakeYPressed) {
-            robot.getIntake().setPower(1);
+        boolean yValue = false;
+        boolean aValue = false;
+
+        if (gamepad1.a || gamepad1.y){
+            listenToGamePad1 = true;
+        } else if (gamepad2.a || gamepad2.y) {
+            listenToGamePad2 = true;
+        }
+
+        if (listenToGamePad1) {
+            yValue = gamepad1.y;
+            aValue = gamepad1.a;
+        } else if (listenToGamePad2) {
+            yValue = gamepad2.y;
+            aValue = gamepad2.a;
+        }
+
+        if (yValue && !intakeYPressed) {
             intakeYPressed = true;
             intakeAPressed = false;
-        } else if ((gamepad1.y || gamepad2.y) && intakeYPressed) {
-            robot.getIntake().setPower(0);
+        } else if (!yValue && intakeYPressed) {
+            if (!intakeInToggledOn) {
+                robot.getIntake().setPower(1);
+                intakeInToggledOn = true;
+                intakeOutToggledOn = false;
+            } else {
+                robot.getIntake().setPower(0);
+                intakeInToggledOn = false;
+                intakeOutToggledOn = false;
+            }
+
+            listenToGamePad1 = false;
+            listenToGamePad2 = false;
             intakeYPressed = false;
             intakeAPressed = false;
-        } else if ((gamepad1.a || gamepad2.a) && !intakeAPressed) {
-            robot.getIntake().setPower(-1);
+        } else if (aValue && !intakeAPressed) {
             intakeAPressed = true;
             intakeYPressed = false;
-        } else if ((gamepad1.a || gamepad2.a) && intakeAPressed) {
-            robot.getIntake().setPower(0);
+        } else if (!aValue && intakeAPressed) {
+            if (!intakeOutToggledOn) {
+                robot.getIntake().setPower(-1);
+                intakeInToggledOn = false;
+                intakeOutToggledOn = true;
+            } else {
+                robot.getIntake().setPower(0);
+                intakeInToggledOn = false;
+                intakeOutToggledOn = false;
+            }
+
+            listenToGamePad1 = false;
+            listenToGamePad2 = false;
             intakeAPressed = false;
             intakeYPressed = false;
         }
     }
 
     private void ProcessFrontFlip() {
-        if (gamepad1.left_bumper || gamepad2.left_bumper || gamepad1.right_bumper || gamepad2.right_bumper) {
+        if ((gamepad1.left_bumper && gamepad2.left_bumper) || (gamepad1.right_bumper && gamepad2.right_bumper)) {
             bumpersPressed = true;
             robot.getFrontFlip().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             robot.getFrontFlip().setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -97,24 +143,24 @@ public class RobotOpMode extends OpMode {
 
         if (bumpersPressed) {
             if (gamepad1.left_bumper || gamepad2.left_bumper) {
-                robot.getFrontFlip().setPower(.5);
+                robot.getFrontFlip().setPower(.7);
             } else if (gamepad1.right_bumper || gamepad2.right_bumper) {
-                robot.getFrontFlip().setPower(-.5);
+                robot.getFrontFlip().setPower(-.7);
             } else {
                 robot.getFrontFlip().setPower(0);
             }
         } else {
             if (gamepad1.x || gamepad2.x) {
-                robot.getFrontFlip().setPower(.5);
+                robot.getFrontFlip().setPower(.7);
                 robot.getFrontFlip().setTargetPosition(2626);
                 flipBPressed = false;
             } else if (gamepad1.b || gamepad2.b) {
-                robot.getFrontFlip().setPower(.5);
+                robot.getFrontFlip().setPower(.7);
                 robot.getFrontFlip().setTargetPosition(0);
                 flipBPressed = true;
             } else if ((!gamepad1.b || !gamepad2.b) && flipBPressed) {
                 robot.getFrontFlip().setPower(.5);
-                robot.getFrontFlip().setTargetPosition(800);
+                robot.getFrontFlip().setTargetPosition(900);
                 flipBPressed = false;
             }
 
@@ -125,9 +171,9 @@ public class RobotOpMode extends OpMode {
     }
 
     private void ProcessLift() {
-        if (gamepad2.left_stick_y > 0) {
+        if (gamepad2.left_stick_y < 0) {
             robot.getLift().setPower(1);
-        } else if (gamepad2.left_stick_y < 0) {
+        } else if (gamepad2.left_stick_y > 0) {
             robot.getLift().setPower(-1);
         } else {
             robot.getLift().setPower(0);
