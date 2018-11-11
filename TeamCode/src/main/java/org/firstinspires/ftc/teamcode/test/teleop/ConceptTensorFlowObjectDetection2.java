@@ -29,8 +29,6 @@
 
 package org.firstinspires.ftc.teamcode.test.teleop;
 
-import com.edinaftcrobotics.vision.camera.BackPhoneCamera;
-import com.edinaftcrobotics.vision.camera.Camera;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -40,7 +38,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
-import org.firstinspires.ftc.teamcode.enums.MineralLocation;
 
 import java.util.List;
 
@@ -54,9 +51,9 @@ import java.util.List;
  * IMPORTANT: In order to use this OpMode, you need to obtain your own Vuforia license key as
  * is explained below.
  */
-@TeleOp(name = "Test: TensorFlow Object Detection", group = "Test")
+@TeleOp(name = "Test: TensorFlow Object Detection Original", group = "Concept")
 @Disabled
-public class ConceptTensorFlowObjectDetection extends LinearOpMode {
+public class ConceptTensorFlowObjectDetection2 extends LinearOpMode {
     private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
     private static final String LABEL_GOLD_MINERAL = "Gold Mineral";
     private static final String LABEL_SILVER_MINERAL = "Silver Mineral";
@@ -79,7 +76,6 @@ public class ConceptTensorFlowObjectDetection extends LinearOpMode {
      * {@link #vuforia} is the variable we will use to store our instance of the Vuforia
      * localization engine.
      */
-
     private VuforiaLocalizer vuforia;
 
     /**
@@ -100,56 +96,53 @@ public class ConceptTensorFlowObjectDetection extends LinearOpMode {
             telemetry.addData("Sorry!", "This device is not compatible with TFOD");
         }
 
-
-        /** Activate Tensor Flow Object Detection. */
-        if (tfod != null) {
-            tfod.activate();
-        }
-
-        while (!isStarted()) {
-            synchronized (this) {
-                try {
-                    this.wait();
-                    if (tfod != null) {
-                        // getUpdatedRecognitions() will return null if no new information is available since
-                        // the last time that call was made.
-                        List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-                        if (updatedRecognitions != null) {
-                            telemetry.addData("# Object Detected", updatedRecognitions.size());
-                            if (updatedRecognitions.size() > 0) {
-                                int goldMineralX = -1;
-                                for (Recognition recognition : updatedRecognitions) {
-                                    if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
-                                        goldMineralX = (int) recognition.getLeft();
-                                    }
-
-                                    telemetry.addData("Gold Mineral Position", "%d", goldMineralX);
-                                }
-                            } else {
-                                telemetry.addData("TFOD good, but no Object ", "Detected");
-                            }
-                        }
-                    } else {
-                        telemetry.addData("TFOD bad, no Object ", "Detected");
-                    }
-
-                    telemetry.update();
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    return;
-                }
-            }
-        }
-
         /** Wait for the game to begin */
         telemetry.addData(">", "Press Play to start tracking");
         telemetry.update();
+        waitForStart();
+
+        if (opModeIsActive()) {
+            /** Activate Tensor Flow Object Detection. */
+            if (tfod != null) {
+                tfod.activate();
+            }
+
+            while (opModeIsActive()) {
+                if (tfod != null) {
+                    // getUpdatedRecognitions() will return null if no new information is available since
+                    // the last time that call was made.
+                    List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+                    if (updatedRecognitions != null) {
+                      telemetry.addData("# Object Detected", updatedRecognitions.size());
+                        if (updatedRecognitions.size() > 0) {
+                            int goldMineralX = -1;
+                            for (Recognition recognition : updatedRecognitions) {
+                                if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
+                                    goldMineralX = (int) recognition.getLeft();
+                                    telemetry.addData("Position", recognition);
+                                }
+
+                                telemetry.addData("Gold Mineral Position", "%d", goldMineralX);
+                            }
+                        } else {
+                            telemetry.addData("TFOD good, but no Object ", "Detected");
+                        }
+                    }
+                } else {
+                    telemetry.addData("TFOD bad, no Object ", "Detected");
+                }
+                telemetry.update();
+            }
+        }
 
         if (tfod != null) {
             tfod.shutdown();
         }
     }
 
+    /**
+     * Initialize the Vuforia localization engine.
+     */
     private void initVuforia() {
         /*
          * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.

@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.firstinspires.ftc.teamcode.enums.AutonomousStates;
@@ -30,9 +31,10 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     private int BackFlip = 0;
     private int VerticalFlip = 880;
     private int FlatFlip = 1860;
+    private static final String VUFORIA_KEY = "ASA9XvT/////AAABmUnq30r9sU3Nmf/+RS+Xx0CHgJj/JtD5ycahnuM/0B2SFvbMRPIZCbLi4LeOkfse9Dymor5W7vNMYI+vmqVx9kpEaKE8VM7cFMUb/T1LLwlCPdX9QKOruzTcRdlYswR7ULh4K11GuFZDO/45pSks+Nf25kT5cnV+IN3TsscA0o7I6XPIeUoAJJPsjw+AycsmRk2uffr3Bnupexr93iRfHylniqP+ss4cRcT1lOqS5Zhh7FQaoelR58qL/RUorGpknjy9ufCn9ervc6Mz01u3ZkM/EOa5wUPT8bDzPZ6nMDaadqumorT5Py+GtJSUosUgz4Gd3iR++fdEk6faFZq3L9xfBSagNykwhiyYx+oqwVqe";
 
     protected MineralLocation mineralLocation = MineralLocation.RIGHT;
-    protected Camera camera = null;
+    private VuforiaLocalizer vuforia;
     protected GoldMineralTracker mineralTracker = null;
     protected PieceOfCake robot = new PieceOfCake();
     protected Mecanum mecanum = null;
@@ -40,10 +42,11 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     protected BNO055IMUImpl imu = null;
     protected TFObjectDetector tfod;
 
-    protected int slideRightPosition = DrivePerInch * 8;
-    protected int slideLeftPosition = DrivePerInch * 8;
-    protected int knockForwardPosition = DrivePerInch * 8;
-    protected int driveForwardPosition = DrivePerInch * 12;
+    protected int slideRightPosition = DrivePerInch * 23;
+    protected int slideLeftPosition = DrivePerInch * 23;
+    protected int knockForwardPosition = DrivePerInch * 32;
+    protected int driveForwardPosition = DrivePerInch * 23;
+    protected int anglePushDistance = DrivePerInch * 8;
     protected boolean yPressed = false;
     protected boolean aPressed = false;
     protected boolean dPadLeftPressed = false;
@@ -57,6 +60,18 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         robot.init(hardwareMap);
 
         mecanum = new Mecanum(robot.getFrontL(), robot.getFrontR(), robot.getBackL(), robot.getBackR(), false);
+
+        initVuforia();
+
+        if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
+            initTfod();
+        } else {
+            telemetry.addData("Sorry!", "This device is not compatible with TFOD");
+        }
+
+        if (tfod != null) {
+            tfod.activate();
+        }
     }
 
     protected void InitGyro() {
@@ -139,118 +154,81 @@ abstract class BaseAutoOpMode extends LinearOpMode {
             telemetry.update();
         }
     }
-    protected void ActivateCamera() throws InterruptedException {
-        camera = new BackPhoneCamera();
 
-        camera.activate();
-        mineralTracker = new GoldMineralTracker(camera);
+    /**
+     * Initialize the Tensor Flow Object Detection engine.
+     */
+    private void initTfod() {
+        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
+                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
     }
 
-    protected void ActivateTFCamera() {
-        camera = new BackPhoneCamera();
+    private void initVuforia() {
+        /*
+         * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
+         */
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
-        camera.activate();
-        if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
-            int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
-                    "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-            TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-            tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, camera.getPOCVuforia());
-            tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
-        } else {
-            telemetry.addData("Sorry!", "This device is not compatible with TFOD");
+        parameters.vuforiaLicenseKey = VUFORIA_KEY;
+        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+
+        //  Instantiate the Vuforia engine
+        vuforia = ClassFactory.getInstance().createVuforia(parameters);
+
+        // Loading trackables is not necessary for the Tensor Flow Object Detection engine.
+    }
+
+    public void LocateTFMineral() {
+        for (int x = 0; x< 1; x++) {
+            if (tfod != null) {
+                // getUpdatedRecognitions() will return null if no new information is available since
+                // the last time that call was made.
+                List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+                if (updatedRecognitions != null) {
+                    telemetry.addData("# Object Detected", updatedRecognitions.size());
+                    int goldMineralX = 0;
+                    if (updatedRecognitions.size() > 0) {
+                        for (Recognition recognition : updatedRecognitions) {
+                            if ((recognition.getLabel().equals(LABEL_GOLD_MINERAL)) && recognition.getTop() < 500){
+                                goldMineralX = (int) recognition.getLeft();
+                            }
+
+                            telemetry.addData("Gold Mineral Position", "%d", goldMineralX);
+                        }
+                    }
+
+                    if (goldMineralX > 300) {
+                        mineralLocation = MineralLocation.LEFT;
+                        telemetry.addData("Mineral Location", "Left");
+                    } else if ((goldMineralX >= 50) && (goldMineralX <= 300)) {
+                        mineralLocation = MineralLocation.MIDDLE;
+                        telemetry.addData("Mineral Location", "Middle");
+                    } else {
+                        mineralLocation = MineralLocation.RIGHT;
+                        telemetry.addData("Mineral Location", "Right");
+                    }
+                } else {
+                    telemetry.addData("Nothing", "Detected");
+                    mineralLocation = MineralLocation.RIGHT;
+                }
+            } else {
+                telemetry.addData("No", "TFOD");
+            }
+
+            telemetry.update();
+            sleep(100);
         }
-
-
-        /** Activate Tensor Flow Object Detection. */
-        if (tfod != null) {
-            tfod.activate();
-        }
     }
 
-    protected void DeactivateCamera() {
-        camera.deactivate();
-        camera = null;
-    }
-
-    protected void DeactivateTFCamera() {
+    public void ShutdownTFOD() {
         if (tfod != null) {
             tfod.shutdown();
         }
 
-        camera.deactivate();;
-        camera = null;
     }
-
-    public void SearchForTFMineral() {
-        ActivateTFCamera();
-
-        while (!isStarted()) {
-            synchronized (this) {
-                try {
-                    this.wait();
-                    LocateTFMineral();
-                    if (mineralLocation == MineralLocation.LEFT) {
-                        telemetry.addData("Mineral Location", "Left");
-                    } else if (mineralLocation == MineralLocation.MIDDLE) {
-                        telemetry.addData("Mineral Location", "Middle");
-                    } else if (mineralLocation == MineralLocation.RIGHT) {
-                        telemetry.addData("Mineral Location", "Right");
-                    } else {
-                        telemetry.addData("Mineral Location", "Lost");
-                    }
-                    telemetry.update();
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    return;
-                }
-            }
-        }
-
-        LocateTFMineral();
-        if (mineralLocation == MineralLocation.LEFT) {
-            telemetry.addData("Mineral Location", "Left");
-        } else if (mineralLocation == MineralLocation.MIDDLE) {
-            telemetry.addData("Mineral Location", "Middle");
-        } else if (mineralLocation == MineralLocation.RIGHT) {
-            telemetry.addData("Mineral Location", "Right");
-        } else {
-            telemetry.addData("Mineral Location", "Lost, Default to Right");
-        }
-        telemetry.update();
-
-        DeactivateTFCamera();
-    }
-
-    private void LocateTFMineral() {
-        if (tfod != null) {
-            // getUpdatedRecognitions() will return null if no new information is available since
-            // the last time that call was made.
-            List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-            if (updatedRecognitions != null) {
-                telemetry.addData("# Object Detected", updatedRecognitions.size());
-                int goldMineralX = 300;
-                if (updatedRecognitions.size() > 0) {
-                    for (Recognition recognition : updatedRecognitions) {
-                        if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
-                            goldMineralX = (int) recognition.getLeft();
-                        }
-
-                        telemetry.addData("Gold Mineral Position", "%d", goldMineralX);
-                        telemetry.update();
-                    }
-                }
-
-                if (goldMineralX < 100) {
-                    mineralLocation = MineralLocation.LEFT;
-                } else if ((goldMineralX >= 100) && (goldMineralX < 150)) {
-                    mineralLocation = MineralLocation.MIDDLE;
-                } else {
-                    mineralLocation = MineralLocation.RIGHT;
-                }
-            }
-        }
-    }
-
     public AutonomousStates Latch () {
         robot.getLift().setPower(-.3);
         robot.getLockServo().setPower(1);
@@ -276,7 +254,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         robot.getLift().setPower(0);
 
         watch.reset();
-        while (watch.milliseconds() < 5000) {
+        while (watch.milliseconds() < 3500) {
             idle();
         }
 
@@ -310,34 +288,38 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     }
 
     public AutonomousStates MoveForward(int forwardDistance) {
-        mecanum.MoveForward(.2, forwardDistance, this);
+        mecanum.MoveForward(.6, forwardDistance, this);
 
         return AutonomousStates.MOVED_FORWARD;
     }
 
     public AutonomousStates DriveToMineral (int slideLeftDistance, int slideRightDistance) {
         if (mineralLocation == MineralLocation.LEFT) {
-            mecanum.SlideLeft(.2, slideLeftDistance, this);
+            mecanum.SlideLeft(.5, slideLeftDistance, this);
         } else if (mineralLocation == MineralLocation.RIGHT) {
-            mecanum.SlideRight(.2, slideRightDistance, this);
+            mecanum.SlideRight(.5, slideRightDistance, this);
         }
 
         return AutonomousStates.AT_MINERAL;
     }
 
     public AutonomousStates PushMineral (int pushDistance) {
-        mecanum.MoveForward(.2, pushDistance, this);
+        mecanum.MoveForward(.5, pushDistance, this);
         return AutonomousStates.MINERAL_PUSHED;
     }
 
     public AutonomousStates PushMineralAndDriveToDepot(int knockForwardPosition) {
+        mecanum.MoveForward(.5, knockForwardPosition / 2, this);
+
         if (mineralLocation == MineralLocation.LEFT) {
-            mecanum.TurnRight(.5 , 1000, this);
+            mecanum.TurnRight(.5 , 1025, this);
+            mecanum.MoveForward(.5, anglePushDistance, this);
         } else if (mineralLocation == MineralLocation.RIGHT) {
-            mecanum.TurnLeft(.5 , 1000, this);
+            mecanum.TurnLeft(.5 , 1025, this);
+            mecanum.MoveForward(.5, anglePushDistance, this);
         }
 
-        mecanum.MoveForward(.2, knockForwardPosition, this);
+        mecanum.MoveForward(.5, knockForwardPosition / 2, this);
         return AutonomousStates.AT_DEPOT;
     }
 
@@ -346,7 +328,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         watch.reset();
 
         // slide arm out
-        robot.getSlide().setPower(.5);
+        robot.getSlide().setPower(-.5);
         // run for 1500 milliseconds
         while (watch.milliseconds() < 1500) {
             idle();
@@ -374,9 +356,9 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         watch.reset();
 
         // slide arm out
-        robot.getSlide().setPower(-.5);
+        robot.getSlide().setPower(-1);
         // run for 1500 milliseconds
-        while (watch.milliseconds() < 1500) {
+        while (watch.milliseconds() < 1000) {
             idle();
         }
 
@@ -408,26 +390,42 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         robot.getFrontFlip().setPower(0);
         // move slide back in
         watch.reset();
-        robot.getSlide().setPower(.5);
+        robot.getSlide().setPower(1);
         // run for 1500 milliseconds
-        while (watch.milliseconds() < 1700) {
+        while (watch.milliseconds() < 1200) {
             idle();
         }
 
+        robot.getSlide().setPower(0);
         return AutonomousStates.DROPPED_MARKER;
     }
 
-    public AutonomousStates DriveToWall () {
-        return AutonomousStates.AT_WALL;
-    }
+    public AutonomousStates SlideToWallAndSraighten(AutonomousStates currentState) {
+        if (currentState == AutonomousStates.AT_DEPOT) {
+            if (mineralLocation == MineralLocation.RIGHT) {
+                mecanum.SlideRight(0.5, DrivePerInch * 12, this);
+            } else if (mineralLocation == MineralLocation.LEFT) {
+                mecanum.SlideLeft(0.5, DrivePerInch * 12, this);
+            } else if (mineralLocation == MineralLocation.MIDDLE) {
+                mecanum.TurnLeft(.5 , 1050, this);
+                mecanum.SlideRight(0.5, DrivePerInch * 14, this);
+            }
+        }
 
-    public AutonomousStates StraightenOnWall () {
         return AutonomousStates.STRAIGHTENED_ON_WALL;
     }
-    public AutonomousStates DriveToCrater () {
+
+    public AutonomousStates BackUpToCraterFromDepot(AutonomousStates currentState) {
+        if (currentState == AutonomousStates.STRAIGHTENED_ON_WALL) {
+            if (mineralLocation == MineralLocation.RIGHT) {
+                mecanum.MoveBackwards(0.5, DrivePerInch * 24, this);
+            } else if (mineralLocation == MineralLocation.LEFT) {
+                mecanum.MoveBackwards(0.5, DrivePerInch * 24, this);
+            } else if (mineralLocation == MineralLocation.MIDDLE) {
+                mecanum.MoveBackwards(0.5, DrivePerInch * 24, this);
+            }
+        }
+
         return AutonomousStates.AT_CRATER;
-    }
-    public AutonomousStates ParkInCrater () {
-        return AutonomousStates.PARKED_IN_CRATER;
     }
 }

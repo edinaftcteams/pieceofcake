@@ -16,5 +16,6 @@ public enum AutonomousStates {
     AT_CRATER,
     PARKED_IN_CRATER,
     ARM_EXTENDED,
-    FLIP_AT_BACK
+    FLIP_AT_BACK,
+    SLIDE_TO_WALL
 }

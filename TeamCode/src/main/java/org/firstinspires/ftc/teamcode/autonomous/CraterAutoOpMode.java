@@ -5,9 +5,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.enums.AutonomousStates;
+import org.firstinspires.ftc.teamcode.enums.MineralLocation;
 
 @Autonomous(name = "Crater",group = "Autonomous")
-@Disabled
 public class CraterAutoOpMode extends BaseAutoOpMode {
 
     public void runOpMode(){
@@ -16,18 +16,18 @@ public class CraterAutoOpMode extends BaseAutoOpMode {
         InitRobot();
         InitGyro();
 
-        InitSetup();
+        //InitSetup();
 
-        robot.getLift().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.getLift().setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.getFrontFlip().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.getFrontFlip().setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         currentState = Latch();
 
-        SearchForTFMineral();
+        waitForStart();
 
-        while (opModeIsActive() && (currentState != AutonomousStates.DROPPED)) {
+        LocateTFMineral();
+
+        while (opModeIsActive() && (currentState != AutonomousStates.FLIP_AT_BACK)) {
             switch (currentState) {
                 case LATCHED:
                     currentState = Drop();
@@ -39,7 +39,7 @@ public class CraterAutoOpMode extends BaseAutoOpMode {
                     currentState = DriveToMineral(slideLeftPosition, slideRightPosition);
                     break;
                 case AT_MINERAL:
-                    currentState = PushMineral(knockForwardPosition);
+                    currentState = PushMineral(DrivePerInch * 9);
                     break;
                 case MINERAL_PUSHED:
                     currentState = ExtendArm();

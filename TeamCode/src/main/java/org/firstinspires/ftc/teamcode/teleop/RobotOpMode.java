@@ -134,7 +134,7 @@ public class RobotOpMode extends OpMode {
     }
 
     private void ProcessFrontFlip() {
-        if ((gamepad1.left_bumper && gamepad2.left_bumper) || (gamepad1.right_bumper && gamepad2.right_bumper)) {
+        if ((gamepad1.left_bumper && gamepad1.right_bumper) || (gamepad2.left_bumper && gamepad2.right_bumper)) {
             bumpersPressed = true;
             robot.getFrontFlip().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             robot.getFrontFlip().setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -152,7 +152,7 @@ public class RobotOpMode extends OpMode {
         } else {
             if (gamepad1.x || gamepad2.x) {
                 robot.getFrontFlip().setPower(.7);
-                robot.getFrontFlip().setTargetPosition(2626);
+                robot.getFrontFlip().setTargetPosition(2778);
                 flipBPressed = false;
             } else if (gamepad1.b || gamepad2.b) {
                 robot.getFrontFlip().setPower(.7);
@@ -173,10 +173,13 @@ public class RobotOpMode extends OpMode {
     private void ProcessLift() {
         if (gamepad2.left_stick_y < 0) {
             robot.getLift().setPower(1);
+            robot.getLockServo().setPower(-1);
         } else if (gamepad2.left_stick_y > 0) {
             robot.getLift().setPower(-1);
+            robot.getLockServo().setPower(1);
         } else {
             robot.getLift().setPower(0);
+            robot.getLockServo().setPower(0);
         }
     }
 

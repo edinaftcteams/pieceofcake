@@ -21,14 +21,16 @@ public class DepotAutoOpMode extends BaseAutoOpMode {
         InitRobot();
         InitGyro();
 
-        InitSetup();
+        //InitSetup();
 
         robot.getFrontFlip().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.getFrontFlip().setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         currentState = Latch();
 
-        SearchForTFMineral();
+        waitForStart();
+
+        LocateTFMineral();
 
         while (opModeIsActive() && (currentState != AutonomousStates.AT_DEPOT)) {
             switch (currentState) {
@@ -49,5 +51,7 @@ public class DepotAutoOpMode extends BaseAutoOpMode {
                     break;
             }
         }
+
+        ShutdownTFOD();
     }
 }
