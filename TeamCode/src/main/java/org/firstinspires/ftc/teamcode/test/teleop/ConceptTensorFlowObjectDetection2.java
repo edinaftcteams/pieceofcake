@@ -97,9 +97,19 @@ public class ConceptTensorFlowObjectDetection2 extends LinearOpMode {
         }
 
         /** Wait for the game to begin */
-        telemetry.addData(">", "Press Play to start tracking");
-        telemetry.update();
-        waitForStart();
+        while (!isStarted()) {
+            synchronized (this) {
+                try {
+                    this.wait();
+                    telemetry.addData(">", "Press Play to start tracking");
+                    telemetry.update();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+            }
+        }
+//        waitForStart();
 
         if (opModeIsActive()) {
             /** Activate Tensor Flow Object Detection. */

@@ -266,6 +266,8 @@ abstract class BaseAutoOpMode extends LinearOpMode {
 
         robot.getLift().setPower(0);
 
+        mecanum.MoveBackwards(.3, 50, this);
+
         return AutonomousStates.DROPPED;
     }
 
