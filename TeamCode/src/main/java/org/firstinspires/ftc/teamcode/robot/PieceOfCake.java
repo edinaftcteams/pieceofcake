@@ -56,7 +56,7 @@ public class PieceOfCake {
         servo = hwMap.servo.get("topflip");
         SetTopFlip(servo);
 
-        SetLockServo(hwMap.crservo.get("lockservo"));
+      //  SetLockServo(hwMap.crservo.get("lockservo"));
     }
 
 
@@ -86,7 +86,7 @@ public class PieceOfCake {
 
     public Servo getTopFlip() { return TopFlip; }
 
-    public CRServo getLockServo() { return LockServo; }
+    //public CRServo getLockServo() { return LockServo; }
 
 
     private void SetFrontL(DcMotor dcMotor) {FrontL = dcMotor; }
@@ -98,7 +98,7 @@ public class PieceOfCake {
     private void SetFrontFlip(DcMotor dcMotor) {FrontFlip = dcMotor; }
     private void SetIntake(DcMotor dcMotor) {Intake = dcMotor; }
     private void SetTopFlip(Servo servo) {TopFlip = servo; }
-    private void SetLockServo(CRServo servo) { LockServo = servo; }
+    //private void SetLockServo(CRServo servo) { LockServo = servo; }
 
     public void setMotorPower(double fl, double fr, double bl, double br){
         getFrontL().setPower(fl);

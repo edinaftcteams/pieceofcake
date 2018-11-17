@@ -173,13 +173,13 @@ public class RobotOpMode extends OpMode {
     private void ProcessLift() {
         if (gamepad2.left_stick_y < 0) {
             robot.getLift().setPower(1);
-            robot.getLockServo().setPower(-1);
+            //robot.getLockServo().setPower(-1);
         } else if (gamepad2.left_stick_y > 0) {
             robot.getLift().setPower(-1);
-            robot.getLockServo().setPower(1);
+            //robot.getLockServo().setPower(1);
         } else {
             robot.getLift().setPower(0);
-            robot.getLockServo().setPower(0);
+            //robot.getLockServo().setPower(0);
         }
     }
 
