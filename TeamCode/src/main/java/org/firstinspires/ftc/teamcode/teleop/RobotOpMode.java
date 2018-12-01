@@ -171,6 +171,7 @@ public class RobotOpMode extends OpMode {
     }
 
     private void ProcessLift() {
+        /*
         if (gamepad2.left_stick_y < 0) {
             robot.getLift().setPower(1);
             //robot.getLockServo().setPower(-1);
@@ -181,6 +182,8 @@ public class RobotOpMode extends OpMode {
             robot.getLift().setPower(0);
             //robot.getLockServo().setPower(0);
         }
+        */
+        robot.getLift().setPower(-gamepad2.left_stick_y);
     }
 
     private void ProcessTopFlip() {

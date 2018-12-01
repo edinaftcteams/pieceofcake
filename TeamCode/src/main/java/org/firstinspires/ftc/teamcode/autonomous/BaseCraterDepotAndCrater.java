@@ -1,16 +1,17 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.enums.AutonomousStates;
-import org.firstinspires.ftc.teamcode.enums.MineralLocation;
 
-@Autonomous(name="Depot And Crater", group="Autonomous")
-public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
+public class BaseCraterDepotAndCrater extends BaseAutoOpMode{
     private int distanceFromLeftMineral = DrivePerInch * 12;
 
-    public void runOpMode() {
+    protected int FirstDelay = 0;
+    protected int SecondDelay = 0;
+
+    public void runOpMode(){
+
         AutonomousStates currentState = AutonomousStates.START;
 
         InitRobot();
@@ -27,7 +28,7 @@ public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
 
         LocateTFMineral();
 
-        while (opModeIsActive() && (currentState != AutonomousStates.AT_CRATER)) {
+        while (opModeIsActive() && (currentState != AutonomousStates.ARM_EXTENDED)) {
             switch (currentState) {
                 case LATCHED:
                     currentState = Drop();
@@ -36,9 +37,6 @@ public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
                     currentState = MoveForward(driveForwardPosition);
                     break;
                 case MOVED_FORWARD:
-                    currentState = DropMarker();
-                    break;
-                case DROPPED_MARKER:
                     currentState = DriveToMineral(slideLeftPosition, slideRightPosition);
                     break;
                 case AT_MINERAL:
@@ -48,21 +46,31 @@ public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
                     currentState = BackAwayFromMIneral((int)(DrivePerInch * 9));
                     break;
                 case BACKED_AWAY_FROM_MINERAL:
+                    sleep(FirstDelay);
                     currentState = MoveToLeftWall(distanceFromLeftMineral, slideLeftPosition + distanceFromLeftMineral,
                             slideLeftPosition + slideRightPosition + distanceFromLeftMineral);
                     break;
                 case AT_LEFT_WALL:
-                    currentState = TurnLeftTowardsCrater();
+                    currentState = TurnLeftTowardsDepot();
                     break;
-                case TURNED_TOWARDS_CRATER:
+                case TURNED_TOWARDS_DEPOT:
+                    currentState = MoveTowardsDepot();
+                    break;
+                case AT_DEPOT:
+                    currentState = DropMarker();
+                    break;
+                case DROPPED_MARKER:
+                    currentState = TurnTowardsCrater();
+                    break;
+                case FACING_CRATER:
+                    sleep(SecondDelay);
+                    currentState = DriveTowardsCrater();
+                    break;
+                case AT_CRATER:
                     currentState = ExtendArm();
-                    break;
-                case ARM_EXTENDED:
-                    currentState = MoveTowardsCrater();
                     break;
             }
         }
 
-        ShutdownTFOD();
     }
 }

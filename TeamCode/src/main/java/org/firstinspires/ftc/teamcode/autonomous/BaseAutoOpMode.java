@@ -26,7 +26,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
     private static final String LABEL_GOLD_MINERAL = "Gold Mineral";
     private static final String LABEL_SILVER_MINERAL = "Silver Mineral";
-    protected int DrivePerInch = (int)(1120 / 12.56);
+    protected int DrivePerInch = (int)(1120 / 18.85);
     private int ArmDistancePerSecond = 19;
     private int BackFlip = 0;
     private int VerticalFlip = 880;
@@ -45,7 +45,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     protected int slideRightPosition = DrivePerInch * 23;
     protected int slideLeftPosition = DrivePerInch * 23;
     protected int knockForwardPosition = DrivePerInch * 32;
-    protected int driveForwardPosition = DrivePerInch * 23;
+    protected int driveForwardPosition = (int)(DrivePerInch * 20.5);
     protected int anglePushDistance = DrivePerInch * 8;
     protected boolean yPressed = false;
     protected boolean aPressed = false;
@@ -230,13 +230,14 @@ abstract class BaseAutoOpMode extends LinearOpMode {
 
     }
     public AutonomousStates Latch () {
-        robot.getLift().setPower(-.2);
+        //robot.getLift().setPower(-.2);
         //robot.getLockServo().setPower(1);
 
         return AutonomousStates.LATCHED;
     }
 
     public AutonomousStates Drop() {
+        /*
         ElapsedTime watch = new ElapsedTime();
         robot.getSlide().setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         // do something to drop
@@ -268,7 +269,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         //robot.getLockServo().setPower(0);
 
         mecanum.MoveBackwards(.3, 50, this);
-
+*/
         return AutonomousStates.DROPPED;
     }
 
@@ -431,7 +432,31 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     }
 
     public AutonomousStates MoveTowardsCrater() {
-        mecanum.MoveForward(.3, DrivePerInch * 0, this);
+        mecanum.MoveForward(.3, DrivePerInch * 12, this);
+
+        return AutonomousStates.AT_CRATER;
+    }
+
+    public AutonomousStates TurnLeftTowardsDepot(){
+        mecanum.TurnLeft(.5 , 3050, this);
+
+        return AutonomousStates.TURNED_TOWARDS_DEPOT;
+    }
+
+    public AutonomousStates MoveTowardsDepot(){
+        mecanum.MoveForward(.5,DrivePerInch * 24, this);
+
+        return AutonomousStates.AT_DEPOT;
+    }
+
+    public AutonomousStates TurnTowardsCrater(){
+        mecanum.TurnLeft(.5 , 4050, this);
+
+        return AutonomousStates.FACING_CRATER;
+    }
+
+    public AutonomousStates DriveTowardsCrater(){
+        mecanum.MoveForward(.5,DrivePerInch * 75, this);
 
         return AutonomousStates.AT_CRATER;
     }

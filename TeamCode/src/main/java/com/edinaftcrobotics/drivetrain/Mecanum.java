@@ -27,8 +27,8 @@ public class Mecanum {
     public void SlideLeft(double power){
         _frontLeft.setPower(power);
         _frontRight.setPower(-power);
-        _backLeft.setPower(-power);
-        _backRight.setPower(power);
+        _backLeft.setPower(power);
+        _backRight.setPower(-power);
     }
 
     public void SlideLeft(double power, int distance, LinearOpMode opMode) {
@@ -50,8 +50,8 @@ public class Mecanum {
     public void SlideRight(double power){
         _frontLeft.setPower(-power);
         _frontRight.setPower(power);
-        _backLeft.setPower(power);
-        _backRight.setPower(-power);
+        _backLeft.setPower(-power);
+        _backRight.setPower(power);
     }
 
     public void SlideRight(double power, int distance, LinearOpMode opMode) {
@@ -74,20 +74,20 @@ public class Mecanum {
         _frontLeft.setPower(power);
         _frontRight.setPower(0);
         _backLeft.setPower(0);
-        _backRight.setPower(power);
+        _backRight.setPower(-power);
     }
 
     public void MoveNW(double power) { // NW
         _frontLeft.setPower(0);
         _frontRight.setPower(-power);
-        _backLeft.setPower(-power);
+        _backLeft.setPower(power);
         _backRight.setPower(0);
     }
 
     public void MoveSE(double power) { // SE
         _frontLeft.setPower(0);
         _frontRight.setPower(power);
-        _backLeft.setPower(power);
+        _backLeft.setPower(-power);
         _backRight.setPower(0);
     }
 
@@ -95,14 +95,14 @@ public class Mecanum {
         _frontLeft.setPower(-power);
         _frontRight.setPower(0);
         _backLeft.setPower(0);
-        _backRight.setPower(-power);
+        _backRight.setPower(power);
     }
 
     public void MoveForward(double power) {
         _frontLeft.setPower(-power);
         _frontRight.setPower(-power);
-        _backLeft.setPower(-power);
-        _backRight.setPower(-power);
+        _backLeft.setPower(power);
+        _backRight.setPower(power);
     }
 
     public void MoveForward(double power, int distance, LinearOpMode opMode) {
@@ -124,8 +124,8 @@ public class Mecanum {
     public void MoveBackwards(double power) {
         _frontLeft.setPower(power);
         _frontRight.setPower(power);
-        _backLeft.setPower(power);
-        _backRight.setPower(power);
+        _backLeft.setPower(-power);
+        _backRight.setPower(-power);
     }
 
     public void MoveBackwards(double power, int distance, LinearOpMode opMode) {
@@ -163,8 +163,8 @@ public class Mecanum {
     public void TurnRight(double power) {
         _frontLeft.setPower(-power);
         _frontRight.setPower(power);
-        _backLeft.setPower(-power);
-        _backRight.setPower(power);
+        _backLeft.setPower(power);
+        _backRight.setPower(-power);
     }
 
     public void TurnLeft(double power, int distance, LinearOpMode opMode) {
@@ -186,8 +186,8 @@ public class Mecanum {
     public void TurnLeft(double power) {
         _frontLeft.setPower(power);
         _frontRight.setPower(-power);
-        _backLeft.setPower(power);
-        _backRight.setPower(-power);
+        _backLeft.setPower(-power);
+        _backRight.setPower(power);
     }
 
     public void Stop() {
@@ -212,8 +212,8 @@ public class Mecanum {
 
         _frontLeft.setPower(-fl);
         _frontRight.setPower(-fr);
-        _backLeft.setPower(bl);
-        _backRight.setPower(br);
+        _backLeft.setPower(-bl);
+        _backRight.setPower(-br);
     }
 
     private void StopAndResetMotors() {
