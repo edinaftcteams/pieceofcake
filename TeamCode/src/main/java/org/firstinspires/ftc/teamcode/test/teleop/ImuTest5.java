@@ -9,57 +9,48 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import java.util.Timer;
+import java.util.TimerTask;
 
 @TeleOp(name = "Test: IMU4", group = "Teleop Test")
 //@Disabled
 public class ImuTest5 extends LinearOpMode {
     BNO055IMU imu = null;
+    private double error = 0;
+    private double endAngle = 135;
+    private double derivative = 0;
+    private double integral = 0;
+    private double previousError = 0;
+    private double currentAngle = 0;
+    private double timerLength = 200;
+    private double Kp = 0.2, Ki = 0.01, Kd = 1; // PID constant multipliers
+    private double output = 0;
+    private double previousOutput = 0;
+    private long previousTime = 0;
+    private long difference = 0;
+    private double firstValue = 0;
+    private boolean firstRun = true;
+    private Timer timer = new Timer();
 
     public void runOpMode() {
-        double integral = 0;
-        double preError = 0;
-        double Kp = 1.5;
-        double Ki = .5;
-        double Kd = .3;
-        double Dt = .02;
-        double previousOutput = 0;
-        double output = 0;
-        double acceptedError = 0.5;
 
-        //SetupIMU();
+        SetupIMU();
+
+        SetupTimer();
 
         waitForStart();
 
         while (opModeIsActive()) {
-            double error = 0;
+            currentAngle = GetImpuAngle();
+            double currentRatio = (previousOutput - output) / firstValue *1000000000 * 10;
 
-            //error = GetImpuAngle();
+            telemetry.addData("Angle: ", currentAngle);
+            telemetry.addData("Output: ", output);
+            telemetry.addData("Output Difference: ", previousOutput - output);
+            telemetry.addData("Left Power: ",  currentRatio);
+            telemetry.addData("Right Power: ", -currentRatio);
 
-            error = 90 - GetJoyStickAngle();
-            // track error over time, scaled to the timer interval
-            integral = integral + (error * Dt);
-            // determine the amount of change from the last time checked
-            double derivative = (error - preError) / Dt;
-            // calculate how much to drive the output in order to get to the
-            // desired setpoint.
-            previousOutput = output;
-            output = (Kp * error) + (Ki * integral) + (Kd * derivative);
-            // remember the error for the next time around.
-            preError = error;
-
-            double difference = previousOutput - output;
-            telemetry.addData("Output", "%f", output);
-            telemetry.addData("Difference", "%f", previousOutput - output);
-            if (Math.abs(difference) < acceptedError) {
-                telemetry.addData("Turn", "Stop");
-            } else if (difference > 0) {
-                telemetry.addData("Turn", "Left");
-            } else if (difference < 0) {
-                telemetry.addData("Turn", "Right");
-            }
             telemetry.update();
-
-            sleep(200);
         }
     }
 
@@ -84,5 +75,31 @@ public class ImuTest5 extends LinearOpMode {
         telemetry.addData("Joystick Angles:", angles);
 
         return angles;
+    }
+
+    private void SetupTimer() {
+        timer.scheduleAtFixedRate(new TimerTask() {
+
+
+            public void run() {
+                long currentTime = System.currentTimeMillis();
+                difference = currentTime - previousTime;
+
+                error = endAngle - currentAngle;
+                integral = integral + (error * difference);
+                derivative = (error - previousError) / difference;
+
+                previousOutput = output;
+                output = (Kp * error) + (Ki * integral) + (Kd * derivative);
+
+                if (firstRun) {
+                    firstValue = Math.abs(previousOutput - output);
+                    firstRun = false;
+                }
+
+                previousError = error;
+                previousTime = currentTime;
+            }
+        }, 200, 200);
     }
 }
