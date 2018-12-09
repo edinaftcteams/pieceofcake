@@ -18,5 +18,6 @@ public enum AutonomousStates {
     ARM_EXTENDED,
     FLIP_AT_BACK,
     TURNED_TOWARDS_DEPOT,
-    FACING_CRATER
+    FACING_CRATER,
+    COMPLETED_TURN
 }

@@ -30,18 +30,21 @@ public class ImuTest5 extends LinearOpMode {
     private long difference = 0;
     private double firstValue = 0;
     private boolean firstRun = true;
-    private Timer timer = new Timer();
+    private Timer timer = null;
+    private TimerTask timerTask = null;
 
     public void runOpMode() {
 
         SetupIMU();
 
-        SetupTimer();
+        SetupTimerTask();
+
+        StartTimer();
 
         waitForStart();
 
         while (opModeIsActive()) {
-            currentAngle = GetImpuAngle();
+            currentAngle = GetImuAngle();
             double currentRatio = (previousOutput - output) / firstValue *1000000000 * 10;
 
             telemetry.addData("Angle: ", currentAngle);
@@ -52,6 +55,8 @@ public class ImuTest5 extends LinearOpMode {
 
             telemetry.update();
         }
+
+        StopTimer();
     }
 
     private void SetupIMU() {
@@ -62,7 +67,7 @@ public class ImuTest5 extends LinearOpMode {
         imu.initialize(parameters);
     }
 
-    private double GetImpuAngle() {
+    private double GetImuAngle() {
         Orientation angles = imu.getAngularOrientation(AxesReference.EXTRINSIC.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         telemetry.addData("IMU Angles:", angles);
 
@@ -77,10 +82,9 @@ public class ImuTest5 extends LinearOpMode {
         return angles;
     }
 
-    private void SetupTimer() {
-        timer.scheduleAtFixedRate(new TimerTask() {
-
-
+    private void SetupTimerTask() {
+        timerTask = new TimerTask() {
+            @Override
             public void run() {
                 long currentTime = System.currentTimeMillis();
                 difference = currentTime - previousTime;
@@ -100,6 +104,15 @@ public class ImuTest5 extends LinearOpMode {
                 previousError = error;
                 previousTime = currentTime;
             }
-        }, 200, 200);
+        };
+    }
+
+    private void StartTimer() {
+        timer = new Timer();
+        timer.scheduleAtFixedRate(timerTask, 200, 200);
+    }
+
+    private void StopTimer() {
+        timer.cancel();
     }
 }

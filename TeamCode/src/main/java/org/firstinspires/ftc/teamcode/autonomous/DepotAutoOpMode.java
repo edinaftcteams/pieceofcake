@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.autonomous;
 import android.graphics.drawable.GradientDrawable;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -13,6 +14,7 @@ import org.firstinspires.ftc.teamcode.enums.AutonomousStates;
 import org.firstinspires.ftc.teamcode.enums.MineralLocation;
 
 @Autonomous(name="Depot", group="Autonomous")
+@Disabled
 public class DepotAutoOpMode extends BaseAutoOpMode {
 
     public void runOpMode() {

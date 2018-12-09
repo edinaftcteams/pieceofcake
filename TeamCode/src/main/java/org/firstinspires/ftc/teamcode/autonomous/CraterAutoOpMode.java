@@ -25,6 +25,8 @@ public class CraterAutoOpMode extends BaseAutoOpMode {
 
         waitForStart();
 
+        return;
+/*
         LocateTFMineral();
 
         while (opModeIsActive() && (currentState != AutonomousStates.FLIP_AT_BACK)) {
@@ -49,5 +51,6 @@ public class CraterAutoOpMode extends BaseAutoOpMode {
                     break;
             }
         }
+        */
     }
 }

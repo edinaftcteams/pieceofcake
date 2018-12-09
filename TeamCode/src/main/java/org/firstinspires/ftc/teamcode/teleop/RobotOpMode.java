@@ -152,7 +152,7 @@ public class RobotOpMode extends OpMode {
         } else {
             if (gamepad1.x || gamepad2.x) {
                 robot.getFrontFlip().setPower(.7);
-                robot.getFrontFlip().setTargetPosition(2778);
+                robot.getFrontFlip().setTargetPosition(2700);
                 flipBPressed = false;
             } else if (gamepad1.b || gamepad2.b) {
                 robot.getFrontFlip().setPower(.7);
@@ -160,7 +160,7 @@ public class RobotOpMode extends OpMode {
                 flipBPressed = true;
             } else if ((!gamepad1.b || !gamepad2.b) && flipBPressed) {
                 robot.getFrontFlip().setPower(.5);
-                robot.getFrontFlip().setTargetPosition(900);
+                robot.getFrontFlip().setTargetPosition(675);
                 flipBPressed = false;
             }
 

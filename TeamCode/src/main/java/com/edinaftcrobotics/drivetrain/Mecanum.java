@@ -54,6 +54,13 @@ public class Mecanum {
         _backRight.setPower(power);
     }
 
+    public void Move(double left, double right){
+        _frontLeft.setPower(left);
+        _frontRight.setPower(right);
+        _backLeft.setPower(left);
+        _backRight.setPower(right);
+    }
+
     public void SlideRight(double power, int distance, LinearOpMode opMode) {
         StopAndResetMotors();
         SetDistance(-distance, -distance, -distance, -distance);

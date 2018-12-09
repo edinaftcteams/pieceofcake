@@ -5,14 +5,14 @@ import com.edinaftcrobotics.vision.camera.BackPhoneCamera;
 import com.edinaftcrobotics.vision.camera.Camera;
 import com.edinaftcrobotics.vision.tracker.roverruckus.GoldMineralTracker;
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.bosch.BNO055IMUImpl;
-import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
@@ -21,6 +21,8 @@ import org.firstinspires.ftc.teamcode.enums.MineralLocation;
 import org.firstinspires.ftc.teamcode.robot.PieceOfCake;
 
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 abstract class BaseAutoOpMode extends LinearOpMode {
     private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
@@ -39,7 +41,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     protected PieceOfCake robot = new PieceOfCake();
     protected Mecanum mecanum = null;
     protected int latchHeight = 100;
-    protected BNO055IMUImpl imu = null;
+    protected BNO055IMU imu = null;
     protected TFObjectDetector tfod;
 
     protected int slideRightPosition = DrivePerInch * 23;
@@ -55,6 +57,23 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     protected boolean dPadDownPressed = false;
     protected boolean bumperLeftPressed = false;
     protected boolean bumperRightPressed = false;
+    private Timer timer = null;
+    private TimerTask timerTask = null;
+    private double error = 0;
+    private double endAngle = 135;
+    private double derivative = 0;
+    private double integral = 0;
+    private double previousError = 0;
+    private double currentAngle = 0;
+    private double timerLength = 200;
+    private double Kp = 0.2, Ki = 0.01, Kd = 1; // PID constant multipliers
+    private double output = 0;
+    private double previousOutput = 0;
+    private long previousTime = 0;
+    private long difference = 0;
+    private double firstValue = 0;
+    private boolean firstRun = true;
+
 
     protected void InitRobot() {
         robot.init(hardwareMap);
@@ -75,15 +94,10 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     }
 
     protected void InitGyro() {
-        imu = hardwareMap.get(BNO055IMUImpl.class, "imu");
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
         parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        //Add calibration file?
-        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();  //Figure out why the naive one doesn't have a public constructor
-        parameters.loggingEnabled = true;   //For debugging
-        parameters.loggingTag = "IMU";      //For debugging
-
         imu.initialize(parameters);
         while (!imu.isGyroCalibrated());
     }
@@ -230,8 +244,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
 
     }
     public AutonomousStates Latch () {
-        //robot.getLift().setPower(-.2);
-        //robot.getLockServo().setPower(1);
+        robot.getLift().setPower(-.2);
 
         return AutonomousStates.LATCHED;
     }
@@ -459,5 +472,68 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         mecanum.MoveForward(.5,DrivePerInch * 75, this);
 
         return AutonomousStates.AT_CRATER;
+    }
+
+    public AutonomousStates TurnByDegrees(int degrees){
+        double currentRatio = 1.0;
+        endAngle = degrees;
+
+        while (Math.abs(currentRatio) > .01){
+            currentAngle = GetImuAngle();
+            currentRatio = (previousOutput - output) / firstValue *1000000000 * 10;
+
+            mecanum.Move(currentRatio * .5, currentRatio * .5);
+        }
+
+        return AutonomousStates.COMPLETED_TURN;
+    }
+
+    private double GetImuAngle() {
+        Orientation angles = imu.getAngularOrientation(AxesReference.EXTRINSIC.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        telemetry.addData("IMU Angles:", angles);
+
+        return angles.firstAngle;
+    }
+
+    private void SetupTimerTask() {
+        timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                long currentTime = System.currentTimeMillis();
+                difference = currentTime - previousTime;
+
+                error = endAngle - currentAngle;
+                integral = integral + (error * difference);
+                derivative = (error - previousError) / difference;
+
+                previousOutput = output;
+                output = (Kp * error) + (Ki * integral) + (Kd * derivative);
+
+                if (firstRun) {
+                    firstValue = Math.abs(previousOutput - output);
+                    firstRun = false;
+                }
+
+                previousError = error;
+                previousTime = currentTime;
+            }
+        };
+    }
+
+    private void StartTimer() {
+        previousTime = System.currentTimeMillis();
+        firstRun = true;
+        integral = 0;
+        derivative = 0;
+        firstValue = 0;
+        previousOutput = 0;
+        output = 0;
+
+        timer = new Timer();
+        timer.scheduleAtFixedRate(timerTask, 200, 200);
+    }
+
+    private void StopTimer() {
+        timer.cancel();
     }
 }
