@@ -36,10 +36,7 @@ public class RobotOpMode extends OpMode {
 
         robot.getTopFlip().setPosition(1);
 
-        robot.getFrontFlip().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.getFrontFlip().setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        mecanum = new Mecanum(robot.getFrontL(), robot.getFrontR(), robot.getBackL(), robot.getBackR(), true);
+        mecanum = new Mecanum(robot.getFrontL(), robot.getFrontR(), robot.getBackL(), robot.getBackR(), true, telemetry);
     }
 
     @Override
@@ -63,6 +60,7 @@ public class RobotOpMode extends OpMode {
         ProcessFrontFlip();
         ProcessLift();
         ProcessTopFlip();
+        ProcessPower();
 
         telemetry.update();
     }
@@ -99,7 +97,7 @@ public class RobotOpMode extends OpMode {
             intakeAPressed = false;
         } else if (!yValue && intakeYPressed) {
             if (!intakeInToggledOn) {
-                robot.getIntake().setPower(1);
+                robot.getIntake().setPower(.7);
                 intakeInToggledOn = true;
                 intakeOutToggledOn = false;
             } else {
@@ -117,7 +115,7 @@ public class RobotOpMode extends OpMode {
             intakeYPressed = false;
         } else if (!aValue && intakeAPressed) {
             if (!intakeOutToggledOn) {
-                robot.getIntake().setPower(-1);
+                robot.getIntake().setPower(-.7);
                 intakeInToggledOn = false;
                 intakeOutToggledOn = true;
             } else {
@@ -133,56 +131,27 @@ public class RobotOpMode extends OpMode {
         }
     }
 
-    private void ProcessFrontFlip() {
-        if ((gamepad1.left_bumper && gamepad1.right_bumper) || (gamepad2.left_bumper && gamepad2.right_bumper)) {
-            bumpersPressed = true;
-            robot.getFrontFlip().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            robot.getFrontFlip().setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            robot.getFrontFlip().setPower(0);
+    private void ProcessPower(){
+        if (gamepad1.dpad_down){
+            mecanum.SetCurrentPower(0.6);
+        } else if (gamepad1.dpad_up){
+            mecanum.SetCurrentPower(1.0);
+        } else if(gamepad1.dpad_left){
+            mecanum.SetCurrentPower(1.4);
         }
+    }
 
-        if (bumpersPressed) {
-            if (gamepad1.left_bumper || gamepad2.left_bumper) {
-                robot.getFrontFlip().setPower(.7);
-            } else if (gamepad1.right_bumper || gamepad2.right_bumper) {
-                robot.getFrontFlip().setPower(-.7);
-            } else {
-                robot.getFrontFlip().setPower(0);
-            }
+    private void ProcessFrontFlip() {
+        if (gamepad1.left_bumper || gamepad2.left_bumper) {
+            robot.getFrontFlip().setPower(.7);
+        } else if (gamepad1.right_bumper || gamepad2.right_bumper) {
+            robot.getFrontFlip().setPower(-.7);
         } else {
-            if (gamepad1.x || gamepad2.x) {
-                robot.getFrontFlip().setPower(.7);
-                robot.getFrontFlip().setTargetPosition(2700);
-                flipBPressed = false;
-            } else if (gamepad1.b || gamepad2.b) {
-                robot.getFrontFlip().setPower(.7);
-                robot.getFrontFlip().setTargetPosition(0);
-                flipBPressed = true;
-            } else if ((!gamepad1.b || !gamepad2.b) && flipBPressed) {
-                robot.getFrontFlip().setPower(.5);
-                robot.getFrontFlip().setTargetPosition(675);
-                flipBPressed = false;
-            }
-
-            if (!robot.getFrontFlip().isBusy()) {
-                robot.getFrontFlip().setPower(0);
-            }
+            robot.getFrontFlip().setPower(0);
         }
     }
 
     private void ProcessLift() {
-        /*
-        if (gamepad2.left_stick_y < 0) {
-            robot.getLift().setPower(1);
-            //robot.getLockServo().setPower(-1);
-        } else if (gamepad2.left_stick_y > 0) {
-            robot.getLift().setPower(-1);
-            //robot.getLockServo().setPower(1);
-        } else {
-            robot.getLift().setPower(0);
-            //robot.getLockServo().setPower(0);
-        }
-        */
         robot.getLift().setPower(-gamepad2.left_stick_y);
     }
 

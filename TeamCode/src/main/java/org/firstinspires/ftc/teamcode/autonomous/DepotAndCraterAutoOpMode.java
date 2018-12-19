@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.enums.AutonomousStates;
 import org.firstinspires.ftc.teamcode.enums.MineralLocation;
 
 @Autonomous(name="Depot And Crater", group="Autonomous")
-@Disabled
+//@Disabled
 public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
     private int distanceFromLeftMineral = DrivePerInch * 12;
 
@@ -27,14 +27,16 @@ public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
 
         waitForStart();
 
-        LocateTFMineral();
-
-        while (opModeIsActive() && (currentState != AutonomousStates.AT_CRATER)) {
+        while (opModeIsActive() && (currentState != AutonomousStates.ARM_EXTENDED)) {
             switch (currentState) {
                 case LATCHED:
                     currentState = Drop();
                     break;
                 case DROPPED:
+                    LocateTFMineral();
+                    currentState = MoveLeftOffLatch();
+                    break;
+                case MOVED_OFF_LATCH:
                     currentState = MoveForward(driveForwardPosition);
                     break;
                 case MOVED_FORWARD:

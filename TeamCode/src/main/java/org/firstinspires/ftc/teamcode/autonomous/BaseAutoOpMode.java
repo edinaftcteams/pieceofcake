@@ -6,6 +6,7 @@ import com.edinaftcrobotics.vision.camera.Camera;
 import com.edinaftcrobotics.vision.tracker.roverruckus.GoldMineralTracker;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
@@ -32,7 +33,8 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     private int ArmDistancePerSecond = 19;
     private int BackFlip = 0;
     private int VerticalFlip = 880;
-    private int FlatFlip = 1860;
+    private int FlatFlip = 1800;
+    private int BalanceFlip = 1430;
     private static final String VUFORIA_KEY = "ASA9XvT/////AAABmUnq30r9sU3Nmf/+RS+Xx0CHgJj/JtD5ycahnuM/0B2SFvbMRPIZCbLi4LeOkfse9Dymor5W7vNMYI+vmqVx9kpEaKE8VM7cFMUb/T1LLwlCPdX9QKOruzTcRdlYswR7ULh4K11GuFZDO/45pSks+Nf25kT5cnV+IN3TsscA0o7I6XPIeUoAJJPsjw+AycsmRk2uffr3Bnupexr93iRfHylniqP+ss4cRcT1lOqS5Zhh7FQaoelR58qL/RUorGpknjy9ufCn9ervc6Mz01u3ZkM/EOa5wUPT8bDzPZ6nMDaadqumorT5Py+GtJSUosUgz4Gd3iR++fdEk6faFZq3L9xfBSagNykwhiyYx+oqwVqe";
 
     protected MineralLocation mineralLocation = MineralLocation.RIGHT;
@@ -78,7 +80,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     protected void InitRobot() {
         robot.init(hardwareMap);
 
-        mecanum = new Mecanum(robot.getFrontL(), robot.getFrontR(), robot.getBackL(), robot.getBackR(), false);
+        mecanum = new Mecanum(robot.getFrontL(), robot.getFrontR(), robot.getBackL(), robot.getBackR(), true, telemetry);
 
         initVuforia();
 
@@ -250,7 +252,6 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     }
 
     public AutonomousStates Drop() {
-        /*
         ElapsedTime watch = new ElapsedTime();
         robot.getSlide().setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         // do something to drop
@@ -279,31 +280,27 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         }
 
         robot.getLift().setPower(0);
-        //robot.getLockServo().setPower(0);
 
         mecanum.MoveBackwards(.3, 50, this);
-*/
         return AutonomousStates.DROPPED;
     }
 
-    public AutonomousStates LocateMineral() throws InterruptedException {
-        if (mineralTracker.getGoldMineralLocation()) {
-            if (mineralTracker.getYPosition() > 150) {
-                mineralLocation = MineralLocation.LEFT;
-            } else if (mineralTracker.getYPosition() < 150) {
-                mineralLocation = MineralLocation.MIDDLE;
-            } else {
-                mineralLocation = MineralLocation.RIGHT;
-            }
-        } else {
-            mineralLocation = MineralLocation.RIGHT;
+    public AutonomousStates MoveLeftOffLatch() {
+        robot.getTopFlip().setPosition(1);
+        robot.getFrontFlip().setTargetPosition(BalanceFlip);
+        robot.getFrontFlip().setPower(.7);
+
+        while (robot.getFrontFlip().isBusy()) {
+            idle();
         }
 
-        telemetry.update();
+        robot.getFrontFlip().setPower(0);
 
-        return AutonomousStates.MINERAL_LOCATED;
+        mecanum.SlideLeft(.7, 250, this);
+
+        return AutonomousStates.MOVED_OFF_LATCH;
     }
-
+    
     public AutonomousStates MoveForward(int forwardDistance) {
         mecanum.MoveForward(.6, forwardDistance, this);
 
@@ -407,7 +404,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         // flip intake back to 0
         robot.getIntake().setPower(0);
         robot.getFrontFlip().setPower(.5);
-        robot.getFrontFlip().setTargetPosition(BackFlip);
+        robot.getFrontFlip().setTargetPosition(BalanceFlip);
         while (robot.getFrontFlip().isBusy()) {
             idle();;
         }
@@ -439,7 +436,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     }
 
     public AutonomousStates TurnLeftTowardsCrater() {
-        mecanum.TurnLeft(.5 , 3050, this);
+        mecanum.TurnLeft(.5 , 1925, this);
 
         return AutonomousStates.TURNED_TOWARDS_CRATER;
     }
@@ -451,7 +448,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     }
 
     public AutonomousStates TurnLeftTowardsDepot(){
-        mecanum.TurnLeft(.5 , 3050, this);
+        mecanum.TurnLeft(.5 , 1925, this);
 
         return AutonomousStates.TURNED_TOWARDS_DEPOT;
     }
@@ -499,23 +496,23 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         timerTask = new TimerTask() {
             @Override
             public void run() {
-                long currentTime = System.currentTimeMillis();
-                difference = currentTime - previousTime;
+            long currentTime = System.currentTimeMillis();
+            difference = currentTime - previousTime;
 
-                error = endAngle - currentAngle;
-                integral = integral + (error * difference);
-                derivative = (error - previousError) / difference;
+            error = endAngle - currentAngle;
+            integral = integral + (error * difference);
+            derivative = (error - previousError) / difference;
 
-                previousOutput = output;
-                output = (Kp * error) + (Ki * integral) + (Kd * derivative);
+            previousOutput = output;
+            output = (Kp * error) + (Ki * integral) + (Kd * derivative);
 
-                if (firstRun) {
-                    firstValue = Math.abs(previousOutput - output);
-                    firstRun = false;
-                }
+            if (firstRun) {
+                firstValue = Math.abs(previousOutput - output);
+                firstRun = false;
+            }
 
-                previousError = error;
-                previousTime = currentTime;
+            previousError = error;
+            previousTime = currentTime;
             }
         };
     }

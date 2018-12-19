@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.enums.AutonomousStates;
 import org.firstinspires.ftc.teamcode.enums.MineralLocation;
 
 @Autonomous(name = "Crater",group = "Autonomous")
+@Disabled
 public class CraterAutoOpMode extends BaseAutoOpMode {
 
     public void runOpMode(){
@@ -25,11 +26,9 @@ public class CraterAutoOpMode extends BaseAutoOpMode {
 
         waitForStart();
 
-        return;
-/*
-        LocateTFMineral();
+        //LocateTFMineral();
 
-        while (opModeIsActive() && (currentState != AutonomousStates.FLIP_AT_BACK)) {
+        while (opModeIsActive() && (currentState != AutonomousStates.DROPPED)) {
             switch (currentState) {
                 case LATCHED:
                     currentState = Drop();
@@ -51,6 +50,5 @@ public class CraterAutoOpMode extends BaseAutoOpMode {
                     break;
             }
         }
-        */
     }
 }

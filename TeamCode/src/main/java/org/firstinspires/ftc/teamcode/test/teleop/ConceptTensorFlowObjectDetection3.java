@@ -38,7 +38,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
-import org.firstinspires.ftc.teamcode.enums.MineralLocation;
 
 import java.util.List;
 
@@ -52,9 +51,9 @@ import java.util.List;
  * IMPORTANT: In order to use this OpMode, you need to obtain your own Vuforia license key as
  * is explained below.
  */
-@TeleOp(name = "Test: TensorFlow Object Detection Our Special Code", group = "Test")
+@TeleOp(name = "Concept: TensorFlow Object Detection Original", group = "Test")
 //@Disabled
-public class ConceptTensorFlowObjectDetection2 extends LinearOpMode {
+public class ConceptTensorFlowObjectDetection3 extends LinearOpMode {
     private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
     private static final String LABEL_GOLD_MINERAL = "Gold Mineral";
     private static final String LABEL_SILVER_MINERAL = "Silver Mineral";
@@ -87,7 +86,6 @@ public class ConceptTensorFlowObjectDetection2 extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        MineralLocation mineralLocation = MineralLocation.RIGHT;
         // The TFObjectDetector uses the camera frames from the VuforiaLocalizer, so we create that
         // first.
         initVuforia();
@@ -99,6 +97,8 @@ public class ConceptTensorFlowObjectDetection2 extends LinearOpMode {
         }
 
         /** Wait for the game to begin */
+        telemetry.addData(">", "Press Play to start tracking");
+        telemetry.update();
         waitForStart();
 
         if (opModeIsActive()) {
@@ -113,37 +113,15 @@ public class ConceptTensorFlowObjectDetection2 extends LinearOpMode {
                     // the last time that call was made.
                     List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
                     if (updatedRecognitions != null) {
-                        telemetry.addData("# Object Detected", updatedRecognitions.size());
-                        int goldMineralX = 0;
+                      telemetry.addData("# Object Detected", updatedRecognitions.size());
                         if (updatedRecognitions.size() > 0) {
                             for (Recognition recognition : updatedRecognitions) {
-                                if ((recognition.getLabel().equals(LABEL_GOLD_MINERAL)) && recognition.getTop() < 500){
-                                    goldMineralX = (int) recognition.getLeft();
-                                }
-
-                                telemetry.addData("Gold Mineral Position", "%d", goldMineralX);
+                                telemetry.addData("Object", recognition);
                             }
                         }
-
-                        if (goldMineralX > 300) {
-                            mineralLocation = MineralLocation.LEFT;
-                            telemetry.addData("Mineral Location", "Left");
-                        } else if ((goldMineralX >= 50) && (goldMineralX <= 300)) {
-                            mineralLocation = MineralLocation.MIDDLE;
-                            telemetry.addData("Mineral Location", "Middle");
-                        } else {
-                            mineralLocation = MineralLocation.RIGHT;
-                            telemetry.addData("Mineral Location", "Right");
-                        }
-                    } else {
-                        telemetry.addData("Nothing", "Detected");
-                        mineralLocation = MineralLocation.RIGHT;
+                      telemetry.update();
                     }
-                } else {
-                    telemetry.addData("No", "TFOD");
                 }
-
-                telemetry.update();
             }
         }
 
