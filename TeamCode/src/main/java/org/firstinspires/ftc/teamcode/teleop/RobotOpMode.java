@@ -97,7 +97,7 @@ public class RobotOpMode extends OpMode {
             intakeAPressed = false;
         } else if (!yValue && intakeYPressed) {
             if (!intakeInToggledOn) {
-                robot.getIntake().setPower(.7);
+                robot.getIntake().setPower(.4);
                 intakeInToggledOn = true;
                 intakeOutToggledOn = false;
             } else {
@@ -115,7 +115,7 @@ public class RobotOpMode extends OpMode {
             intakeYPressed = false;
         } else if (!aValue && intakeAPressed) {
             if (!intakeOutToggledOn) {
-                robot.getIntake().setPower(-.7);
+                robot.getIntake().setPower(-.4);
                 intakeInToggledOn = false;
                 intakeOutToggledOn = true;
             } else {

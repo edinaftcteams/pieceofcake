@@ -1,62 +1,52 @@
 package org.firstinspires.ftc.teamcode.test.teleop;
 
+import com.edinaftcrobotics.drivetrain.Mecanum;
+import com.edinaftcrobotics.navigation.TurnOMatic;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.teamcode.robot.PieceOfCake;
+
 import java.util.Timer;
 import java.util.TimerTask;
 
 @TeleOp(name = "Test: IMU4", group = "Teleop Test")
-@Disabled
+//@Disabled
 public class ImuTest5 extends LinearOpMode {
     BNO055IMU imu = null;
-    private double error = 0;
-    private double endAngle = 135;
-    private double derivative = 0;
-    private double integral = 0;
-    private double previousError = 0;
-    private double currentAngle = 0;
-    private double timerLength = 200;
-    private double Kp = 0.2, Ki = 0.01, Kd = 1; // PID constant multipliers
-    private double output = 0;
-    private double previousOutput = 0;
-    private long previousTime = 0;
-    private long difference = 0;
-    private double firstValue = 0;
-    private boolean firstRun = true;
-    private Timer timer = null;
-    private TimerTask timerTask = null;
+    Mecanum mecanum = null;
 
     public void runOpMode() {
+        PieceOfCake robot = new PieceOfCake();
+
+        robot.init(hardwareMap);
+
+        mecanum = new Mecanum(robot.getFrontL(), robot.getFrontR(), robot.getBackL(), robot.getBackR(), true, telemetry);
 
         SetupIMU();
 
-        SetupTimerTask();
-
-        StartTimer();
-
         waitForStart();
 
+        //mecanum.TurnLeft(.5, 1200, this);
+
         while (opModeIsActive()) {
-            currentAngle = GetImuAngle();
-            double currentRatio = (previousOutput - output) / firstValue *1000000000 * 10;
+            TurnOMatic turner = new TurnOMatic(imu, mecanum, telemetry, 90);
+            turner.Turn(.1, 3000);
+            //mecanum.Move(-.0, 0, -.3, .3);
 
-            telemetry.addData("Angle: ", currentAngle);
-            telemetry.addData("Output: ", output);
-            telemetry.addData("Output Difference: ", previousOutput - output);
-            telemetry.addData("Left Power: ",  currentRatio);
-            telemetry.addData("Right Power: ", -currentRatio);
+            sleep(5000);
 
-            telemetry.update();
+            TurnOMatic turner2 = new TurnOMatic(imu, mecanum, telemetry, 45);
+            turner.Turn(.1, 3000);
+
         }
-
-        StopTimer();
     }
 
     private void SetupIMU() {
@@ -65,54 +55,5 @@ public class ImuTest5 extends LinearOpMode {
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
         parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
         imu.initialize(parameters);
-    }
-
-    private double GetImuAngle() {
-        Orientation angles = imu.getAngularOrientation(AxesReference.EXTRINSIC.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        telemetry.addData("IMU Angles:", angles);
-
-        return angles.firstAngle;
-    }
-
-    private double GetJoyStickAngle() {
-        double angles = Math.toDegrees(Math.atan2(gamepad1.left_stick_x, gamepad1.left_stick_y));
-
-        telemetry.addData("Joystick Angles:", angles);
-
-        return angles;
-    }
-
-    private void SetupTimerTask() {
-        timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                long currentTime = System.currentTimeMillis();
-                difference = currentTime - previousTime;
-
-                error = endAngle - currentAngle;
-                integral = integral + (error * difference);
-                derivative = (error - previousError) / difference;
-
-                previousOutput = output;
-                output = (Kp * error) + (Ki * integral) + (Kd * derivative);
-
-                if (firstRun) {
-                    firstValue = Math.abs(previousOutput - output);
-                    firstRun = false;
-                }
-
-                previousError = error;
-                previousTime = currentTime;
-            }
-        };
-    }
-
-    private void StartTimer() {
-        timer = new Timer();
-        timer.scheduleAtFixedRate(timerTask, 200, 200);
-    }
-
-    private void StopTimer() {
-        timer.cancel();
     }
 }

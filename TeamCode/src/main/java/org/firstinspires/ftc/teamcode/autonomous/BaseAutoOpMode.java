@@ -35,6 +35,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     private int VerticalFlip = 880;
     private int FlatFlip = 1800;
     private int BalanceFlip = 1430;
+    private int SlideOffLatchDistance = 250;
     private static final String VUFORIA_KEY = "ASA9XvT/////AAABmUnq30r9sU3Nmf/+RS+Xx0CHgJj/JtD5ycahnuM/0B2SFvbMRPIZCbLi4LeOkfse9Dymor5W7vNMYI+vmqVx9kpEaKE8VM7cFMUb/T1LLwlCPdX9QKOruzTcRdlYswR7ULh4K11GuFZDO/45pSks+Nf25kT5cnV+IN3TsscA0o7I6XPIeUoAJJPsjw+AycsmRk2uffr3Bnupexr93iRfHylniqP+ss4cRcT1lOqS5Zhh7FQaoelR58qL/RUorGpknjy9ufCn9ervc6Mz01u3ZkM/EOa5wUPT8bDzPZ6nMDaadqumorT5Py+GtJSUosUgz4Gd3iR++fdEk6faFZq3L9xfBSagNykwhiyYx+oqwVqe";
 
     protected MineralLocation mineralLocation = MineralLocation.RIGHT;
@@ -256,7 +257,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         robot.getSlide().setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         // do something to drop
         robot.getTopFlip().setPosition(1);
-        robot.getFrontFlip().setTargetPosition(VerticalFlip);
+        robot.getFrontFlip().setTargetPosition(BalanceFlip);
         robot.getFrontFlip().setPower(.7);
 
         while (robot.getFrontFlip().isBusy()) {
@@ -296,7 +297,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
 
         robot.getFrontFlip().setPower(0);
 
-        mecanum.SlideLeft(.7, 250, this);
+        mecanum.SlideLeft(.7, SlideOffLatchDistance, this);
 
         return AutonomousStates.MOVED_OFF_LATCH;
     }
@@ -307,11 +308,30 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         return AutonomousStates.MOVED_FORWARD;
     }
 
+    public AutonomousStates MoveForwardAndSlideBackToCenter(int forwardDistance) {
+        mecanum.MoveForward(.6, forwardDistance, this);
+        mecanum.SlideRight(.7, SlideOffLatchDistance, this);
+
+        return AutonomousStates.MOVED_BACK_TO_CENTER;
+    }
+
     public AutonomousStates DriveToMineral (int slideLeftDistance, int slideRightDistance) {
         if (mineralLocation == MineralLocation.LEFT) {
             mecanum.SlideLeft(.5, slideLeftDistance, this);
         } else if (mineralLocation == MineralLocation.RIGHT) {
             mecanum.SlideRight(.5, slideRightDistance, this);
+        }
+
+        return AutonomousStates.AT_MINERAL;
+    }
+
+    public AutonomousStates DriveToMineralOffLeftOffset(int slideLeftDistance, int slideRightDistance) {
+        if (mineralLocation == MineralLocation.LEFT) {
+            mecanum.SlideLeft(.5, slideLeftDistance - SlideOffLatchDistance, this);
+        } else if (mineralLocation == MineralLocation.RIGHT) {
+            mecanum.SlideRight(.5, slideRightDistance + SlideOffLatchDistance, this);
+        } else {
+            mecanum.SlideRight(.5, SlideOffLatchDistance, this);
         }
 
         return AutonomousStates.AT_MINERAL;
@@ -436,7 +456,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     }
 
     public AutonomousStates TurnLeftTowardsCrater() {
-        mecanum.TurnLeft(.5 , 1925, this);
+        mecanum.TurnLeft(.5 , 600, this);
 
         return AutonomousStates.TURNED_TOWARDS_CRATER;
     }
@@ -448,7 +468,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     }
 
     public AutonomousStates TurnLeftTowardsDepot(){
-        mecanum.TurnLeft(.5 , 1925, this);
+        mecanum.TurnLeft(.5 , 600, this);
 
         return AutonomousStates.TURNED_TOWARDS_DEPOT;
     }
@@ -459,8 +479,26 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         return AutonomousStates.AT_DEPOT;
     }
 
+    public AutonomousStates TurnTowardsLeftWall()  {
+        mecanum.TurnLeft(.5, 1200, this);
+
+        return AutonomousStates.TURNED_TOWARDS_LEFT_WALL;
+    }
+
+    public AutonomousStates DriveToLeftWall(int distanceFromLeftMineral, int distanceFromCenterMineral, int distanceFromRightMineral) {
+        if (mineralLocation == MineralLocation.RIGHT) {
+            mecanum.MoveForward(.5,distanceFromRightMineral, this);
+        } else if (mineralLocation == MineralLocation.LEFT) {
+            mecanum.MoveForward(.5,distanceFromLeftMineral, this);
+        } else if (mineralLocation == MineralLocation.MIDDLE) {
+            mecanum.MoveForward(.5,distanceFromCenterMineral, this);
+        }
+
+        return AutonomousStates.AT_LEFT_WALL;
+    }
+
     public AutonomousStates TurnTowardsCrater(){
-        mecanum.TurnLeft(.5 , 4050, this);
+        mecanum.TurnLeft(.5 , 2400, this);
 
         return AutonomousStates.FACING_CRATER;
     }

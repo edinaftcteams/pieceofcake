@@ -4,11 +4,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.enums.AutonomousStates;
 
-public class BaseCraterDepotAndCrater extends BaseAutoOpMode{
+public class CraterDepotAndCrater extends BaseAutoOpMode{
     private int distanceFromLeftMineral = DrivePerInch * 12;
-
-    protected int FirstDelay = 0;
-    protected int SecondDelay = 0;
 
     public void runOpMode(){
 
@@ -34,10 +31,13 @@ public class BaseCraterDepotAndCrater extends BaseAutoOpMode{
                     currentState = Drop();
                     break;
                 case DROPPED:
+                    currentState = MoveLeftOffLatch();
+                    break;
+                case MOVED_OFF_LATCH:
                     currentState = MoveForward(driveForwardPosition);
                     break;
                 case MOVED_FORWARD:
-                    currentState = DriveToMineral(slideLeftPosition, slideRightPosition);
+                    currentState = DriveToMineralOffLeftOffset(slideLeftPosition, slideRightPosition);
                     break;
                 case AT_MINERAL:
                     currentState = PushMineral((int)(DrivePerInch * 8.5));
@@ -46,12 +46,14 @@ public class BaseCraterDepotAndCrater extends BaseAutoOpMode{
                     currentState = BackAwayFromMIneral((int)(DrivePerInch * 9));
                     break;
                 case BACKED_AWAY_FROM_MINERAL:
-                    sleep(FirstDelay);
-                    currentState = MoveToLeftWall(distanceFromLeftMineral, slideLeftPosition + distanceFromLeftMineral,
+                    currentState = TurnTowardsLeftWall();
+                    break;
+                case TURNED_TOWARDS_LEFT_WALL:
+                    currentState = DriveToLeftWall(distanceFromLeftMineral, slideLeftPosition + distanceFromLeftMineral,
                             slideLeftPosition + slideRightPosition + distanceFromLeftMineral);
                     break;
                 case AT_LEFT_WALL:
-                    currentState = TurnLeftTowardsDepot();
+                    currentState = TurnLeftTowardsCrater();
                     break;
                 case TURNED_TOWARDS_DEPOT:
                     currentState = MoveTowardsDepot();
@@ -63,7 +65,6 @@ public class BaseCraterDepotAndCrater extends BaseAutoOpMode{
                     currentState = TurnTowardsCrater();
                     break;
                 case FACING_CRATER:
-                    sleep(SecondDelay);
                     currentState = DriveTowardsCrater();
                     break;
                 case AT_CRATER:
