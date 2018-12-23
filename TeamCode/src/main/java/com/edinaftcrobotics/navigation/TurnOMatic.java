@@ -2,6 +2,7 @@ package com.edinaftcrobotics.navigation;
 
 import com.edinaftcrobotics.drivetrain.Mecanum;
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -29,42 +30,48 @@ public class TurnOMatic {
     private double output = 0;
     private double previousOutput = 0;
     private long previousTime;
-    private long difference = 0;
     private double firstValue = 0;
     private boolean firstRun = true;
     private Timer timer = null;
     private TimerTask timerTask = null;
+    private LinearOpMode opMode = null;
+    private double motorRatio = .7;
 
-    public TurnOMatic(BNO055IMU imu, Mecanum mecanum, Telemetry telemetry, double toWnatAngle) {
+    public TurnOMatic(BNO055IMU imu, Mecanum mecanum, Telemetry telemetry, double toWnatAngle, LinearOpMode opMode, double motorRatio) {
         this.imu = imu;
         this.mecanum = mecanum;
         this.telemetry = telemetry;
         startAngle = GetImuAngle();
-        endAngle = toWnatAngle + startAngle;
+        endAngle = toWnatAngle;
+        this.opMode = opMode;
+        this.motorRatio = motorRatio;
+        SetupTimerTask();
         StartTimer();
     }
 
     public void Turn(double closeEnough, long ticksToWait) {
         double currentRatio = 1;
 
-        while (Math.abs(currentRatio) > closeEnough) {
+        while ((Math.abs(currentRatio) > closeEnough) && opMode.opModeIsActive()){
             currentRatio = (previousOutput - output) / firstValue;
 
-            telemetry.addData("Angle", "%f", currentAngle);
+            telemetry.addData("S, C, E, A Angle", "%f, %f, %f, %f", startAngle, currentAngle, endAngle, GetImuAngle());
             telemetry.addData("PreviousOutput: ", previousOutput);
             telemetry.addData("Output: ", output);
             telemetry.addData("CurrentRatio", currentRatio);
             telemetry.addData("Proportional", error);
             telemetry.addData("Integral", integral);
             telemetry.addData("Derivative", derivative);
-            telemetry.addData("Time", difference);
             telemetry.addData("Output Difference: ", previousOutput - output);
-            double answer = Range.clip(currentRatio, -1.0, 1.0) * .8;
+            double answer = Range.clip(currentRatio, -1.0, 1.0) * motorRatio;
+            double left = answer;
+            double right = -answer;
             telemetry.addData("Left Power: ", "%f", answer);
             telemetry.addData("Right Power: ", "%f", -answer);
 
-            //mecanum.Move(-answer , -answer);
+            mecanum.Move(left , right);
             telemetry.update();
+            opMode.sleep(200);
         }
 
         mecanum.Stop();
@@ -88,13 +95,11 @@ public class TurnOMatic {
                     }
                 }
 
-                currentAngle = GetImuAngle() - startAngle;
-                long currentTime = System.currentTimeMillis();
-                difference = currentTime - previousTime;
+                currentAngle = GetImuAngle();
 
                 error = endAngle - currentAngle;
-                integral = integral + (error * difference);
-                derivative = (error - previousError) / difference;
+                integral = integral + (error * 200);
+                derivative = (error - previousError) / 200;
 
                 previousOutput = output;
                 output = (Kp * error) + (Ki * integral) + (Kd * derivative);
@@ -105,7 +110,6 @@ public class TurnOMatic {
                 }
 
                 previousError = error;
-                previousTime = currentTime;
             }
         };
     }

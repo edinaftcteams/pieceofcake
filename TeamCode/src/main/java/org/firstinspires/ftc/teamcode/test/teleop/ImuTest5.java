@@ -6,6 +6,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -17,36 +18,64 @@ import org.firstinspires.ftc.teamcode.robot.PieceOfCake;
 import java.util.Timer;
 import java.util.TimerTask;
 
-@TeleOp(name = "Test: IMU4", group = "Teleop Test")
-@Disabled
+@TeleOp(name = "Test: IMU5", group = "Teleop Test")
+//@Disabled
 public class ImuTest5 extends LinearOpMode {
     BNO055IMU imu = null;
     Mecanum mecanum = null;
 
     public void runOpMode() {
+        long counter = 0;
         PieceOfCake robot = new PieceOfCake();
 
         robot.init(hardwareMap);
 
+        robot.getFrontL().setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.getFrontR().setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.getBackL().setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.getBackR().setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         mecanum = new Mecanum(robot.getFrontL(), robot.getFrontR(), robot.getBackL(), robot.getBackR(), true, telemetry);
 
         SetupIMU();
+
+        telemetry.addData("Waiting", "for start");
+        telemetry.update();
 
         waitForStart();
 
         //mecanum.TurnLeft(.5, 1200, this);
 
-        while (opModeIsActive()) {
-            TurnOMatic turner = new TurnOMatic(imu, mecanum, telemetry, 90);
-            turner.Turn(.1, 3000);
+        telemetry.addData("Starting", "now");
+        telemetry.update();
+
+        TurnOMatic turner = new TurnOMatic(imu, mecanum, telemetry, 90, this, .7);
+        sleep(300);
+        turner.Turn(.05, 3000);
             //mecanum.Move(-.0, 0, -.3, .3);
 
-            sleep(5000);
+        mecanum.MoveForward(.5, 3000, this);
 
-            TurnOMatic turner2 = new TurnOMatic(imu, mecanum, telemetry, 45);
-            turner.Turn(.1, 3000);
+        robot.getFrontL().setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.getFrontR().setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.getBackL().setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.getBackR().setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        TurnOMatic turner2 = new TurnOMatic(imu, mecanum, telemetry, 135, this, .7);
+        sleep(300);
+        turner2.Turn(.05, 3500);
 
-        }
+        mecanum.MoveForward(.5, 500, this);
+
+        robot.getFrontL().setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.getFrontR().setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.getBackL().setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.getBackR().setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        TurnOMatic turner3 = new TurnOMatic(imu, mecanum, telemetry, -45, this, 1);
+        sleep(300);
+        turner3.Turn(.05, 3000);
+
+        mecanum.MoveForward(.5, 500, this);
+
+        sleep(30000);
     }
 
     private void SetupIMU() {
