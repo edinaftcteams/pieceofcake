@@ -1,11 +1,15 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.enums.AutonomousStates;
 
+@Autonomous(name="CraterDepotCrater", group="Autonomous")
+//@Disabled
 public class CraterDepotAndCrater extends BaseAutoOpMode{
-    private int distanceFromLeftMineral = DrivePerInch * 12;
+    private int distanceFromLeftMineral = DrivePerInch * 17;
 
     public void runOpMode(){
 
@@ -25,7 +29,7 @@ public class CraterDepotAndCrater extends BaseAutoOpMode{
 
         LocateTFMineral();
 
-        while (opModeIsActive() && (currentState != AutonomousStates.ARM_EXTENDED)) {
+        while (opModeIsActive() && (currentState != AutonomousStates.AT_DEPOT)) {
             switch (currentState) {
                 case LATCHED:
                     currentState = Drop();
@@ -53,7 +57,7 @@ public class CraterDepotAndCrater extends BaseAutoOpMode{
                             slideLeftPosition + slideRightPosition + distanceFromLeftMineral);
                     break;
                 case AT_LEFT_WALL:
-                    currentState = TurnLeftTowardsCrater();
+                    currentState = TurnLeftTowardsDepot();
                     break;
                 case TURNED_TOWARDS_DEPOT:
                     currentState = MoveTowardsDepot();

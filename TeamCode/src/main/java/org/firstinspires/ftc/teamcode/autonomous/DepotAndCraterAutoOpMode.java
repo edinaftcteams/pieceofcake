@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.enums.AutonomousStates;
 import org.firstinspires.ftc.teamcode.enums.MineralLocation;
 
 @Autonomous(name="Depot And Crater", group="Autonomous")
-//@Disabled
+@Disabled
 public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
     private int distanceFromLeftMineral = DrivePerInch * 12;
 

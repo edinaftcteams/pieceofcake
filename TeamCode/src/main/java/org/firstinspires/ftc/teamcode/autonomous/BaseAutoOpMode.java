@@ -26,57 +26,29 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 abstract class BaseAutoOpMode extends LinearOpMode {
-    private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
-    private static final String LABEL_GOLD_MINERAL = "Gold Mineral";
-    private static final String LABEL_SILVER_MINERAL = "Silver Mineral";
     protected int DrivePerInch = (int)(1120 / 18.85);
-    private int ArmDistancePerSecond = 19;
-    private int BackFlip = 0;
-    private int VerticalFlip = 880;
     private int FlatFlip = 1800;
     private int BalanceFlip = 1430;
     private int SlideOffLatchDistance = 250;
-    private static final String VUFORIA_KEY = "ASA9XvT/////AAABmUnq30r9sU3Nmf/+RS+Xx0CHgJj/JtD5ycahnuM/0B2SFvbMRPIZCbLi4LeOkfse9Dymor5W7vNMYI+vmqVx9kpEaKE8VM7cFMUb/T1LLwlCPdX9QKOruzTcRdlYswR7ULh4K11GuFZDO/45pSks+Nf25kT5cnV+IN3TsscA0o7I6XPIeUoAJJPsjw+AycsmRk2uffr3Bnupexr93iRfHylniqP+ss4cRcT1lOqS5Zhh7FQaoelR58qL/RUorGpknjy9ufCn9ervc6Mz01u3ZkM/EOa5wUPT8bDzPZ6nMDaadqumorT5Py+GtJSUosUgz4Gd3iR++fdEk6faFZq3L9xfBSagNykwhiyYx+oqwVqe";
-
-    protected MineralLocation mineralLocation = MineralLocation.RIGHT;
-    private VuforiaLocalizer vuforia;
-    protected GoldMineralTracker mineralTracker = null;
-    protected PieceOfCake robot = new PieceOfCake();
-    protected Mecanum mecanum = null;
-    protected int latchHeight = 100;
-    protected BNO055IMU imu = null;
-    protected TFObjectDetector tfod;
-
+    private int Turn90 = 1200;
+    private int Turn45 = Turn90/2;
+    private ElapsedTime watch = new ElapsedTime();
     protected int slideRightPosition = DrivePerInch * 23;
     protected int slideLeftPosition = DrivePerInch * 23;
-    protected int knockForwardPosition = DrivePerInch * 32;
     protected int driveForwardPosition = (int)(DrivePerInch * 20.5);
-    protected int anglePushDistance = DrivePerInch * 8;
-    protected boolean yPressed = false;
-    protected boolean aPressed = false;
-    protected boolean dPadLeftPressed = false;
-    protected boolean dPadRightPressed = false;
-    protected boolean dPadUpPressed = false;
-    protected boolean dPadDownPressed = false;
-    protected boolean bumperLeftPressed = false;
-    protected boolean bumperRightPressed = false;
-    private Timer timer = null;
-    private TimerTask timerTask = null;
-    private double error = 0;
-    private double endAngle = 135;
-    private double derivative = 0;
-    private double integral = 0;
-    private double previousError = 0;
-    private double currentAngle = 0;
-    private double timerLength = 200;
-    private double Kp = 0.2, Ki = 0.01, Kd = 1; // PID constant multipliers
-    private double output = 0;
-    private double previousOutput = 0;
-    private long previousTime = 0;
-    private long difference = 0;
-    private double firstValue = 0;
-    private boolean firstRun = true;
 
+    private static final String VUFORIA_KEY = "ASA9XvT/////AAABmUnq30r9sU3Nmf/+RS+Xx0CHgJj/JtD5ycahnuM/0B2SFvbMRPIZCbLi4LeOkfse9Dymor5W7vNMYI+vmqVx9kpEaKE8VM7cFMUb/T1LLwlCPdX9QKOruzTcRdlYswR7ULh4K11GuFZDO/45pSks+Nf25kT5cnV+IN3TsscA0o7I6XPIeUoAJJPsjw+AycsmRk2uffr3Bnupexr93iRfHylniqP+ss4cRcT1lOqS5Zhh7FQaoelR58qL/RUorGpknjy9ufCn9ervc6Mz01u3ZkM/EOa5wUPT8bDzPZ6nMDaadqumorT5Py+GtJSUosUgz4Gd3iR++fdEk6faFZq3L9xfBSagNykwhiyYx+oqwVqe";
+    private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
+    private static final String LABEL_GOLD_MINERAL = "Gold Mineral";
+    private static final String LABEL_SILVER_MINERAL = "Silver Mineral";
+    protected MineralLocation mineralLocation = MineralLocation.RIGHT;
+    private VuforiaLocalizer vuforia;
+
+    protected PieceOfCake robot = new PieceOfCake();
+    protected Mecanum mecanum = null;
+
+    protected BNO055IMU imu = null;
+    protected TFObjectDetector tfod;
 
     protected void InitRobot() {
         robot.init(hardwareMap);
@@ -103,73 +75,6 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
         imu.initialize(parameters);
         while (!imu.isGyroCalibrated());
-    }
-
-    protected void InitSetup() {
-        while (!gamepad1.x) {
-            if (gamepad1.y && !yPressed) {
-                driveForwardPosition += (int) (DrivePerInch * .5);
-                yPressed = true;
-            } else if (!gamepad1.y) {
-                yPressed = false;
-            }
-
-            if (gamepad1.a && !aPressed) {
-                driveForwardPosition -= (int) (DrivePerInch * .5);
-                aPressed = true;
-            } else if (!gamepad1.a) {
-                aPressed = false;
-            }
-
-            if (gamepad1.dpad_left && !dPadLeftPressed) {
-                slideRightPosition -= (int) (DrivePerInch * .5);
-                dPadLeftPressed = true;
-            } else if (!gamepad1.dpad_left) {
-                dPadLeftPressed = false;
-            }
-
-            if (gamepad1.dpad_right && !dPadRightPressed) {
-                slideRightPosition += (int) (DrivePerInch * .5);
-                dPadRightPressed = true;
-            } else if (!gamepad1.dpad_right) {
-                dPadRightPressed = false;
-            }
-
-            if (gamepad1.dpad_up && !dPadUpPressed) {
-                knockForwardPosition += (int) (DrivePerInch * .5);
-                dPadUpPressed = true;
-            } else if (!gamepad1.dpad_up) {
-                dPadUpPressed = false;
-            }
-
-            if (gamepad1.dpad_down && !dPadDownPressed) {
-                knockForwardPosition -= (int) (DrivePerInch * .5);
-                dPadDownPressed = true;
-            } else if (!gamepad1.dpad_down) {
-                dPadDownPressed = false;
-            }
-
-            if (gamepad1.left_bumper && !bumperLeftPressed) {
-                slideLeftPosition -= (int) (DrivePerInch * .5);
-                bumperLeftPressed = true;
-            } else if (!gamepad1.left_bumper) {
-                bumperLeftPressed = false;
-            }
-
-            if (gamepad1.right_bumper && !bumperRightPressed) {
-                slideLeftPosition += (int) (DrivePerInch * .5);
-                bumperRightPressed = true;
-            } else if (!gamepad1.right_bumper) {
-                bumperRightPressed = false;
-            }
-
-            telemetry.addData("DPad L/R controls slide right position, currently", "%d", slideRightPosition);
-            telemetry.addData("DPad U/D controls knock forward position, currently", "%d", knockForwardPosition);
-            telemetry.addData("Bumper L/R controls slide left position, currently", "%d", slideLeftPosition);
-            telemetry.addData("Buttons Y/A controls drive forward position, currently", "%d", driveForwardPosition);
-            telemetry.addData("Press X", "to lock in settings");
-            telemetry.update();
-        }
     }
 
     /**
@@ -253,8 +158,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     }
 
     public AutonomousStates Drop() {
-        ElapsedTime watch = new ElapsedTime();
-        robot.getSlide().setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.getSlide().setPower(.1);
         // do something to drop
         robot.getTopFlip().setPosition(1);
         robot.getFrontFlip().setTargetPosition(BalanceFlip);
@@ -270,13 +174,13 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         robot.getLift().setPower(0);
 
         watch.reset();
-        while (watch.milliseconds() < 2500) {
+        while (watch.milliseconds() < 2000) {
             idle();
         }
 
-        robot.getLift().setPower(.3);
+        robot.getLift().setPower(.5);
         watch.reset();
-        while (watch.milliseconds() < 1500) {
+        while (watch.milliseconds() < 800) {
             idle();
         }
 
@@ -288,14 +192,6 @@ abstract class BaseAutoOpMode extends LinearOpMode {
 
     public AutonomousStates MoveLeftOffLatch() {
         robot.getTopFlip().setPosition(1);
-        robot.getFrontFlip().setTargetPosition(BalanceFlip);
-        robot.getFrontFlip().setPower(.7);
-
-        while (robot.getFrontFlip().isBusy()) {
-            idle();
-        }
-
-        robot.getFrontFlip().setPower(0);
 
         mecanum.SlideLeft(.7, SlideOffLatchDistance, this);
 
@@ -303,7 +199,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     }
     
     public AutonomousStates MoveForward(int forwardDistance) {
-        mecanum.MoveForward(.6, forwardDistance, this);
+        mecanum.MoveForward(.7, forwardDistance, this);
 
         return AutonomousStates.MOVED_FORWARD;
     }
@@ -327,46 +223,38 @@ abstract class BaseAutoOpMode extends LinearOpMode {
 
     public AutonomousStates DriveToMineralOffLeftOffset(int slideLeftDistance, int slideRightDistance) {
         if (mineralLocation == MineralLocation.LEFT) {
-            mecanum.SlideLeft(.5, slideLeftDistance - SlideOffLatchDistance, this);
+            mecanum.SlideLeft(.7, slideLeftDistance - SlideOffLatchDistance, this);
         } else if (mineralLocation == MineralLocation.RIGHT) {
-            mecanum.SlideRight(.5, slideRightDistance + SlideOffLatchDistance, this);
+            mecanum.SlideRight(.7, slideRightDistance + SlideOffLatchDistance, this);
         } else {
-            mecanum.SlideRight(.5, SlideOffLatchDistance, this);
+            mecanum.SlideRight(.7, SlideOffLatchDistance, this);
         }
+
+        robot.getFrontFlip().setTargetPosition(0);
+        robot.getFrontFlip().setPower(.7);
+
+        while (robot.getFrontFlip().isBusy()) {
+            idle();
+        }
+
+        robot.getFrontFlip().setPower(0);
 
         return AutonomousStates.AT_MINERAL;
     }
 
     public AutonomousStates PushMineral (int pushDistance) {
-        mecanum.MoveForward(.5, pushDistance, this);
+        mecanum.MoveForward(.7, pushDistance, this);
 
         return AutonomousStates.MINERAL_PUSHED;
     }
 
     public AutonomousStates BackAwayFromMIneral(int backDistance) {
-        mecanum.MoveBackwards(.5, backDistance, this);
+        mecanum.MoveBackwards(.7, backDistance, this);
 
         return AutonomousStates.BACKED_AWAY_FROM_MINERAL;
     }
 
-    public AutonomousStates PushMineralAndDriveToDepot(int knockForwardPosition) {
-        mecanum.MoveForward(.5, knockForwardPosition / 2, this);
-
-        if (mineralLocation == MineralLocation.LEFT) {
-            mecanum.TurnRight(.5 , 1025, this);
-            mecanum.MoveForward(.5, anglePushDistance, this);
-        } else if (mineralLocation == MineralLocation.RIGHT) {
-            mecanum.TurnLeft(.5 , 1025, this);
-            mecanum.MoveForward(.5, anglePushDistance, this);
-        }
-
-        mecanum.MoveForward(.5, knockForwardPosition / 2, this);
-
-        return AutonomousStates.AT_DEPOT;
-    }
-
     public AutonomousStates ExtendArm() {
-        ElapsedTime watch = new ElapsedTime();
         watch.reset();
 
         // slide arm out
@@ -381,20 +269,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         return AutonomousStates.ARM_EXTENDED;
     }
 
-    public AutonomousStates FlipToBack() {
-        robot.getFrontFlip().setPower(.5);
-        robot.getFrontFlip().setTargetPosition(BackFlip);
-        while (robot.getFrontFlip().isBusy()) {
-            idle();;
-        }
-
-        robot.getFrontFlip().setPower(0);
-
-        return AutonomousStates.FLIP_AT_BACK;
-    }
-
     public AutonomousStates DropMarker () {
-        ElapsedTime watch = new ElapsedTime();
         watch.reset();
 
         // slide arm out
@@ -443,18 +318,6 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         return AutonomousStates.DROPPED_MARKER;
     }
 
-    public AutonomousStates MoveToLeftWall(int distanceFromLeftMineral, int distanceFromCenterMineral, int distanceFromRightMineral) {
-        if (mineralLocation == MineralLocation.RIGHT) {
-            mecanum.SlideLeft(0.5, distanceFromRightMineral, this);
-        } else if (mineralLocation == MineralLocation.LEFT) {
-            mecanum.SlideLeft(0.5, distanceFromLeftMineral, this);
-        } else if (mineralLocation == MineralLocation.MIDDLE) {
-            mecanum.SlideLeft(0.5, distanceFromCenterMineral, this);
-        }
-
-        return AutonomousStates.AT_LEFT_WALL;
-    }
-
     public AutonomousStates TurnLeftTowardsCrater() {
         mecanum.TurnLeft(.5 , 600, this);
 
@@ -468,19 +331,19 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     }
 
     public AutonomousStates TurnLeftTowardsDepot(){
-        mecanum.TurnLeft(.5 , 600, this);
+        mecanum.TurnLeft(.5 , Turn45, this);
 
         return AutonomousStates.TURNED_TOWARDS_DEPOT;
     }
 
     public AutonomousStates MoveTowardsDepot(){
-        mecanum.MoveForward(.5,DrivePerInch * 24, this);
+        mecanum.MoveForward(.5,DrivePerInch * 5, this);
 
         return AutonomousStates.AT_DEPOT;
     }
 
     public AutonomousStates TurnTowardsLeftWall()  {
-        mecanum.TurnLeft(.5, 1200, this);
+        mecanum.TurnLeft(.5, Turn90, this);
 
         return AutonomousStates.TURNED_TOWARDS_LEFT_WALL;
     }
@@ -507,68 +370,5 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         mecanum.MoveForward(.5,DrivePerInch * 75, this);
 
         return AutonomousStates.AT_CRATER;
-    }
-
-    public AutonomousStates TurnByDegrees(int degrees){
-        double currentRatio = 1.0;
-        endAngle = degrees;
-
-        while (Math.abs(currentRatio) > .01){
-            currentAngle = GetImuAngle();
-            currentRatio = (previousOutput - output) / firstValue *1000000000 * 10;
-
-            mecanum.Move(currentRatio * .5, currentRatio * .5);
-        }
-
-        return AutonomousStates.COMPLETED_TURN;
-    }
-
-    private double GetImuAngle() {
-        Orientation angles = imu.getAngularOrientation(AxesReference.EXTRINSIC.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        telemetry.addData("IMU Angles:", angles);
-
-        return angles.firstAngle;
-    }
-
-    private void SetupTimerTask() {
-        timerTask = new TimerTask() {
-            @Override
-            public void run() {
-            long currentTime = System.currentTimeMillis();
-            difference = currentTime - previousTime;
-
-            error = endAngle - currentAngle;
-            integral = integral + (error * difference);
-            derivative = (error - previousError) / difference;
-
-            previousOutput = output;
-            output = (Kp * error) + (Ki * integral) + (Kd * derivative);
-
-            if (firstRun) {
-                firstValue = Math.abs(previousOutput - output);
-                firstRun = false;
-            }
-
-            previousError = error;
-            previousTime = currentTime;
-            }
-        };
-    }
-
-    private void StartTimer() {
-        previousTime = System.currentTimeMillis();
-        firstRun = true;
-        integral = 0;
-        derivative = 0;
-        firstValue = 0;
-        previousOutput = 0;
-        output = 0;
-
-        timer = new Timer();
-        timer.scheduleAtFixedRate(timerTask, 200, 200);
-    }
-
-    private void StopTimer() {
-        timer.cancel();
     }
 }
