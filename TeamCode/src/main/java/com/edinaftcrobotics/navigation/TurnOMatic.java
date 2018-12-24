@@ -45,8 +45,12 @@ public class TurnOMatic {
         endAngle = toWnatAngle;
         this.opMode = opMode;
         this.motorRatio = motorRatio;
+        this.mecanum.StopAndResetMotors2();
+
         SetupTimerTask();
         StartTimer();
+        // gives time for the timer to fire at least once
+        this.opMode.sleep(300);
     }
 
     public void Turn(double closeEnough, long ticksToWait) {

@@ -47,14 +47,14 @@ public class MecanumTest extends LinearOpMode {
 
                 _mecanum.SlideLeft(.5, 350, this);
             } else if (gamepad1.dpad_right) {
-                robot.getFrontFlip().setTargetPosition(1330);
+               robot.getFrontFlip().setTargetPosition(1928);
                 robot.getFrontFlip().setPower(.7);
 
                 while (robot.getFrontFlip().isBusy()) {
                     idle();
                 }
 
-                _mecanum.SlideRight(.5, 350, this);
+                _mecanum.SlideRight2(.5, 2050, this);
             } else if (gamepad1.dpad_up) {
                 _mecanum.MoveForward(.5, 350, this);
             } else if (gamepad1.dpad_down) {

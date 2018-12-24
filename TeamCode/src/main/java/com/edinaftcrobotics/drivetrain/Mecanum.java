@@ -46,6 +46,21 @@ public class Mecanum {
         Stop();
     }
 
+    public void SlideLeft2(double power, int distance, LinearOpMode opMode) {
+        StopAndResetMotors2();
+
+        int currentPosition =  Math.abs(_backRight.getCurrentPosition());
+        int error = Math.abs((int)(distance * 0.95));
+        Move(-power, power, power, -power);
+
+        while ((currentPosition < error)) {
+            currentPosition =  Math.abs(_backRight.getCurrentPosition());
+            opMode.idle();
+        }
+
+        Stop();
+    }
+
     public void Move(double left, double right){
         _frontLeft.setPower(left);
         _frontRight.setPower(right);
@@ -76,6 +91,21 @@ public class Mecanum {
         Stop();
     }
 
+    public void SlideRight2(double power, int distance, LinearOpMode opMode) {
+        StopAndResetMotors2();
+
+        int currentPosition =  Math.abs(_frontRight.getCurrentPosition());
+        int error = Math.abs((int)(distance * 0.95));
+        Move(power, -power, -power, power);
+
+        while (currentPosition < error) {
+            currentPosition =  Math.abs(_frontRight.getCurrentPosition());
+            opMode.idle();
+        }
+
+        Stop();
+    }
+
     public void MoveForward(double power, int distance, LinearOpMode opMode) {
         StopAndResetMotors();
         SetDistance(distance, distance, distance, distance);
@@ -92,6 +122,21 @@ public class Mecanum {
         Stop();
     }
 
+    public void MoveForward2(double power, int distance, LinearOpMode opMode) {
+        StopAndResetMotors2();
+
+        int error = Math.abs((int)(distance * 0.95));
+        int currentPosition =  Math.abs(_frontRight.getCurrentPosition());
+        Move(power, power, power, power);
+
+        while (currentPosition < error) {
+            currentPosition =  Math.abs(_frontRight.getCurrentPosition());
+            opMode.idle();
+        }
+
+        Stop();
+    }
+
     public void MoveBackwards(double power, int distance, LinearOpMode opMode) {
         StopAndResetMotors();
         SetDistance(-distance, -distance, -distance, -distance);
@@ -101,6 +146,21 @@ public class Mecanum {
         Move(power, power, power, power);
 
         while (_frontLeft.isBusy() && _frontRight.isBusy() && _backLeft.isBusy() && _backRight.isBusy() && (currentPosition < error)) {
+            currentPosition =  Math.abs(_frontRight.getCurrentPosition());
+            opMode.idle();
+        }
+
+        Stop();
+    }
+
+    public void MoveBackwards2(double power, int distance, LinearOpMode opMode) {
+        StopAndResetMotors2();
+
+        int error = Math.abs((int)(distance * 0.95));
+        int currentPosition =  Math.abs(_frontRight.getCurrentPosition());
+        Move(-power, -power, -power, -power);
+
+        while (currentPosition < error) {
             currentPosition =  Math.abs(_frontRight.getCurrentPosition());
             opMode.idle();
         }
@@ -179,6 +239,21 @@ public class Mecanum {
         _backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         _backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         _backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+
+    public void StopAndResetMotors2() {
+        _frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        _frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        _frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        _frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        _frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        _frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        _backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        _backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        _backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        _backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        _backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        _backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     private void SetDistance(int lf, int lb, int rf, int rb) {
