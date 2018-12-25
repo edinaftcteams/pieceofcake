@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.enums.AutonomousStates;
 @Autonomous(name="CraterDepotCrater", group="Autonomous")
 //@Disabled
 public class CraterDepotAndCrater extends BaseAutoOpMode{
-    private int distanceFromLeftMineral = DrivePerInch * 21;
+    private int distanceFromLeftMineral = (int)(DrivePerInch * 19.5);
 
     public void runOpMode(){
 
@@ -29,7 +29,7 @@ public class CraterDepotAndCrater extends BaseAutoOpMode{
 
         LocateTFMineral();
 
-        while (opModeIsActive() && (currentState != AutonomousStates.AT_CRATER)) {
+        while (opModeIsActive() && (currentState != AutonomousStates.ARM_EXTENDED)) {
             switch (currentState) {
                 case LATCHED:
                     currentState = Drop();
@@ -44,10 +44,10 @@ public class CraterDepotAndCrater extends BaseAutoOpMode{
                     currentState = DriveToMineralOffLeftOffset(slideLeftPosition, slideRightPosition);
                     break;
                 case AT_MINERAL:
-                    currentState = PushMineral((int)(DrivePerInch * 8.5));
+                    currentState = PushMineral((int)(DrivePerInch * 4.5));
                     break;
                 case MINERAL_PUSHED:
-                    currentState = BackAwayFromMIneral((int)(DrivePerInch * 9));
+                    currentState = BackAwayFromMIneral((int)(DrivePerInch * 5));
                     break;
                 case BACKED_AWAY_FROM_MINERAL:
                     currentState = TurnTowardsLeftWall();
@@ -63,7 +63,7 @@ public class CraterDepotAndCrater extends BaseAutoOpMode{
                     currentState = MoveTowardsDepot();
                     break;
                 case AT_DEPOT:
-                    currentState = AutonomousStates.DROPPED_MARKER;// DropMarker();
+                    currentState = DropMarker();
                     break;
                 case DROPPED_MARKER:
                     currentState = TurnTowardsCrater();

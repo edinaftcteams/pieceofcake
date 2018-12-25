@@ -41,7 +41,7 @@ public class TurnOMatic {
         this.imu = imu;
         this.mecanum = mecanum;
         this.telemetry = telemetry;
-        startAngle = GetImuAngle();
+        startAngle = currentAngle = GetImuAngle();
         endAngle = toWnatAngle;
         this.opMode = opMode;
         this.motorRatio = motorRatio;

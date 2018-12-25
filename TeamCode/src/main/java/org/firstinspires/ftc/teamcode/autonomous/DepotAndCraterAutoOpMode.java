@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.enums.MineralLocation;
 @Autonomous(name="Depot And Crater", group="Autonomous")
 //@Disabled
 public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
-    private int distanceFromLeftMineral = DrivePerInch * 12;
+    private int distanceFromLeftMineral = DrivePerInch * 21;
 
     public void runOpMode() {
         AutonomousStates currentState = AutonomousStates.START;
@@ -29,7 +29,7 @@ public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
 
         LocateTFMineral();
 
-        while (opModeIsActive() && (currentState != AutonomousStates.TURNED_TOWARDS_CRATER)) {
+        while (opModeIsActive() && (currentState != AutonomousStates.ARM_EXTENDED)) {
             switch (currentState) {
                 case LATCHED:
                     currentState = Drop();
@@ -47,10 +47,10 @@ public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
                     currentState = DriveToMineral(slideLeftPosition, slideRightPosition);
                     break;
                 case AT_MINERAL:
-                    currentState = PushMineral((int)(DrivePerInch * 8.5));
+                    currentState = PushMineral((int)(DrivePerInch * 4.5));
                     break;
                 case MINERAL_PUSHED:
-                    currentState = BackAwayFromMIneral((int)(DrivePerInch * 9));
+                    currentState = BackAwayFromMIneral((int)(DrivePerInch * 5));
                     break;
                 case BACKED_AWAY_FROM_MINERAL:
                     currentState = TurnTowardsLeftWall();

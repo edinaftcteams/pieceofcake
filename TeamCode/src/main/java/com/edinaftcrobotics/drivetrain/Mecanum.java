@@ -127,10 +127,13 @@ public class Mecanum {
 
         int error = Math.abs((int)(distance * 0.95));
         int currentPosition =  Math.abs(_frontRight.getCurrentPosition());
-        Move(power, power, power, power);
+        double currentPower = CalculateRampPower(power, distance, currentPosition);
+        Move(currentPower, currentPower, currentPower, currentPower);
 
         while (currentPosition < error) {
             currentPosition =  Math.abs(_frontRight.getCurrentPosition());
+            currentPower = CalculateRampPower(power, distance, currentPosition);
+            Move(currentPower, currentPower, currentPower, currentPower);
             opMode.idle();
         }
 
@@ -158,10 +161,14 @@ public class Mecanum {
 
         int error = Math.abs((int)(distance * 0.95));
         int currentPosition =  Math.abs(_frontRight.getCurrentPosition());
-        Move(-power, -power, -power, -power);
+        double currentPower = CalculateRampPower(power, distance, currentPosition);
+
+        Move(-currentPower, -currentPower, -currentPower, -currentPower);
 
         while (currentPosition < error) {
             currentPosition =  Math.abs(_frontRight.getCurrentPosition());
+            CalculateRampPower(power, distance, currentPosition);
+            Move(-currentPower, -currentPower, -currentPower, -currentPower);
             opMode.idle();
         }
 
@@ -205,6 +212,24 @@ public class Mecanum {
         _frontRight.setPower(0);
         _backLeft.setPower(0);
         _backRight.setPower(0);
+    }
+
+    //
+    // This method will calculate a power based on the current position and our maximum distance
+    // We want to ramp up the speed to a flat maxPower and then ramp down to zero.
+    //
+    private double CalculateRampPower(double maxPower, int distance, double currentDistance) {
+        if (currentDistance <= (distance * .10)) {
+            return .6 * maxPower;
+        } else if (currentDistance <= (distance * .20)) {
+            return  .85 * maxPower;
+        } else if (currentDistance <= (distance * .70)) {
+            return maxPower;
+        } else if (currentDistance <= (distance * .80)) {
+            return .85 * maxPower;
+        } else {
+            return .6 * maxPower;
+        }
     }
 
     public void Drive(double leftStickX, double leftStickY, double rightStickY) {
