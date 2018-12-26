@@ -1,5 +1,6 @@
 package com.edinaftcrobotics.drivetrain;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -104,6 +105,10 @@ public class Mecanum {
         }
 
         Stop();
+    }
+
+    public void SlideRight3(double power, int distance, LinearOpMode opMode, BNO055IMU imu) {
+        Move(power, -power, -power, power);
     }
 
     public void MoveForward(double power, int distance, LinearOpMode opMode) {

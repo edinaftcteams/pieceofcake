@@ -55,10 +55,17 @@ public class TurnOMatic {
 
     public void Turn(double closeEnough, long ticksToWait) {
         double currentRatio = 1;
+        int steadyState = 0;
 
-        while ((Math.abs(currentRatio) > closeEnough) && opMode.opModeIsActive()){
+        while ((steadyState <= 5) && opMode.opModeIsActive()){
+        //while ((Math.abs(currentRatio) > closeEnough) && opMode.opModeIsActive()){
             currentRatio = (previousOutput - output) / firstValue;
 
+            if ((Math.abs(currentRatio) <= closeEnough)) {
+                steadyState++;
+            } else {
+                steadyState = 0;
+            }
             telemetry.addData("S, C, E, A Angle", "%f, %f, %f, %f", startAngle, currentAngle, endAngle, GetImuAngle());
             telemetry.addData("PreviousOutput: ", previousOutput);
             telemetry.addData("Output: ", output);

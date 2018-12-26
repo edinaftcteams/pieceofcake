@@ -41,7 +41,7 @@ public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
                     currentState = MoveForwardAndSlideBackToCenter(driveForwardPosition);
                     break;
                 case MOVED_BACK_TO_CENTER:
-                    currentState = DropMarker();
+                    currentState = AutonomousStates.DROPPED_MARKER; //DropMarker();
                     break;
                 case DROPPED_MARKER:
                     currentState = DriveToMineral(slideLeftPosition, slideRightPosition);
@@ -63,7 +63,7 @@ public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
                     currentState = TurnLeftTowardsCrater();
                     break;
                 case TURNED_TOWARDS_CRATER:
-                    currentState = ExtendArm();
+                    currentState = AutonomousStates.ARM_EXTENDED; //ExtendArm();
                     break;
                 case ARM_EXTENDED:
                     currentState = MoveTowardsCrater();

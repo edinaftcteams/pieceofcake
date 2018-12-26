@@ -63,7 +63,7 @@ public class CraterDepotAndCrater extends BaseAutoOpMode{
                     currentState = MoveTowardsDepot();
                     break;
                 case AT_DEPOT:
-                    currentState = DropMarker();
+                    currentState = AutonomousStates.DROPPED_MARKER; //DropMarker();
                     break;
                 case DROPPED_MARKER:
                     currentState = TurnTowardsCrater();
@@ -72,7 +72,7 @@ public class CraterDepotAndCrater extends BaseAutoOpMode{
                     currentState = DriveTowardsCrater();
                     break;
                 case AT_CRATER:
-                    currentState = ExtendArm();
+                    currentState = AutonomousStates.ARM_EXTENDED; //ExtendArm();
                     break;
             }
         }

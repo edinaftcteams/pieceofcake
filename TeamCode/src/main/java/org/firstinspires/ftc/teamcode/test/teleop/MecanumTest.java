@@ -32,29 +32,16 @@ public class MecanumTest extends LinearOpMode {
 
         _mecanum = new Mecanum(robot.getFrontL(), robot.getFrontR(), robot.getBackL(), robot.getBackR(), true, telemetry);
 
+        _mecanum.StopAndResetMotors2();
         InitGyro();
 
         waitForStart();
 
         while (opModeIsActive()) {
             if (gamepad1.dpad_left) {
-                robot.getFrontFlip().setTargetPosition(1330);
-                robot.getFrontFlip().setPower(.7);
-
-                while (robot.getFrontFlip().isBusy()) {
-                    idle();
-                }
-
-                _mecanum.SlideLeft(.5, 350, this);
+                _mecanum.SlideLeft2(.5, 350, this);
             } else if (gamepad1.dpad_right) {
-               robot.getFrontFlip().setTargetPosition(1928);
-                robot.getFrontFlip().setPower(.7);
-
-                while (robot.getFrontFlip().isBusy()) {
-                    idle();
-                }
-
-                _mecanum.SlideRight2(.5, 2050, this);
+                _mecanum.SlideRight2(.5, 1000, this);
             } else if (gamepad1.dpad_up) {
                 _mecanum.MoveForward(.5, 350, this);
             } else if (gamepad1.dpad_down) {
@@ -86,8 +73,9 @@ public class MecanumTest extends LinearOpMode {
                     robot.getFrontR().getPower(), robot.getBackL().getPower(),
                     robot.getBackR().getPower());
 
-            telemetry.addData("Flip, Angle", "%d %f", robot.getFrontFlip().getCurrentPosition(), GetImuAngle()); // 1300 - 1316
+            telemetry.addData("Angle", "%f", GetImuAngle()); // 1300 - 1316
 
+            telemetry.addData("Flip", "%d", robot.getFrontFlip().getCurrentPosition()); // 1300 - 1316
             telemetry.update();
         }
     }

@@ -41,7 +41,18 @@ public class ImuTest5 extends LinearOpMode {
         telemetry.addData("Waiting", "for start");
         telemetry.update();
 
-        waitForStart();
+        while (!isStarted()) {
+            synchronized (this) {
+                try {
+                    telemetry.addData("Current Angle", "%f", GetImuAngle());
+                    telemetry.update();
+                    this.wait();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+            }
+        }
 
         //mecanum.TurnLeft(.5, 1200, this);
 
@@ -49,31 +60,28 @@ public class ImuTest5 extends LinearOpMode {
         telemetry.update();
 
         TurnOMatic turner = new TurnOMatic(imu, mecanum, telemetry, 90, this, .7);
-        sleep(300);
         turner.Turn(.05, 3000);
             //mecanum.Move(-.0, 0, -.3, .3);
 
-        mecanum.MoveForward(.5, 3000, this);
+        mecanum.MoveForward2(.5, 500, this);
 
         robot.getFrontL().setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.getFrontR().setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.getBackL().setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.getBackR().setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         TurnOMatic turner2 = new TurnOMatic(imu, mecanum, telemetry, 135, this, .7);
-        sleep(300);
         turner2.Turn(.05, 3500);
 
-        mecanum.MoveForward(.5, 500, this);
+        mecanum.MoveForward2(.5, 500, this);
 
         robot.getFrontL().setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.getFrontR().setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.getBackL().setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.getBackR().setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         TurnOMatic turner3 = new TurnOMatic(imu, mecanum, telemetry, -45, this, 1);
-        sleep(300);
         turner3.Turn(.05, 3000);
 
-        mecanum.MoveForward(.5, 500, this);
+        //mecanum.MoveForward(.5, 500, this);
 
         sleep(30000);
     }
@@ -84,5 +92,11 @@ public class ImuTest5 extends LinearOpMode {
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
         parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
         imu.initialize(parameters);
+    }
+
+    private double GetImuAngle() {
+        Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+
+        return angles.firstAngle;
     }
 }
