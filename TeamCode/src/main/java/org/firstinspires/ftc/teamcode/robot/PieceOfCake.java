@@ -11,12 +11,12 @@ public class PieceOfCake {
     private DcMotor FrontL = null;
     private DcMotor BackR = null;
     private DcMotor BackL = null;
-    private DcMotor Lift = null;
+    private DcMotor BackLift = null;
+    private DcMotor FrontLift = null;
     private DcMotor Slide = null;
     private DcMotor FrontFlip = null;
-    private DcMotor Intake = null;
+    private CRServo Intake = null;
     private Servo TopFlip = null;
-    private CRServo LockServo = null;
     private HardwareMap hwMap = null;
 
     //constructor
@@ -26,6 +26,7 @@ public class PieceOfCake {
     public void init(HardwareMap ahwMap) {
         DcMotor dcMotor = null;
         Servo servo = null;
+        CRServo crServo = null;
 
         hwMap = ahwMap;
 
@@ -41,8 +42,11 @@ public class PieceOfCake {
         dcMotor = hwMap.dcMotor.get("br");
         SetBackR(dcMotor);
 
-        dcMotor = hwMap.dcMotor.get("lift");
-        SetLift(dcMotor);
+        dcMotor = hwMap.dcMotor.get("backlift");
+        SetBackLift(dcMotor);
+
+        dcMotor = hwMap.dcMotor.get("frontlift");
+        SetFrontLift(dcMotor);
 
         dcMotor = hwMap.dcMotor.get("slide");
         SetSlide(dcMotor);
@@ -50,8 +54,8 @@ public class PieceOfCake {
         dcMotor = hwMap.dcMotor.get("flip");
         SetFrontFlip(dcMotor);
 
-        dcMotor = hwMap.dcMotor.get("intake");
-        SetIntake(dcMotor);
+        crServo = hwMap.crservo.get("intake");
+        SetIntake(crServo);
 
         servo = hwMap.servo.get("topflip");
         SetTopFlip(servo);
@@ -76,13 +80,15 @@ public class PieceOfCake {
         return BackR;
     }
 
-    public DcMotor getLift() { return Lift; }
+    public DcMotor getBackLift() { return BackLift; }
+
+    public DcMotor getFrontLift() { return FrontLift; }
 
     public DcMotor getSlide() { return Slide; }
 
     public DcMotor getFrontFlip() { return FrontFlip; }
 
-    public DcMotor getIntake() { return Intake; }
+    public CRServo getIntake() { return Intake; }
 
     public Servo getTopFlip() { return TopFlip; }
 
@@ -93,10 +99,11 @@ public class PieceOfCake {
     private void SetFrontR(DcMotor dcMotor) {FrontR = dcMotor; }
     private void SetBackL(DcMotor dcMotor) {BackL = dcMotor; }
     private void SetBackR(DcMotor dcMotor) {BackR = dcMotor; }
-    private void SetLift(DcMotor dcMotor) {Lift = dcMotor; }
+    private void SetBackLift(DcMotor dcMotor) {BackLift = dcMotor; }
+    private void SetFrontLift(DcMotor dcMotor) {FrontLift = dcMotor; }
     private void SetSlide(DcMotor dcMotor) {Slide = dcMotor; }
     private void SetFrontFlip(DcMotor dcMotor) {FrontFlip = dcMotor; }
-    private void SetIntake(DcMotor dcMotor) {Intake = dcMotor; }
+    private void SetIntake(CRServo crServo) {Intake = crServo; }
     private void SetTopFlip(Servo servo) {TopFlip = servo; }
     //private void SetLockServo(CRServo servo) { LockServo = servo; }
 

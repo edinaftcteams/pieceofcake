@@ -2,19 +2,11 @@ package org.firstinspires.ftc.teamcode.autonomous;
 
 import com.edinaftcrobotics.drivetrain.Mecanum;
 import com.edinaftcrobotics.navigation.TurnOMatic;
-import com.edinaftcrobotics.vision.camera.BackPhoneCamera;
-import com.edinaftcrobotics.vision.camera.Camera;
-import com.edinaftcrobotics.vision.tracker.roverruckus.GoldMineralTracker;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
@@ -23,8 +15,6 @@ import org.firstinspires.ftc.teamcode.enums.MineralLocation;
 import org.firstinspires.ftc.teamcode.robot.PieceOfCake;
 
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 abstract class BaseAutoOpMode extends LinearOpMode {
     protected int DrivePerInch = (int)(1120 / 18.85);
@@ -152,7 +142,8 @@ abstract class BaseAutoOpMode extends LinearOpMode {
 
     }
     public AutonomousStates Latch () {
-        robot.getLift().setPower(-.2);
+        robot.getBackLift().setPower(-.2);
+        robot.getFrontLift().setPower(-.2);
 
         return AutonomousStates.LATCHED;
     }
@@ -169,20 +160,23 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         }
 
         //robot.getLockServo().setPower(-1);
-        robot.getLift().setPower(0);
+        robot.getBackLift().setPower(0);
+        robot.getFrontLift().setPower(0);
 
         watch.reset();
         while (watch.milliseconds() < 1500) {
             idle();
         }
 
-        robot.getLift().setPower(.5);
+        robot.getBackLift().setPower(.5);
+        robot.getFrontLift().setPower(.5);
         watch.reset();
         while (watch.milliseconds() < 400) {
             idle();
         }
 
-        robot.getLift().setPower(0);
+        robot.getBackLift().setPower(0);
+        robot.getFrontLift().setPower(0);
 
         mecanum.MoveBackwards(.3, 50, this);
         return AutonomousStates.DROPPED;

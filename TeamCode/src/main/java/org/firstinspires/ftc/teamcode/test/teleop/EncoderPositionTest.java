@@ -17,8 +17,8 @@ public class EncoderPositionTest extends LinearOpMode {
 
         robot.getFrontFlip().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.getSlide().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.getLift().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.getIntake().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.getBackLift().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.getFrontLift().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         robot.getFrontL().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.getFrontR().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -31,8 +31,8 @@ public class EncoderPositionTest extends LinearOpMode {
         {
             telemetry.addData("Flip Location", "%d", robot.getFrontFlip().getCurrentPosition());
             telemetry.addData("Slide Location", "%d", robot.getSlide().getCurrentPosition());
-            telemetry.addData("LIft Location", "%d", robot.getLift().getCurrentPosition());
-            telemetry.addData("Intake Location", "%d", robot.getIntake().getCurrentPosition());
+            telemetry.addData("Back Lift Location", "%d", robot.getBackLift().getCurrentPosition());
+            telemetry.addData("Front Lift Location", "%d", robot.getFrontLift().getCurrentPosition());
 
             telemetry.addData("Front Left Location", "%d", robot.getFrontL().getCurrentPosition());
             telemetry.addData("Front Right Location", "%d", robot.getFrontR().getCurrentPosition());

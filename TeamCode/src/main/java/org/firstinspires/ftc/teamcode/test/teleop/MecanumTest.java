@@ -62,9 +62,6 @@ public class MecanumTest extends LinearOpMode {
                 _mecanum.Stop();
             }
 
-            telemetry.addData("Direction fl, fr, bl, br", "%s %s %s %s", robot.getFrontL().getDirection(), robot.getFrontR().getDirection(),
-                    robot.getBackL().getDirection(), robot.getBackR().getDirection());
-
             telemetry.addData("Encoders lf, rf, lb, rb: ", "%d %d %d %d", robot.getFrontL().getCurrentPosition(),
                     robot.getFrontR().getCurrentPosition(), robot.getBackL().getCurrentPosition(),
                     robot.getBackR().getCurrentPosition());

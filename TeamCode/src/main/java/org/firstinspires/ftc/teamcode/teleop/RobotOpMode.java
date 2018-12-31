@@ -1,19 +1,8 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
 import com.edinaftcrobotics.drivetrain.Mecanum;
-import com.edinaftcrobotics.vision.camera.BackPhoneCamera;
-import com.edinaftcrobotics.vision.camera.Camera;
-import com.edinaftcrobotics.vision.camera.WebCamCamera;
-import com.edinaftcrobotics.vision.tracker.roverruckus.PictureTracker;
-import com.edinaftcrobotics.vision.utils.Triple;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
-
-import org.firstinspires.ftc.teamcode.robot.PieceOfCake;
 
 import org.firstinspires.ftc.teamcode.robot.PieceOfCake;
 
@@ -43,7 +32,8 @@ public class RobotOpMode extends OpMode {
     public void loop() {
         mecanum.Drive(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
 
-        telemetry.addData("Lift", "%d", robot.getLift().getCurrentPosition());
+        telemetry.addData("Back Lift", "%d", robot.getBackLift().getCurrentPosition());
+        telemetry.addData("Front Lift", "%d", robot.getFrontLift().getCurrentPosition());
         telemetry.addData("Front Flip", "%d", robot.getFrontFlip().getCurrentPosition());
         telemetry.addData("Lf, rf, lb, rb: ", "%d %d %d %d", robot.getFrontL().getCurrentPosition(),
                 robot.getFrontR().getCurrentPosition(), robot.getBackL().getCurrentPosition(),
@@ -152,7 +142,8 @@ public class RobotOpMode extends OpMode {
     }
 
     private void ProcessLift() {
-        robot.getLift().setPower(-gamepad2.left_stick_y);
+        robot.getBackLift().setPower(-gamepad2.left_stick_y);
+        robot.getFrontLift().setPower(-gamepad2.left_stick_y);
     }
 
     private void ProcessTopFlip() {
