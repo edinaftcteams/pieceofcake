@@ -143,7 +143,7 @@ public class RobotOpMode extends OpMode {
 
     private void ProcessLift() {
         robot.getBackLift().setPower(-gamepad2.left_stick_y);
-        robot.getFrontLift().setPower(-gamepad2.left_stick_y);
+        robot.getFrontLift().setPower(gamepad2.left_stick_y);
     }
 
     private void ProcessTopFlip() {

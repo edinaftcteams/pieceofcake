@@ -142,8 +142,8 @@ abstract class BaseAutoOpMode extends LinearOpMode {
 
     }
     public AutonomousStates Latch () {
-        robot.getBackLift().setPower(-.2);
-        robot.getFrontLift().setPower(-.2);
+        robot.getBackLift().setPower(-.1);
+        robot.getFrontLift().setPower(.1);
 
         return AutonomousStates.LATCHED;
     }
@@ -168,8 +168,8 @@ abstract class BaseAutoOpMode extends LinearOpMode {
             idle();
         }
 
-        robot.getBackLift().setPower(.5);
-        robot.getFrontLift().setPower(.5);
+        robot.getBackLift().setPower(.3);
+        robot.getFrontLift().setPower(-.3);
         watch.reset();
         while (watch.milliseconds() < 400) {
             idle();
