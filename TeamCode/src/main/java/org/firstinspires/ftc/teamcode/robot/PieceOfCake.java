@@ -42,10 +42,10 @@ public class PieceOfCake {
         dcMotor = hwMap.dcMotor.get("br");
         SetBackR(dcMotor);
 
-        dcMotor = hwMap.dcMotor.get("backlift");
+        dcMotor = hwMap.dcMotor.get("backlift"); // existing lift motor
         SetBackLift(dcMotor);
 
-        dcMotor = hwMap.dcMotor.get("frontlift");
+        dcMotor = hwMap.dcMotor.get("frontlift"); // new lift motor
         SetFrontLift(dcMotor);
 
         dcMotor = hwMap.dcMotor.get("slide");
@@ -54,7 +54,7 @@ public class PieceOfCake {
         dcMotor = hwMap.dcMotor.get("flip");
         SetFrontFlip(dcMotor);
 
-        crServo = hwMap.crservo.get("intake");
+        crServo = hwMap.crservo.get("intake"); // changed from a motor to a cr servo
         SetIntake(crServo);
 
         servo = hwMap.servo.get("topflip");
