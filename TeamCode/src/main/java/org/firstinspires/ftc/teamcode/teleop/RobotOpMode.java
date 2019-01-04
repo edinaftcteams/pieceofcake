@@ -56,7 +56,7 @@ public class RobotOpMode extends OpMode {
     }
     private void ProcessSlide() {
         if ((gamepad1.left_trigger > 0) || (gamepad2.left_trigger > 0)) {
-            robot.getSlide().setPower(.7);
+            robot.getSlide().setPower(1);
         } else if ((gamepad1.right_trigger > 0) || (gamepad2.right_trigger > 0)) {
             robot.getSlide().setPower(-.5);
         } else {
@@ -87,7 +87,7 @@ public class RobotOpMode extends OpMode {
             intakeAPressed = false;
         } else if (!yValue && intakeYPressed) {
             if (!intakeInToggledOn) {
-                robot.getIntake().setPower(.4);  // TODO - negative this if it spins the wrong way
+                robot.getIntake().setPower(-1);  // TODO - negative this if it spins the wrong way
                 intakeInToggledOn = true;
                 intakeOutToggledOn = false;
             } else {
@@ -105,7 +105,7 @@ public class RobotOpMode extends OpMode {
             intakeYPressed = false;
         } else if (!aValue && intakeAPressed) {
             if (!intakeOutToggledOn) {
-                robot.getIntake().setPower(-.4); // TODO - negative this is if spinis the wrong way
+                robot.getIntake().setPower(1); // TODO - negative this is if spinis the wrong way
                 intakeInToggledOn = false;
                 intakeOutToggledOn = true;
             } else {
