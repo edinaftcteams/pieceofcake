@@ -29,7 +29,7 @@ public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
 
         LocateTFMineral();
 
-        while (opModeIsActive() && (currentState != AutonomousStates.ARM_EXTENDED)) {
+        while (opModeIsActive() && (currentState != AutonomousStates.AT_LEFT_WALL)) {
             switch (currentState) {
                 case LATCHED:
                     currentState = Drop();
@@ -47,13 +47,14 @@ public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
                     currentState = DriveToMineral(slideLeftPosition, slideRightPosition);
                     break;
                 case AT_MINERAL:
-                    currentState = PushMineral((int)(DrivePerInch * 4.5));
+                    currentState = PushMineral((int)(DrivePerInch * 3.5));
                     break;
                 case MINERAL_PUSHED:
-                    currentState = BackAwayFromMIneral((int)(DrivePerInch * 5));
+                    currentState = BackAwayFromMIneral((int)(DrivePerInch * 4));
                     break;
                 case BACKED_AWAY_FROM_MINERAL:
-                    currentState = TurnTowardsLeftWall();
+                    currentState = MoveToLeftWall(distanceFromLeftMineral, slideLeftPosition + distanceFromLeftMineral,
+                            slideLeftPosition + slideRightPosition + distanceFromLeftMineral);
                     break;
                 case TURNED_TOWARDS_LEFT_WALL:
                     currentState = DriveToLeftWall(distanceFromLeftMineral, slideLeftPosition + distanceFromLeftMineral,

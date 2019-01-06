@@ -14,7 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.robot.PieceOfCake;
 
 @TeleOp(name = "Test: Mecanum", group = "Teleop Test")
-@Disabled
+//@Disabled
 public class MecanumTest extends LinearOpMode {
     private Mecanum _mecanum;
     protected BNO055IMU imu = null;
@@ -32,7 +32,7 @@ public class MecanumTest extends LinearOpMode {
 
         _mecanum = new Mecanum(robot.getFrontL(), robot.getFrontR(), robot.getBackL(), robot.getBackR(), true, telemetry);
 
-        _mecanum.StopAndResetMotors2();
+        _mecanum.StopAndResetMotors3();
         InitGyro();
 
         waitForStart();

@@ -19,7 +19,7 @@ import java.util.List;
 abstract class BaseAutoOpMode extends LinearOpMode {
     protected int DrivePerInch = (int)(1120 / 18.85);
     private int FlatFlip = 1800;
-    private int SlideOffLatchDistance = 250;
+    private int SlideOffLatchDistance = 275;
     private int Turn90 = 1200;
     private int Turn45 = Turn90/2;
     private ElapsedTime watch = new ElapsedTime();
@@ -104,7 +104,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
                     int goldMineralX = 0;
                     if (updatedRecognitions.size() > 0) {
                         for (Recognition recognition : updatedRecognitions) {
-                            if ((recognition.getLabel().equals(LABEL_GOLD_MINERAL)) && recognition.getTop() < 500){
+                            if ((recognition.getLabel().equals(LABEL_GOLD_MINERAL)) && recognition.getBottom() > 600){
                                 goldMineralX = (int) recognition.getLeft();
                             }
 
@@ -112,10 +112,10 @@ abstract class BaseAutoOpMode extends LinearOpMode {
                         }
                     }
 
-                    if (goldMineralX > 300) {
+                    if (goldMineralX > 500) {
                         mineralLocation = MineralLocation.LEFT;
                         telemetry.addData("Mineral Location", "Left");
-                    } else if ((goldMineralX >= 50) && (goldMineralX <= 300)) {
+                    } else if ((goldMineralX >= 450) && (goldMineralX <= 500)) {
                         mineralLocation = MineralLocation.MIDDLE;
                         telemetry.addData("Mineral Location", "Middle");
                     } else {
@@ -142,12 +142,22 @@ abstract class BaseAutoOpMode extends LinearOpMode {
 
     }
     public AutonomousStates Latch () {
-        robot.getBackLift().setPower(-.1);
-        robot.getFrontLift().setPower(.1);
+        robot.getBackLift().setPower(-.12);
+        robot.getFrontLift().setPower(.12);
 
         return AutonomousStates.LATCHED;
     }
+    public AutonomousStates MoveToLeftWall(int distanceFromLeftMineral, int distanceFromCenterMineral, int distanceFromRightMineral) {
+        if (mineralLocation == MineralLocation.RIGHT) {
+            mecanum.SlideLeft(0.5, distanceFromRightMineral, this);
+        } else if (mineralLocation == MineralLocation.LEFT) {
+            mecanum.SlideLeft(0.5, distanceFromLeftMineral, this);
+        } else if (mineralLocation == MineralLocation.MIDDLE) {
+            mecanum.SlideLeft(0.5, distanceFromCenterMineral, this);
+        }
 
+        return AutonomousStates.AT_LEFT_WALL;
+    }
     public AutonomousStates Drop() {
         robot.getSlide().setPower(.1);
         // do something to drop
@@ -178,7 +188,6 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         robot.getBackLift().setPower(0);
         robot.getFrontLift().setPower(0);
 
-        mecanum.MoveBackwards(.3, 50, this);
         return AutonomousStates.DROPPED;
     }
 
@@ -186,6 +195,8 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         robot.getTopFlip().setPosition(1);
 
         mecanum.SlideLeft2(.7, SlideOffLatchDistance, this);
+
+        mecanum.MoveBackwards(.3, 50, this);
 
         return AutonomousStates.MOVED_OFF_LATCH;
     }
@@ -240,15 +251,6 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         robot.getSlide().setPower(.1);
         mecanum.MoveForward2(.7, pushDistance, this);
         robot.getSlide().setPower(0);
-
-        robot.getFrontFlip().setTargetPosition(0);
-        robot.getFrontFlip().setPower(.7);
-
-        while (robot.getFrontFlip().isBusy()) {
-            idle();
-        }
-
-        robot.getFrontFlip().setPower(0);
 
         return AutonomousStates.MINERAL_PUSHED;
     }

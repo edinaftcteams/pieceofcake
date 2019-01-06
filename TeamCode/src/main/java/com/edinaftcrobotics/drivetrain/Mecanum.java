@@ -286,6 +286,17 @@ public class Mecanum {
         _backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
+    public void StopAndResetMotors3() {
+        _frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        _frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        _frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        _frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        _backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        _backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        _backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        _backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
     private void SetDistance(int lf, int lb, int rf, int rb) {
         _frontLeft.setTargetPosition(lf);
         _frontRight.setTargetPosition(rf);
