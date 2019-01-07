@@ -1,12 +1,13 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.enums.AutonomousStates;
 
 @Autonomous(name="Test Mineral Detection", group="Autonomous")
-//@Disabled
+@Disabled
 public class TestMineralAutoOpMode extends BaseAutoOpMode {
     private int distanceFromLeftMineral = DrivePerInch * 21;
 
@@ -22,6 +23,9 @@ public class TestMineralAutoOpMode extends BaseAutoOpMode {
             synchronized (this) {
                 try {
                     LocateTFMineral();
+                    telemetry.addData("Mineral Location", mineralLocation);
+                    telemetry.addData("Last Recognition", LastRecognition);
+                    telemetry.update();
                     this.wait();
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -31,7 +35,7 @@ public class TestMineralAutoOpMode extends BaseAutoOpMode {
         }
 
         Drop();
-        
+
         while (opModeIsActive()) {
             telemetry.addData("Mineral Location", mineralLocation);
             telemetry.update();

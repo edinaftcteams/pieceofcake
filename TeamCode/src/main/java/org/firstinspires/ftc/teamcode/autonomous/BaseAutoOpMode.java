@@ -39,6 +39,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
 
     protected BNO055IMU imu = null;
     protected TFObjectDetector tfod;
+    protected Recognition LastRecognition = null;
 
     protected void InitRobot() {
         robot.init(hardwareMap);
@@ -76,6 +77,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
+        mineralLocation = MineralLocation.RIGHT;
     }
 
     private void initVuforia() {
@@ -94,44 +96,34 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     }
 
     public void LocateTFMineral() {
-        for (int x = 0; x< 1; x++) {
-            if (tfod != null) {
-                // getUpdatedRecognitions() will return null if no new information is available since
-                // the last time that call was made.
-                List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-                if (updatedRecognitions != null) {
-                    telemetry.addData("# Object Detected", updatedRecognitions.size());
-                    int goldMineralX = 0;
-                    if (updatedRecognitions.size() > 0) {
-                        for (Recognition recognition : updatedRecognitions) {
-                            if ((recognition.getLabel().equals(LABEL_GOLD_MINERAL)) && recognition.getBottom() > 600){
-                                goldMineralX = (int) recognition.getLeft();
-                            }
-
-                            telemetry.addData("Gold Mineral Position", "%d", goldMineralX);
+        if (tfod != null) {
+            // getUpdatedRecognitions() will return null if no new information is available since
+            // the last time that call was made.
+            List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+            if ((updatedRecognitions != null) && (updatedRecognitions.size() > 0)) {
+                mineralLocation = MineralLocation.RIGHT;
+                for (Recognition recognition : updatedRecognitions) {
+                    telemetry.addData("Object", recognition);
+                    if ((recognition.getLabel().equals(LABEL_GOLD_MINERAL)) && (recognition.getTop() > 520) && (recognition.getBottom() < 730)) {
+                        int goldMineralX = (int) recognition.getLeft();
+                        if (goldMineralX < 430) {
+                            mineralLocation = MineralLocation.LEFT;
+                        } else if ((goldMineralX >= 430)  && (goldMineralX <= 650)) {
+                            mineralLocation = MineralLocation.MIDDLE;
+                        } else {
+                            mineralLocation = MineralLocation.RIGHT;
                         }
-                    }
 
-                    if (goldMineralX > 500) {
-                        mineralLocation = MineralLocation.LEFT;
-                        telemetry.addData("Mineral Location", "Left");
-                    } else if ((goldMineralX >= 450) && (goldMineralX <= 500)) {
-                        mineralLocation = MineralLocation.MIDDLE;
-                        telemetry.addData("Mineral Location", "Middle");
-                    } else {
-                        mineralLocation = MineralLocation.RIGHT;
-                        telemetry.addData("Mineral Location", "Right");
+                        LastRecognition = recognition;
+
+                        break;
                     }
-                } else {
-                    telemetry.addData("Nothing", "Detected");
-                    mineralLocation = MineralLocation.RIGHT;
                 }
             } else {
-                telemetry.addData("No", "TFOD");
+                telemetry.addData("Nothing New", "Detected");
             }
-
-            telemetry.update();
-            sleep(100);
+        } else {
+            telemetry.addData("No", "TFOD");
         }
     }
 
@@ -139,8 +131,8 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         if (tfod != null) {
             tfod.shutdown();
         }
-
     }
+
     public AutonomousStates Latch () {
         robot.getBackLift().setPower(-.12);
         robot.getFrontLift().setPower(.12);
@@ -158,6 +150,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
 
         return AutonomousStates.AT_LEFT_WALL;
     }
+
     public AutonomousStates Drop() {
         robot.getSlide().setPower(.1);
         // do something to drop

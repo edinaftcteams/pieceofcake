@@ -18,16 +18,26 @@ public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
         InitRobot();
         InitGyro();
 
-        //InitSetup();
-
         robot.getFrontFlip().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.getFrontFlip().setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         currentState = Latch();
 
-        waitForStart();
-
-        LocateTFMineral();
+        while (!isStarted()) {
+            synchronized (this) {
+                try {
+                    LocateTFMineral();
+                    telemetry.addData("Mineral Location", mineralLocation);
+                    telemetry.addData("Last Recognition", LastRecognition);
+                    telemetry.addData("Flip Position", robot.getFrontFlip().getCurrentPosition());
+                    telemetry.update();
+                    this.wait();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+            }
+        }
 
         while (opModeIsActive() && (currentState != AutonomousStates.AT_LEFT_WALL)) {
             switch (currentState) {
@@ -47,18 +57,21 @@ public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
                     currentState = DriveToMineral(slideLeftPosition, slideRightPosition);
                     break;
                 case AT_MINERAL:
-                    currentState = PushMineral((int)(DrivePerInch * 3.5));
+                    currentState = PushMineral((int)(DrivePerInch * 4.5));
                     break;
                 case MINERAL_PUSHED:
-                    currentState = BackAwayFromMIneral((int)(DrivePerInch * 4));
+                    currentState = BackAwayFromMIneral((int)(DrivePerInch * 5.5));
                     break;
                 case BACKED_AWAY_FROM_MINERAL:
                     currentState = MoveToLeftWall(distanceFromLeftMineral, slideLeftPosition + distanceFromLeftMineral,
                             slideLeftPosition + slideRightPosition + distanceFromLeftMineral);
-                    break;
-                case TURNED_TOWARDS_LEFT_WALL:
-                    currentState = DriveToLeftWall(distanceFromLeftMineral, slideLeftPosition + distanceFromLeftMineral,
-                            slideLeftPosition + slideRightPosition + distanceFromLeftMineral);
+                    robot.getFrontFlip().setTargetPosition(800);
+                    robot.getFrontFlip().setPower(.7);
+
+                    while (robot.getFrontFlip().isBusy()) {
+                        idle();
+                    }
+
                     break;
                 case AT_LEFT_WALL:
                     currentState = TurnLeftTowardsCrater();
