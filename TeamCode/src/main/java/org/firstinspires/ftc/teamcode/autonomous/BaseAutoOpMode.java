@@ -20,10 +20,12 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     protected int DrivePerInch = (int)(1120 / 18.85);
     private int FlatFlip = 1800;
     private int SlideOffLatchDistance = 275;
-    private int Turn90 = 1200;
+    private int Turn90 = 1325;
     private int Turn45 = Turn90/2;
     private ElapsedTime watch = new ElapsedTime();
-    protected int slideRightPosition = DrivePerInch * 23;
+    protected double PushMineralDistance = 4.5;
+    protected double BackAwayFromMineralDistance = 5.5;
+    protected int slideRightPosition = DrivePerInch * 20;
     protected int slideLeftPosition = DrivePerInch * 23;
     protected int driveForwardPosition = (int)(DrivePerInch * 20.5);
 
@@ -228,11 +230,11 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         robot.getSlide().setPower(.1);
 
         if (mineralLocation == MineralLocation.LEFT) {
-            mecanum.SlideLeft2(.5, slideLeftDistance - SlideOffLatchDistance, this);
+            mecanum.SlideLeft(.5, slideLeftDistance - SlideOffLatchDistance, this);
         } else if (mineralLocation == MineralLocation.RIGHT) {
-            mecanum.SlideRight2(.5, slideRightDistance + SlideOffLatchDistance, this);
+            mecanum.SlideRight(.5, slideRightDistance + SlideOffLatchDistance, this);
         } else {
-            mecanum.SlideRight2(.5, SlideOffLatchDistance, this);
+            mecanum.SlideRight(.5, SlideOffLatchDistance, this);
         }
 
         robot.getSlide().setPower(0);
@@ -286,9 +288,9 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         robot.getSlide().setPower(0);
 
         // spin the intake to dump marker
-        robot.getIntake().setPower(.3);
+        robot.getIntake().setPower(-1);
         watch.reset();
-        while (watch.milliseconds() < 500) {
+        while (watch.milliseconds() < 2000) {
             idle();
         }
 
@@ -314,6 +316,14 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         turner.Turn(.05, 3500);
 
         robot.getSlide().setPower(0);
+
+        return AutonomousStates.TURNED_TOWARDS_CRATER;
+    }
+
+    public AutonomousStates TurnLeftTowardsCrater2() {
+        mecanum.TurnLeft(.5, Turn45 + Turn90, this);
+
+        mecanum.SlideRight(.5, DrivePerInch * 15, this);
 
         return AutonomousStates.TURNED_TOWARDS_CRATER;
     }
