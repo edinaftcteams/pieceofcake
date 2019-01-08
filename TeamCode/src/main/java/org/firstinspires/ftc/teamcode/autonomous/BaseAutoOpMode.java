@@ -135,12 +135,13 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         }
     }
 
-    public AutonomousStates Latch () {
+    public AutonomousStates Latch() {
         robot.getBackLift().setPower(-.12);
         robot.getFrontLift().setPower(.12);
 
         return AutonomousStates.LATCHED;
     }
+
     public AutonomousStates MoveToLeftWall(int distanceFromLeftMineral, int distanceFromCenterMineral, int distanceFromRightMineral) {
         if (mineralLocation == MineralLocation.RIGHT) {
             mecanum.SlideLeft(0.5, distanceFromRightMineral, this);
@@ -148,6 +149,13 @@ abstract class BaseAutoOpMode extends LinearOpMode {
             mecanum.SlideLeft(0.5, distanceFromLeftMineral, this);
         } else if (mineralLocation == MineralLocation.MIDDLE) {
             mecanum.SlideLeft(0.5, distanceFromCenterMineral, this);
+        }
+
+        robot.getFrontFlip().setTargetPosition(800);
+        robot.getFrontFlip().setPower(.7);
+
+        while ((robot.getFrontFlip().isBusy()) && opModeIsActive()) {
+            idle();
         }
 
         return AutonomousStates.AT_LEFT_WALL;
@@ -160,7 +168,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         robot.getFrontFlip().setTargetPosition(FlatFlip);
         robot.getFrontFlip().setPower(.7);
 
-        while (robot.getFrontFlip().isBusy()) {
+        while (robot.getFrontFlip().isBusy() && opModeIsActive()) {
             idle();
         }
 
@@ -169,14 +177,14 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         robot.getFrontLift().setPower(0);
 
         watch.reset();
-        while (watch.milliseconds() < 1500) {
+        while ((watch.milliseconds() < 1500) && opModeIsActive()) {
             idle();
         }
 
         robot.getBackLift().setPower(.3);
         robot.getFrontLift().setPower(-.3);
         watch.reset();
-        while (watch.milliseconds() < 400) {
+        while ((watch.milliseconds() < 400) && opModeIsActive()) {
             idle();
         }
 
@@ -202,6 +210,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         mecanum.MoveForward2(.7, forwardDistance, this);
 
         robot.getSlide().setPower(0);
+
         return AutonomousStates.MOVED_FORWARD;
     }
 
@@ -216,7 +225,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         return AutonomousStates.MOVED_BACK_TO_CENTER;
     }
 
-    public AutonomousStates DriveToMineral (int slideLeftDistance, int slideRightDistance) {
+    public AutonomousStates DriveToMineral(int slideLeftDistance, int slideRightDistance) {
         if (mineralLocation == MineralLocation.LEFT) {
             mecanum.SlideLeft2(.5, slideLeftDistance, this);
         } else if (mineralLocation == MineralLocation.RIGHT) {
@@ -250,7 +259,8 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         return AutonomousStates.MINERAL_PUSHED;
     }
 
-    public AutonomousStates BackAwayFromMIneral(int backDistance) {
+    public AutonomousStates BackAwayFromMineral(int backDistance) {
+
         robot.getSlide().setPower(.1);
         mecanum.MoveBackwards2(.7, backDistance, this);
         robot.getSlide().setPower(0);
@@ -266,8 +276,8 @@ abstract class BaseAutoOpMode extends LinearOpMode {
 
         // slide arm out
         robot.getSlide().setPower(-1);
-        // run for 1500 milliseconds
-        while (watch.milliseconds() < 1000) {
+        // run for 1000 milliseconds
+        while ((watch.milliseconds() < 1000) && opModeIsActive()) {
             idle();
         }
 
@@ -276,12 +286,12 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         return AutonomousStates.ARM_EXTENDED;
     }
 
-    public AutonomousStates DropMarker () {
+    public AutonomousStates DropMarker() {
         watch.reset();
         // slide arm out
         robot.getSlide().setPower(-1);
-        // run for 1500 milliseconds
-        while (watch.milliseconds() < 1000) {
+        // run for 1000 milliseconds
+        while ((watch.milliseconds() < 1000) && opModeIsActive()) {
             idle();
         }
 
@@ -290,7 +300,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         // spin the intake to dump marker
         robot.getIntake().setPower(-1);
         watch.reset();
-        while (watch.milliseconds() < 2000) {
+        while ((watch.milliseconds() < 2000) && opModeIsActive()) {
             idle();
         }
 
@@ -299,8 +309,8 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         // move slide back in
         watch.reset();
         robot.getSlide().setPower(1);
-        // run for 1500 milliseconds
-        while (watch.milliseconds() < 1000) {
+        // run for 1000 milliseconds
+        while ((watch.milliseconds() < 1000) && opModeIsActive()) {
             idle();
         }
 
@@ -309,92 +319,31 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         return AutonomousStates.DROPPED_MARKER;
     }
 
-    public AutonomousStates TurnLeftTowardsCrater() {
-        robot.getSlide().setPower(.1);
-
-        TurnOMatic turner = new TurnOMatic(imu, mecanum, telemetry, 135, this, .7);
-        turner.Turn(.05, 3500);
-
-        robot.getSlide().setPower(0);
-
-        return AutonomousStates.TURNED_TOWARDS_CRATER;
-    }
-
-    public AutonomousStates TurnLeftTowardsCrater2() {
+    public AutonomousStates TurnLeftTowardsCraterOrDepot() {
         mecanum.TurnLeft(.5, Turn45 + Turn90, this);
 
         mecanum.SlideRight(.5, DrivePerInch * 15, this);
 
-        return AutonomousStates.TURNED_TOWARDS_CRATER;
+        return AutonomousStates.TURNED_TOWARDS_DEPOT_OR_CRATER;
+    }
+
+    public AutonomousStates TurnTowardsCraterFromDepot() {
+        mecanum.MoveBackwards2(.5,DrivePerInch * 9, this);
+
+        mecanum.TurnLeft(.5, Turn90 + Turn90, this);
+
+        return AutonomousStates.FACING_CRATER;
     }
 
     public AutonomousStates MoveTowardsCrater() {
-        mecanum.MoveForward2(.3, DrivePerInch * 12, this);
+        mecanum.MoveForward(.3, DrivePerInch * 12, this);
 
         return AutonomousStates.AT_CRATER;
-    }
-
-    public AutonomousStates TurnLeftTowardsDepot(){
-        robot.getSlide().setPower(.1);
-
-        TurnOMatic turner = new TurnOMatic(imu, mecanum, telemetry, 135, this, .4);
-        turner.Turn(.05, 3500);
-//        mecanum.TurnLeft(.5 , Turn45, this);
-
-        robot.getSlide().setPower(0);
-
-        return AutonomousStates.TURNED_TOWARDS_DEPOT;
     }
 
     public AutonomousStates MoveTowardsDepot(){
         mecanum.MoveForward(.5,DrivePerInch * 9, this);
 
         return AutonomousStates.AT_DEPOT;
-    }
-
-    public AutonomousStates TurnTowardsLeftWall()  {
-        robot.getSlide().setPower(.1);
-
-        TurnOMatic turner = new TurnOMatic(imu, mecanum, telemetry, 90, this, .8);
-        turner.Turn(.05, 3000);
-//        mecanum.TurnLeft(.5, Turn90, this);
-
-        robot.getSlide().setPower(0);
-
-        return AutonomousStates.TURNED_TOWARDS_LEFT_WALL;
-    }
-
-    public AutonomousStates DriveToLeftWall(int distanceFromLeftMineral, int distanceFromCenterMineral, int distanceFromRightMineral) {
-        robot.getSlide().setPower(.1);
-
-        if (mineralLocation == MineralLocation.RIGHT) {
-            mecanum.MoveForward2(.8,distanceFromRightMineral, this);
-        } else if (mineralLocation == MineralLocation.LEFT) {
-            mecanum.MoveForward2(.8,distanceFromLeftMineral, this);
-        } else if (mineralLocation == MineralLocation.MIDDLE) {
-            mecanum.MoveForward2(.8,distanceFromCenterMineral, this);
-        }
-
-        robot.getSlide().setPower(0);
-
-        return AutonomousStates.AT_LEFT_WALL;
-    }
-
-    public AutonomousStates TurnTowardsCrater(){
-        robot.getSlide().setPower(.1);
-
-        TurnOMatic turner = new TurnOMatic(imu, mecanum, telemetry, -45, this, .7);
-        turner.Turn(.05, 3500);
-//        mecanum.TurnLeft(.5 , 2400, this);
-
-        robot.getSlide().setPower(0);
-
-        return AutonomousStates.FACING_CRATER;
-    }
-
-    public AutonomousStates DriveTowardsCrater(){
-        mecanum.MoveForward2(.5,DrivePerInch * 30, this);
-
-        return AutonomousStates.AT_CRATER;
     }
 }

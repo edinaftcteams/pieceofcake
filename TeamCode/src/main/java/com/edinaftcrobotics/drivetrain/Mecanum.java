@@ -39,7 +39,7 @@ public class Mecanum {
         int error = Math.abs((int)(distance * 0.95));
         Move(power, power, power, power);
 
-        while ((currentPosition < error)) {
+        while ((currentPosition < error) && opMode.opModeIsActive()) {
             currentPosition =  Math.abs(_backRight.getCurrentPosition());
             opMode.idle();
         }
@@ -54,7 +54,7 @@ public class Mecanum {
         int error = Math.abs((int)(distance * 0.95));
         Move(-power, power, power, -power);
 
-        while ((currentPosition < error)) {
+        while ((currentPosition < error) && opMode.opModeIsActive()) {
             currentPosition =  Math.abs(_backRight.getCurrentPosition());
             opMode.idle();
         }
@@ -84,7 +84,7 @@ public class Mecanum {
         int error = Math.abs((int)(distance * 0.95));
         Move(power, power, power, power);
 
-        while ((currentPosition < error)) {
+        while ((currentPosition < error) && opMode.opModeIsActive()) {
             currentPosition =  Math.abs(_frontRight.getCurrentPosition());
             opMode.idle();
         }
@@ -99,16 +99,12 @@ public class Mecanum {
         int error = Math.abs((int)(distance * 0.95));
         Move(power, -power, -power, power);
 
-        while (currentPosition < error) {
+        while ((currentPosition < error) && opMode.opModeIsActive()) {
             currentPosition =  Math.abs(_frontRight.getCurrentPosition());
             opMode.idle();
         }
 
         Stop();
-    }
-
-    public void SlideRight3(double power, int distance, LinearOpMode opMode, BNO055IMU imu) {
-        Move(power, -power, -power, power);
     }
 
     public void MoveForward(double power, int distance, LinearOpMode opMode) {
@@ -119,7 +115,7 @@ public class Mecanum {
         int currentPosition =  Math.abs(_frontRight.getCurrentPosition());
         Move(power, power, power, power);
 
-        while (_frontLeft.isBusy() && _frontRight.isBusy() && _backLeft.isBusy() && _backRight.isBusy() && (currentPosition < error)) {
+        while (_frontLeft.isBusy() && _frontRight.isBusy() && _backLeft.isBusy() && _backRight.isBusy() && (currentPosition < error) && opMode.opModeIsActive()) {
             currentPosition =  Math.abs(_frontRight.getCurrentPosition());
             opMode.idle();
         }
@@ -135,7 +131,7 @@ public class Mecanum {
         double currentPower = CalculateRampPower(power, distance, currentPosition);
         Move(currentPower, currentPower, currentPower, currentPower);
 
-        while (currentPosition < error) {
+        while ((currentPosition < error) && opMode.opModeIsActive()) {
             currentPosition =  Math.abs(_frontRight.getCurrentPosition());
             currentPower = CalculateRampPower(power, distance, currentPosition);
             Move(currentPower, currentPower, currentPower, currentPower);
@@ -153,7 +149,7 @@ public class Mecanum {
         int currentPosition =  Math.abs(_frontRight.getCurrentPosition());
         Move(power, power, power, power);
 
-        while (_frontLeft.isBusy() && _frontRight.isBusy() && _backLeft.isBusy() && _backRight.isBusy() && (currentPosition < error)) {
+        while (_frontLeft.isBusy() && _frontRight.isBusy() && _backLeft.isBusy() && _backRight.isBusy() && (currentPosition < error) && opMode.opModeIsActive()) {
             currentPosition =  Math.abs(_frontRight.getCurrentPosition());
             opMode.idle();
         }
@@ -170,7 +166,7 @@ public class Mecanum {
 
         Move(-currentPower, -currentPower, -currentPower, -currentPower);
 
-        while (currentPosition < error) {
+        while ((currentPosition < error) && opMode.opModeIsActive()) {
             currentPosition =  Math.abs(_frontRight.getCurrentPosition());
             CalculateRampPower(power, distance, currentPosition);
             Move(-currentPower, -currentPower, -currentPower, -currentPower);
@@ -188,7 +184,7 @@ public class Mecanum {
         int currentPosition =  Math.abs(_frontRight.getCurrentPosition());
         Move(power, power, power, power);
 
-        while (_frontLeft.isBusy() && _frontRight.isBusy() && _backLeft.isBusy() && _backRight.isBusy() && (currentPosition < error)) {
+        while (_frontLeft.isBusy() && _frontRight.isBusy() && _backLeft.isBusy() && _backRight.isBusy() && (currentPosition < error) && opMode.opModeIsActive()) {
             currentPosition =  Math.abs(_frontRight.getCurrentPosition());
             opMode.idle();
         }
@@ -204,7 +200,7 @@ public class Mecanum {
         int currentPosition =  Math.abs(_frontRight.getCurrentPosition());
         Move(power, power, power, power);
 
-        while (_frontLeft.isBusy() && _frontRight.isBusy() && _backLeft.isBusy() && _backRight.isBusy() && (currentPosition < error)) {
+        while (_frontLeft.isBusy() && _frontRight.isBusy() && _backLeft.isBusy() && _backRight.isBusy() && (currentPosition < error) && opMode.opModeIsActive()) {
             currentPosition =  Math.abs(_frontRight.getCurrentPosition());
             opMode.idle();
         }

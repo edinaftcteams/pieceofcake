@@ -5,14 +5,13 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.enums.AutonomousStates;
-import org.firstinspires.ftc.teamcode.enums.MineralLocation;
 
-@Autonomous(name="Depot And Crater", group="Autonomous")
+@Autonomous(name="Crater-Depot-Crater", group="Autonomous")
 //@Disabled
-public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
-    private int distanceFromLeftMineral = DrivePerInch * 21;
+public class CraterDepotAndCraterOpMode extends BaseAutoOpMode{
+    private int distanceFromLeftMineral = (int)(DrivePerInch * 19.5);
 
-    public void runOpMode() {
+    public void runOpMode(){
         AutonomousStates currentState = AutonomousStates.START;
 
         InitRobot();
@@ -39,7 +38,7 @@ public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
             }
         }
 
-        while (opModeIsActive() && (currentState != AutonomousStates.AT_CRATER)) {
+        while (opModeIsActive() && (currentState != AutonomousStates.ARM_EXTENDED)) {
             switch (currentState) {
                 case LATCHED:
                     currentState = Drop();
@@ -48,13 +47,10 @@ public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
                     currentState = MoveLeftOffLatch();
                     break;
                 case MOVED_OFF_LATCH:
-                    currentState = MoveForwardAndSlideBackToCenter(driveForwardPosition);
+                    currentState = MoveForward(driveForwardPosition);
                     break;
-                case MOVED_BACK_TO_CENTER:
-                    currentState = DropMarker();
-                    break;
-                case DROPPED_MARKER:
-                    currentState = DriveToMineral(slideLeftPosition, slideRightPosition);
+                case MOVED_FORWARD:
+                    currentState = DriveToMineralOffLeftOffset(slideLeftPosition, slideRightPosition);
                     break;
                 case AT_MINERAL:
                     currentState = PushMineral((int)(DrivePerInch * PushMineralDistance));
@@ -70,14 +66,18 @@ public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
                     currentState = TurnLeftTowardsCraterOrDepot();
                     break;
                 case TURNED_TOWARDS_DEPOT_OR_CRATER:
-                    currentState = AutonomousStates.ARM_EXTENDED; //ExtendArm();
+                    currentState = MoveTowardsDepot();
                     break;
-                case ARM_EXTENDED:
+                case AT_DEPOT:
+                    currentState = AutonomousStates.DROPPED_MARKER; //DropMarker();
+                    break;
+                case DROPPED_MARKER:
+                    currentState = TurnTowardsCraterFromDepot();
+                    break;
+                case FACING_CRATER:
                     currentState = MoveTowardsCrater();
                     break;
             }
         }
-
-        ShutdownTFOD();
     }
 }

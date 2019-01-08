@@ -1,29 +1,20 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.enums.AutonomousStates;
 
-@Autonomous(name="CraterDepotCrater", group="Autonomous")
+@Autonomous(name="Crater Only", group="Autonomous")
 //@Disabled
-public class CraterDepotAndCrater extends BaseAutoOpMode{
+public class CraterAutoOpMode extends BaseAutoOpMode{
     private int distanceFromLeftMineral = (int)(DrivePerInch * 19.5);
 
     public void runOpMode(){
-
         AutonomousStates currentState = AutonomousStates.START;
 
         InitRobot();
         InitGyro();
-
-        //InitSetup();
-
-        robot.getFrontFlip().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.getFrontFlip().setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        currentState = Latch();
 
         robot.getFrontFlip().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.getFrontFlip().setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -64,32 +55,8 @@ public class CraterDepotAndCrater extends BaseAutoOpMode{
                     currentState = PushMineral((int)(DrivePerInch * PushMineralDistance));
                     break;
                 case MINERAL_PUSHED:
-                    currentState = BackAwayFromMIneral((int)(DrivePerInch * BackAwayFromMineralDistance));
+                    currentState = BackAwayFromMineral((int)(DrivePerInch * BackAwayFromMineralDistance));
                     break;
-/*
-                case BACKED_AWAY_FROM_MINERAL:
-                    currentState = TurnTowardsLeftWall();
-                    break;
-                case TURNED_TOWARDS_LEFT_WALL:
-                    currentState = DriveToLeftWall(distanceFromLeftMineral, slideLeftPosition + distanceFromLeftMineral,
-                            slideLeftPosition + slideRightPosition + distanceFromLeftMineral);
-                    break;
-                case AT_LEFT_WALL:
-                    currentState = TurnLeftTowardsDepot();
-                    break;
-                case TURNED_TOWARDS_DEPOT:
-                    currentState = MoveTowardsDepot();
-                    break;
-                case AT_DEPOT:
-                    currentState = AutonomousStates.DROPPED_MARKER; //DropMarker();
-                    break;
-                case DROPPED_MARKER:
-                    currentState = TurnTowardsCrater();
-                    break;
-                case FACING_CRATER:
-                    currentState = DriveTowardsCrater();
-                    break;
-                    */
                 case BACKED_AWAY_FROM_MINERAL:
                     currentState = ExtendArm();
                     break;
