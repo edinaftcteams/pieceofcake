@@ -6,9 +6,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.enums.AutonomousStates;
 
-@Autonomous(name="Crater", group="Autonomous")
-//@Disabled
-public class CraterDepotAndCrater extends BaseAutoOpMode{
+@Autonomous(name="CraterDepotCrater", group="Autonomous")
+@Disabled
+public class CraterDepotAndCraterOpMode extends BaseAutoOpMode{
     private int distanceFromLeftMineral = (int)(DrivePerInch * 19.5);
 
     public void runOpMode(){
@@ -71,7 +71,7 @@ public class CraterDepotAndCrater extends BaseAutoOpMode{
                     currentState = TurnTowardsLeftWall();
                     break;
                 case TURNED_TOWARDS_LEFT_WALL:
-                    currentState = DriveToLeftWall(distanceFromLeftMineral, slideLeftPosition + distanceFromLeftMineral,
+                    currenCraterDepotAndCratertState = DriveToLeftWall(distanceFromLeftMineral, slideLeftPosition + distanceFromLeftMineral,
                             slideLeftPosition + slideRightPosition + distanceFromLeftMineral);
                     break;
                 case AT_LEFT_WALL:
