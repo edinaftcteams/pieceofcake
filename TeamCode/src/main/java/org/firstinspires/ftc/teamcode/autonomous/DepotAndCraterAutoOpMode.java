@@ -39,7 +39,7 @@ public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
             }
         }
 
-        while (opModeIsActive() && (currentState != AutonomousStates.AT_CRATER)) {
+        while (opModeIsActive() && (currentState != AutonomousStates.ARM_EXTENDED)) {
             switch (currentState) {
                 case LATCHED:
                     currentState = Drop();
@@ -77,12 +77,12 @@ public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
                     currentState = TurnLeftTowardsCrater2();
                     break;
                 case TURNED_TOWARDS_CRATER:
-                    currentState = ExtendArm();
-                    break;
-                case ARM_EXTENDED:
-                    currentState = MoveTowardsCrater();
+                    currentState = AutonomousStates.ARM_EXTENDED; //ExtendArm();
                     break;
             }
+
+            telemetry.addData("Angle", GetImuAngle());
+            telemetry.update();
         }
 
         ShutdownTFOD();
