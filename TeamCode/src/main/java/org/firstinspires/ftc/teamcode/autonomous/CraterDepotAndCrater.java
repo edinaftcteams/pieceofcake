@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.enums.AutonomousStates;
 
-@Autonomous(name="CraterDepotCrater", group="Autonomous")
+@Autonomous(name="Crater", group="Autonomous")
 //@Disabled
 public class CraterDepotAndCrater extends BaseAutoOpMode{
     private int distanceFromLeftMineral = (int)(DrivePerInch * 19.5);

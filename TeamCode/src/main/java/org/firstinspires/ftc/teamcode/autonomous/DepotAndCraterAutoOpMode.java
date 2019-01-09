@@ -77,7 +77,7 @@ public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
                     currentState = TurnLeftTowardsCrater2();
                     break;
                 case TURNED_TOWARDS_CRATER:
-                    currentState = AutonomousStates.ARM_EXTENDED; //ExtendArm();
+                    currentState = ExtendArm();
                     break;
                 case ARM_EXTENDED:
                     currentState = MoveTowardsCrater();

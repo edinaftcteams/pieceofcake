@@ -20,14 +20,15 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     protected int DrivePerInch = (int)(1120 / 18.85);
     private int FlatFlip = 1800;
     private int SlideOffLatchDistance = 275;
+    private int slideCenterPosition = 300;
     private int Turn90 = 1325;
     private int Turn45 = Turn90/2;
     private ElapsedTime watch = new ElapsedTime();
-    protected double PushMineralDistance = 4.5;
+    protected double PushMineralDistance = 6;
     protected double BackAwayFromMineralDistance = 5.5;
-    protected int slideRightPosition = DrivePerInch * 20;
+    protected int slideRightPosition = DrivePerInch * 23;
     protected int slideLeftPosition = DrivePerInch * 23;
-    protected int driveForwardPosition = (int)(DrivePerInch * 20.5);
+    protected int driveForwardPosition = (int)(DrivePerInch * 19);
 
     private static final String VUFORIA_KEY = "ASA9XvT/////AAABmUnq30r9sU3Nmf/+RS+Xx0CHgJj/JtD5ycahnuM/0B2SFvbMRPIZCbLi4LeOkfse9Dymor5W7vNMYI+vmqVx9kpEaKE8VM7cFMUb/T1LLwlCPdX9QKOruzTcRdlYswR7ULh4K11GuFZDO/45pSks+Nf25kT5cnV+IN3TsscA0o7I6XPIeUoAJJPsjw+AycsmRk2uffr3Bnupexr93iRfHylniqP+ss4cRcT1lOqS5Zhh7FQaoelR58qL/RUorGpknjy9ufCn9ervc6Mz01u3ZkM/EOa5wUPT8bDzPZ6nMDaadqumorT5Py+GtJSUosUgz4Gd3iR++fdEk6faFZq3L9xfBSagNykwhiyYx+oqwVqe";
     private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
@@ -193,6 +194,8 @@ abstract class BaseAutoOpMode extends LinearOpMode {
 
         mecanum.MoveBackwards(.3, 50, this);
 
+        mecanum.TurnRight(0.3, 20, this);
+
         return AutonomousStates.MOVED_OFF_LATCH;
     }
     
@@ -234,7 +237,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         } else if (mineralLocation == MineralLocation.RIGHT) {
             mecanum.SlideRight(.5, slideRightDistance + SlideOffLatchDistance, this);
         } else {
-            mecanum.SlideRight(.5, SlideOffLatchDistance, this);
+            mecanum.SlideRight(.5, slideCenterPosition, this);
         }
 
         robot.getSlide().setPower(0);
@@ -329,7 +332,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     }
 
     public AutonomousStates MoveTowardsCrater() {
-        mecanum.MoveForward2(.3, DrivePerInch * 12, this);
+        //mecanum.MoveForward2(.3, DrivePerInch * 10, this);
 
         return AutonomousStates.AT_CRATER;
     }
