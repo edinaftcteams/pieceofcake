@@ -4,6 +4,7 @@ import com.edinaftcrobotics.drivetrain.Mecanum;
 import com.edinaftcrobotics.navigation.TurnOMatic;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
@@ -147,11 +148,48 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     }
 
     public AutonomousStates Latch () {
-        robot.getBackLift().setPower(-.12);
-        robot.getFrontLift().setPower(.12);
+        double currentPower = .12;
+        boolean aPressed = false;
+        boolean bPressed = false;
+
+        while (!gamepad1.x) {
+            robot.getBackLift().setPower(-currentPower);
+            robot.getFrontLift().setPower(currentPower);
+
+            if (gamepad1.a) {
+                aPressed = true;
+            }
+
+            if (!gamepad1.a && aPressed) {
+                aPressed = false;
+                currentPower -= .01;
+                if (currentPower < .1) {
+                    currentPower = .1;
+                }
+            }
+
+            if (gamepad1.b) {
+                bPressed = true;
+            }
+
+            if (!gamepad1.b && bPressed) {
+                bPressed = false;
+                currentPower += .01;
+                if (currentPower > .2) {
+                    currentPower = .2;
+                }
+            }
+
+            telemetry.addData("Current Power", currentPower);
+            telemetry.addData("Press Gamepad1 A", " to decrease power");
+            telemetry.addData("Press Gamepad1 B", " to increase power");
+            telemetry.addData("Press X to Exit", " and power will be locked in");
+            telemetry.update();
+        }
 
         return AutonomousStates.LATCHED;
     }
+
     public AutonomousStates MoveToLeftWall(int distanceFromLeftMineral, int distanceFromCenterMineral, int distanceFromRightMineral) {
         if (mineralLocation == MineralLocation.RIGHT) {
             mecanum.SlideLeft2(0.5, distanceFromRightMineral, this);

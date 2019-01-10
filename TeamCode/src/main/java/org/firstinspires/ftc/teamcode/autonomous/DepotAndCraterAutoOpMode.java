@@ -29,6 +29,8 @@ public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
                     LocateTFMineral();
                     telemetry.addData("Mineral Location", mineralLocation);
                     telemetry.addData("Last Recognition", LastRecognition);
+                    telemetry.addData("Angle", GetImuAngle());
+                    telemetry.addData("Latch Power: ", robot.getBackLift().getPower());
                     telemetry.addData("Flip Position", robot.getFrontFlip().getCurrentPosition());
                     telemetry.update();
                     this.wait();
