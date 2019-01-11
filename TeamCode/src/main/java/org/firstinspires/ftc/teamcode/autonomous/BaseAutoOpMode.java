@@ -26,7 +26,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     private int FlatFlip = 1800;
     private int SlideOffLatchDistance = 275;
     private int slideCenterPosition = 300;
-    private int Turn90 = 1325;
+    private int Turn90 = 1225;
     private int Turn45 = Turn90/2;
     private ElapsedTime watch = new ElapsedTime();
     protected double PushMineralDistance = 6;
@@ -374,5 +374,25 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         mecanum.SlideRight2(.5, DrivePerInch * 15, this);
 
         return AutonomousStates.TURNED_TOWARDS_CRATER;
+    }
+
+    public AutonomousStates MoveTowardsDepot() {
+        mecanum.SlideLeft2(.5,50,this);
+
+        mecanum.MoveForward(.5, DrivePerInch * 20, this);
+
+        return AutonomousStates.AT_DEPOT;
+    }
+
+    public AutonomousStates TurnTowardsCrater() {
+        mecanum.TurnLeft(.5, Turn90 + Turn90, this);
+
+        return AutonomousStates.FACING_CRATER;
+    }
+
+    public AutonomousStates DriveTowardsCrater(){
+        mecanum.MoveForward(.5, DrivePerInch * 20,this);
+
+        return AutonomousStates.AT_CRATER;
     }
 }
