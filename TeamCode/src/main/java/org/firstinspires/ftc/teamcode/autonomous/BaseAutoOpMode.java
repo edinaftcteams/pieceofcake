@@ -379,7 +379,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     public AutonomousStates MoveTowardsDepot() {
         mecanum.SlideLeft2(.5,50,this);
 
-        mecanum.MoveForward(.5, DrivePerInch * 20, this);
+        mecanum.MoveForward2(.5, DrivePerInch * 20, this);
 
         return AutonomousStates.AT_DEPOT;
     }
@@ -391,7 +391,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     }
 
     public AutonomousStates DriveTowardsCrater(){
-        mecanum.MoveForward(.5, DrivePerInch * 20,this);
+        mecanum.MoveForward2(.5, DrivePerInch * 20,this);
 
         return AutonomousStates.AT_CRATER;
     }
