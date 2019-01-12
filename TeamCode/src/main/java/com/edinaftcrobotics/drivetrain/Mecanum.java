@@ -17,6 +17,23 @@ public class Mecanum {
 
     private double _currentPower = 1.0;
 
+    //
+    // This is our class that we use to drive the robot in autonomous and teleop.  It has a bunch of helper
+    // method in it to help us.  The ones that end with the number 2 use the mode run with encoders while
+    // the others use the run to position.  Except for the move, it just moves the robot with some power.
+    // The methods are:
+    //
+    //  SlideLeft2
+    //  Move
+    //  SlideRight2
+    //  MoveForward
+    //  MoveForward2
+    //  MoveBackwards
+    //  MoveBackwards2
+    //  TurnRight
+    //  TurnLeft
+    //  Stop
+    //
     public Mecanum(DcMotor fl, DcMotor fr, DcMotor bl, DcMotor br, boolean isTeleop, Telemetry telemetry)
     {
         _frontLeft = fl;
@@ -32,12 +49,14 @@ public class Mecanum {
     }
 
     public void SlideLeft2(double power, int distance, LinearOpMode opMode) {
+        // put the motors into run with encoders so they run with even power
         StopAndResetMotors2();
 
         int currentPosition =  Math.abs(_backRight.getCurrentPosition());
         int error = Math.abs((int)(distance * 0.95));
         Move(-power, power, power, -power);
 
+        // keep moving until we get close and the op mode is active.  close is 95% of what we want to get to
         while ((currentPosition < error) && opMode.opModeIsActive()) {
             currentPosition =  Math.abs(_backRight.getCurrentPosition());
             opMode.idle();
@@ -61,12 +80,14 @@ public class Mecanum {
     }
 
     public void SlideRight2(double power, int distance, LinearOpMode opMode) {
+        // put the motors into run with encoders so they run with even power
         StopAndResetMotors2();
 
         int currentPosition =  Math.abs(_frontRight.getCurrentPosition());
         int error = Math.abs((int)(distance * 0.95));
         Move(power, -power, -power, power);
 
+        // keep moving until we get close and the op mode is active.  close is 95% of what we want to get to
         while ((currentPosition < error) && opMode.opModeIsActive()) {
             currentPosition =  Math.abs(_frontRight.getCurrentPosition());
             opMode.idle();
@@ -76,6 +97,7 @@ public class Mecanum {
     }
 
     public void MoveForward(double power, int distance, LinearOpMode opMode) {
+        // run with simple distance encoders as moving forward or backwards
         StopAndResetMotors();
         SetDistance(distance, distance, distance, distance);
 
@@ -83,6 +105,7 @@ public class Mecanum {
         int currentPosition =  Math.abs(_frontRight.getCurrentPosition());
         Move(power, power, power, power);
 
+        // keep moving until we get close and the op mode is active.  close is 95% of what we want to get to
         while (_frontLeft.isBusy() && _frontRight.isBusy() && _backLeft.isBusy() && _backRight.isBusy() && (currentPosition < error) && opMode.opModeIsActive()) {
             currentPosition =  Math.abs(_frontRight.getCurrentPosition());
             opMode.idle();
@@ -92,6 +115,7 @@ public class Mecanum {
     }
 
     public void MoveForward2(double power, int distance, LinearOpMode opMode) {
+        // put the motors into run with encoders so they run with even power
         StopAndResetMotors2();
 
         int error = Math.abs((int)(distance * 0.95));
@@ -110,6 +134,7 @@ public class Mecanum {
     }
 
     public void MoveBackwards(double power, int distance, LinearOpMode opMode) {
+        // run with simple distance encoders as moving forward or backwards
         StopAndResetMotors();
         SetDistance(-distance, -distance, -distance, -distance);
 
@@ -117,6 +142,7 @@ public class Mecanum {
         int currentPosition =  Math.abs(_frontRight.getCurrentPosition());
         Move(power, power, power, power);
 
+        // keep moving until we get close and the op mode is active.  close is 95% of what we want to get to
         while (_frontLeft.isBusy() && _frontRight.isBusy() && _backLeft.isBusy() && _backRight.isBusy() && (currentPosition < error) && opMode.opModeIsActive()) {
             currentPosition =  Math.abs(_frontRight.getCurrentPosition());
             opMode.idle();
@@ -126,14 +152,18 @@ public class Mecanum {
     }
 
     public void MoveBackwards2(double power, int distance, LinearOpMode opMode) {
+        // put the motors into run with encoders so they run with even power
         StopAndResetMotors2();
 
         int error = Math.abs((int)(distance * 0.95));
         int currentPosition =  Math.abs(_frontRight.getCurrentPosition());
+
+        // ramp up and down the motor speed based on current position
         double currentPower = CalculateRampPower(power, distance, currentPosition);
 
         Move(-currentPower, -currentPower, -currentPower, -currentPower);
 
+        // keep moving until we get close and the op mode is active.  close is 95% of what we want to get to
         while ((currentPosition < error) && opMode.opModeIsActive()) {
             currentPosition =  Math.abs(_frontRight.getCurrentPosition());
             CalculateRampPower(power, distance, currentPosition);
@@ -145,6 +175,7 @@ public class Mecanum {
     }
 
     public void TurnRight(double power, int distance, LinearOpMode opMode) {
+        // run with simple distance encoders as moving forward or backwards
         StopAndResetMotors();
         SetDistance(distance, distance, -distance, -distance);
 
@@ -152,6 +183,7 @@ public class Mecanum {
         int currentPosition =  Math.abs(_frontRight.getCurrentPosition());
         Move(power, power, power, power);
 
+        // keep moving until we get close and the op mode is active.  close is 95% of what we want to get to
         while (_frontLeft.isBusy() && _frontRight.isBusy() && _backLeft.isBusy() && _backRight.isBusy() && (currentPosition < error) && opMode.opModeIsActive()) {
             currentPosition =  Math.abs(_frontRight.getCurrentPosition());
             opMode.idle();
@@ -161,6 +193,7 @@ public class Mecanum {
     }
 
     public void TurnLeft(double power, int distance, LinearOpMode opMode) {
+        // run with simple distance encoders as moving forward or backwards
         StopAndResetMotors();
         SetDistance(-distance, -distance, distance, distance);
 
@@ -168,6 +201,7 @@ public class Mecanum {
         int currentPosition =  Math.abs(_frontRight.getCurrentPosition());
         Move(power, power, power, power);
 
+        // keep moving until we get close and the op mode is active.  close is 95% of what we want to get to
         while (_frontLeft.isBusy() && _frontRight.isBusy() && _backLeft.isBusy() && _backRight.isBusy() && (currentPosition < error) && opMode.opModeIsActive()) {
             currentPosition =  Math.abs(_frontRight.getCurrentPosition());
             opMode.idle();
@@ -185,7 +219,11 @@ public class Mecanum {
 
     //
     // This method will calculate a power based on the current position and our maximum distance
-    // We want to ramp up the speed to a flat maxPower and then ramp down to zero.
+    // We want to ramp up the speed to a flat maxPower and then ramp down to zero.  We did this
+    // to prevent the robot from losing traction.  We only use this when the robot motors are in
+    // the run with encoders mode as the internal PID is being used for that instead of helping us
+    // with distance.  So this is our real simple PID.  To learn more about what PID is, visit
+    // https://en.wikipedia.org/wiki/PID_controller
     //
     private double CalculateRampPower(double maxPower, int distance, double currentDistance) {
         if (currentDistance <= (distance * .10)) {
@@ -201,6 +239,9 @@ public class Mecanum {
         }
     }
 
+    //
+    // This is our simple drive method that allows us to drive the robot in teleop
+    //
     public void Drive(double leftStickX, double leftStickY, double rightStickY) {
         final double x = Math.pow(-leftStickX, 3.0);
         final double y = Math.pow(leftStickY, 3.0);
@@ -224,6 +265,10 @@ public class Mecanum {
         _currentPower = power;
     }
 
+    //
+    // These are our helper method to set the motors to what we need for the other steps
+    // They are the three different ways you can run a motor
+    //
     public void StopAndResetMotors() {
         _frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         _frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -261,6 +306,10 @@ public class Mecanum {
         _backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
+    //
+    // This method helps us set the distance on all the motors for things like turning and
+    // moving forward.
+    //
     private void SetDistance(int lf, int lb, int rf, int rb) {
         _frontLeft.setTargetPosition(lf);
         _frontRight.setTargetPosition(rf);

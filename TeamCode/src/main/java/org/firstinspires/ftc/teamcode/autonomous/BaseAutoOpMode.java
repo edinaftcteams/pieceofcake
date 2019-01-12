@@ -49,6 +49,15 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     protected TFObjectDetector tfod;
     protected Recognition LastRecognition = null;
 
+    //
+    // This is our init section.  We have all the code here that we will use to init and setup the robot for
+    // autonomous.  The main parts are:
+    //
+    //  initRobot - Setup the drive and video
+    //  initVuforia - Used to setup the camera for mineral detection
+    //  initTFod - Used to setup the TensorFlow for mineral detection
+    //  initGyro - Used to setup the gyro for use when we want to turn
+    //
     protected void InitRobot() {
         robot.init(hardwareMap);
 
@@ -67,6 +76,10 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         }
     }
 
+    //
+    // Init the gyro for turns and general heading information.  We get the imu and set it up for
+    // degrees.  We then wait for it to get ready
+    //
     protected void InitGyro() {
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
@@ -82,9 +95,10 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         return angles.firstAngle;
     }
 
-    /**
-     * Initialize the Tensor Flow Object Detection engine.
-     */
+    //
+    // Init the tensor flow for mineral detection.  We load the model and set the mineral location to the one
+    // on the right.  You can read up on tensorflow here https://en.wikipedia.org/wiki/TensorFlow
+    //
     private void initTfod() {
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -94,6 +108,9 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         mineralLocation = MineralLocation.RIGHT;
     }
 
+    //
+    // Init the camera so we can use to to find the right mineral to knock off.
+    //
     private void initVuforia() {
         /*
          * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
@@ -109,6 +126,13 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         // Loading trackables is not necessary for the Tensor Flow Object Detection engine.
     }
 
+    //
+    // Our mineral logic is different than what was provided by FIRST.  Our camera cannot see all three
+    // minerals, so we had to change the logic to look at all the things it found.  After some debugging,
+    // we determined the right top and bottom range of the minerals from the view of the camera
+    // We then figured out the left positions and used that with the top, bottom, and label to
+    // find the mineral location.  If we didn't see a gold mineral at all, we then picked the right one
+    //
     public void LocateTFMineral() {
         if (tfod != null) {
             // getUpdatedRecognitions() will return null if no new information is available since
@@ -118,7 +142,15 @@ abstract class BaseAutoOpMode extends LinearOpMode {
                 mineralLocation = MineralLocation.RIGHT;
                 for (Recognition recognition : updatedRecognitions) {
                     telemetry.addData("Object", recognition);
+                    //
+                    // We are looking for a gold mineral that is between 520 and 730 units from the phone.  This number can be changed
+                    // based on actual field testing at the competition
+                    //
                     if ((recognition.getLabel().equals(LABEL_GOLD_MINERAL)) && (recognition.getTop() > 520) && (recognition.getBottom() < 730)) {
+                        //
+                        // Now we check the left position of the mineral to see if is the left or middle one.  This number can be changed
+                        // based on actual field testing at the competition
+                        //
                         int goldMineralX = (int) recognition.getLeft();
                         if (goldMineralX < 430) {
                             mineralLocation = MineralLocation.LEFT;
@@ -147,11 +179,36 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         }
     }
 
+    //
+    // The following section is our many different states for our state machine which is used during autonomous.
+    // Each state returns a finished state which the calling machine uses to figure out what to do next
+    // Each state can be used multiple times in the same machine if we want to.  That is why we went with a state
+    // machine.  It was easy to build, modify, and test.  To learn more about state machines,
+    // visit https://en.wikipedia.org/wiki/Finite-state_machine
+    //
+    // Our states are:
+    //  Latch - Power the lift so it will hang on the lander
+    //  MoveToLeftWall
+    //  Drop
+    //  MoveLeftOffLatch
+    //  MoveForwardAndSlideBackToCenter
+    //  DriveToMineral
+    //  DriveToMineralOffLeftOffset
+    //  PushMineral
+    //  BackAwayFromMIneral
+    //  ExtendArm
+    //  DropMarker
+    //  TurnLeftTowardsCrater2
+    //  MoveTowardsDepot
+    //  TurnTowardsCrater
+    //  DriveTowardsCrater
+    //
     public AutonomousStates Latch () {
         double currentPower = .12;
         boolean aPressed = false;
         boolean bPressed = false;
 
+        // loop while they adjust the power to get the robot to hang properly
         while (!gamepad1.x) {
             robot.getBackLift().setPower(-currentPower);
             robot.getFrontLift().setPower(currentPower);
@@ -164,6 +221,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
                 aPressed = false;
                 currentPower -= .01;
                 if (currentPower < .1) {
+                    // don't let them go below 10%
                     currentPower = .1;
                 }
             }
@@ -176,10 +234,12 @@ abstract class BaseAutoOpMode extends LinearOpMode {
                 bPressed = false;
                 currentPower += .01;
                 if (currentPower > .2) {
+                    // don't let them go above 20%
                     currentPower = .2;
                 }
             }
 
+            // display the status on the screen
             telemetry.addData("Current Power", currentPower);
             telemetry.addData("Press Gamepad1 A", " to decrease power");
             telemetry.addData("Press Gamepad1 B", " to increase power");
@@ -191,6 +251,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     }
 
     public AutonomousStates MoveToLeftWall(int distanceFromLeftMineral, int distanceFromCenterMineral, int distanceFromRightMineral) {
+        // Based on the mineral location, move the right distance to get to the left wall.
         if (mineralLocation == MineralLocation.RIGHT) {
             mecanum.SlideLeft2(0.5, distanceFromRightMineral, this);
         } else if (mineralLocation == MineralLocation.LEFT) {
@@ -203,8 +264,9 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     }
 
     public AutonomousStates Drop() {
+        // lock the slide
         robot.getSlide().setPower(.1);
-        // do something to drop
+        // flip the arm down so it doesn't get hit
         robot.getTopFlip().setPosition(1);
         robot.getFrontFlip().setTargetPosition(FlatFlip);
         robot.getFrontFlip().setPower(.7);
@@ -213,7 +275,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
             idle();
         }
 
-        //robot.getLockServo().setPower(-1);
+        // land the robot by turning off the motors that made us latch
         robot.getBackLift().setPower(0);
         robot.getFrontLift().setPower(0);
 
@@ -222,6 +284,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
             idle();
         }
 
+        // unhook from the lander
         robot.getBackLift().setPower(.3);
         robot.getFrontLift().setPower(-.3);
         watch.reset();
@@ -236,11 +299,13 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     }
 
     public AutonomousStates MoveLeftOffLatch() {
+        // slide a little to the left so we can be outside the hook
         robot.getTopFlip().setPosition(1);
 
         mecanum.SlideLeft2(.5, SlideOffLatchDistance, this);
 
         watch.reset();
+        // move backwards to line up against the lander
         mecanum.Move(-.3, -.3);
         while ((watch.milliseconds() < 200)  && opModeIsActive()) {
             idle();
@@ -248,6 +313,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
 
         mecanum.Stop();
 
+        // turn if we are not straight
         if ((GetImuAngle()) < 0) {
             mecanum.TurnRight(0.3, 20, this);
         }
@@ -256,8 +322,10 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     }
     
     public AutonomousStates MoveForward(int forwardDistance) {
+        // lock the slide so it doesn't move around
         robot.getSlide().setPower(.5);
 
+        // move forward whatever distance we are told
         mecanum.MoveForward2(.7, forwardDistance, this);
 
         robot.getSlide().setPower(0);
@@ -265,8 +333,10 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     }
 
     public AutonomousStates MoveForwardAndSlideBackToCenter(int forwardDistance) {
+        // lock the slide so it doesn't move around
         robot.getSlide().setPower(.5);
 
+        // Move forward and then move right towards the center
         mecanum.MoveForward2(.6, forwardDistance, this);
         mecanum.SlideRight2(.7, SlideOffLatchDistance, this);
 
@@ -276,6 +346,8 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     }
 
     public AutonomousStates DriveToMineral (int slideLeftDistance, int slideRightDistance) {
+        // depending on the mineral location, move to the right spot to get ready knock it off
+        // we think we are already at the center one
         if (mineralLocation == MineralLocation.LEFT) {
             mecanum.SlideLeft2(.5, slideLeftDistance, this);
         } else if (mineralLocation == MineralLocation.RIGHT) {
@@ -286,6 +358,8 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     }
 
     public AutonomousStates DriveToMineralOffLeftOffset(int slideLeftDistance, int slideRightDistance) {
+        // depending on the mineral location, move to the right spot to get ready to knowck it off
+        // difference betweent his and the other one is that we will also move to the center
         robot.getSlide().setPower(.1);
 
         if (mineralLocation == MineralLocation.LEFT) {
@@ -302,6 +376,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     }
 
     public AutonomousStates PushMineral (int pushDistance) {
+        // lock the slide and drive foward to knock the mineral off
         robot.getSlide().setPower(.1);
         mecanum.MoveForward2(.7, pushDistance, this);
         robot.getSlide().setPower(0);
@@ -310,6 +385,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     }
 
     public AutonomousStates BackAwayFromMIneral(int backDistance) {
+        // lock the slide and back away from the mineral
         robot.getSlide().setPower(.1);
         mecanum.MoveBackwards2(.7, backDistance, this);
         robot.getSlide().setPower(0);
@@ -318,6 +394,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     }
 
     public AutonomousStates ExtendArm() {
+        // stick the arm out for things like crater parking
         watch.reset();
 
         robot.getFrontFlip().setTargetPosition(FlatFlip);
@@ -339,7 +416,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         watch.reset();
         // slide arm out
         robot.getSlide().setPower(-1);
-        // run for 1500 milliseconds
+        // run for 1000 milliseconds
         while ((watch.milliseconds() < 1000)  && opModeIsActive()) {
             idle();
         }
@@ -369,6 +446,8 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     }
 
     public AutonomousStates TurnLeftTowardsCrater2() {
+        // turn us left towards teh crater and get us close to the wall
+        // we will turn 135 degrees
         mecanum.TurnLeft(.5, Turn45 + Turn90, this);
 
         mecanum.SlideRight2(.5, DrivePerInch * 15, this);
@@ -377,6 +456,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     }
 
     public AutonomousStates MoveTowardsDepot() {
+        // move off the wall a little and move towards the depot
         mecanum.SlideLeft2(.5,50,this);
 
         mecanum.MoveForward2(.5, DrivePerInch * 20, this);
@@ -385,12 +465,14 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     }
 
     public AutonomousStates TurnTowardsCrater() {
+        // turn 180 degrees back towards the crater
         mecanum.TurnLeft(.5, Turn90 + Turn90, this);
 
         return AutonomousStates.FACING_CRATER;
     }
 
     public AutonomousStates DriveTowardsCrater(){
+        // drive towards the crater
         mecanum.MoveForward2(.5, DrivePerInch * 20,this);
 
         return AutonomousStates.AT_CRATER;

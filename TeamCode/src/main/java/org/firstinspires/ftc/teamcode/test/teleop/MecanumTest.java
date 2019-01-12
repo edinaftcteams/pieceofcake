@@ -32,7 +32,7 @@ public class MecanumTest extends LinearOpMode {
 
         _mecanum = new Mecanum(robot.getFrontL(), robot.getFrontR(), robot.getBackL(), robot.getBackR(), true, telemetry);
 
-        _mecanum.StopAndResetMotors3();
+        _mecanum.StopAndResetMotors();
         InitGyro();
 
         waitForStart();

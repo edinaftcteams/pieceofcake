@@ -13,6 +13,9 @@ public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
     private int distanceFromLeftMineral = DrivePerInch * 21;
 
     public void runOpMode() {
+        //
+        // get the robot setup and ready to run
+        //
         AutonomousStates currentState = AutonomousStates.START;
 
         InitRobot();
@@ -21,11 +24,13 @@ public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
         robot.getFrontFlip().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.getFrontFlip().setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
+        // hang the robot
         currentState = Latch();
 
         while (!isStarted()) {
             synchronized (this) {
                 try {
+                    // look for the mineral and tell us what the camera sees
                     LocateTFMineral();
                     telemetry.addData("Mineral Location", mineralLocation);
                     telemetry.addData("Last Recognition", LastRecognition);
@@ -41,6 +46,9 @@ public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
             }
         }
 
+        //
+        // Our state machine for what we do when we are landing from the depot side.
+        //
         while (opModeIsActive() && (currentState != AutonomousStates.ARM_EXTENDED)) {
             switch (currentState) {
                 case LATCHED:
