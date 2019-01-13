@@ -100,12 +100,16 @@ public class TurnOMatic {
         timerTask = new TimerTask() {
             @Override
             public void run() {
+                // we think the integral value is not being cleared
+                // so we are adding a check to set it to zero
                 if (firstRun) {
                     if (Double.isNaN(integral)){
                         integral = 0;
                     }
                 }
 
+                // basic pid code for getting the angle and computing the output
+                // for motor speed
                 currentAngle = GetImuAngle();
 
                 error = endAngle - currentAngle;

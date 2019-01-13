@@ -90,9 +90,6 @@ public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
                     currentState = ExtendArm();
                     break;
             }
-
-            telemetry.addData("Angle", GetImuAngle());
-            telemetry.update();
         }
 
         ShutdownTFOD();

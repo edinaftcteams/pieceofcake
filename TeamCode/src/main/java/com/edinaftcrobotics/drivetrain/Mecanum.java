@@ -18,23 +18,25 @@ public class Mecanum {
     private double _currentPower = 1.0;
 
     //
-    // This is our class that we use to drive the robot in autonomous and teleop.  It has a bunch of helper
-    // method in it to help us.  The ones that end with the number 2 use the mode run with encoders while
-    // the others use the run to position.  Except for the move, it just moves the robot with some power.
+    // This is our class that we use to drive the robot in autonomous and teleop.  It has a bunch
+    // of helper method in it to help us.  The ones that end with the number 2 use the mode
+    // run with encoders whilethe others use the run to position.  Except for the move, it just
+    // moves the robot with some power.
     // The methods are:
     //
-    //  SlideLeft2
-    //  Move
-    //  SlideRight2
-    //  MoveForward
-    //  MoveForward2
-    //  MoveBackwards
-    //  MoveBackwards2
-    //  TurnRight
-    //  TurnLeft
-    //  Stop
+    //  SlideLeft2 - Slide left a certain distance using RUN_WITH_ENCODERS
+    //  Move - moves the robot with a certain power
+    //  SlideRight2 - slide right a certain distance using RUN_WITH_ENCODERS
+    //  MoveForward - move forward a certain distance using RUN_TO_POSITION
+    //  MoveForward2 - move forward a certain distance using RUN_WITH_ENCODERS
+    //  MoveBackwards - move backwards a certain distance using RUN_TO_POSITION
+    //  MoveBackwards2 - move backwards a certain distance using RUN_WITH_ENCODERS
+    //  TurnRight - turn right with RUN_TO_POSITION
+    //  TurnLeft - turn left with RUN_TO_POSITION
+    //  Stop - stops the motors
     //
-    public Mecanum(DcMotor fl, DcMotor fr, DcMotor bl, DcMotor br, boolean isTeleop, Telemetry telemetry)
+    public Mecanum(DcMotor fl, DcMotor fr, DcMotor bl, DcMotor br, boolean isTeleop,
+                   Telemetry telemetry)
     {
         _frontLeft = fl;
         _frontRight = fr;
@@ -218,14 +220,23 @@ public class Mecanum {
     }
 
     //
-    // This method will calculate a power based on the current position and our maximum distance
+    // This method will calculate a power based on the current position and our maximum distance.
+    // This a very simple motion profile method that uses distance to figure out different power
+    // levels. More complex systems use derivitaves and time.
     // We want to ramp up the speed to a flat maxPower and then ramp down to zero.  We did this
-    // to prevent the robot from losing traction.  We only use this when the robot motors are in
+    // to prevent the robot from losing traction and jerking.  We only use this when the robot motors are in
     // the run with encoders mode as the internal PID is being used for that instead of helping us
     // with distance.  So this is our real simple PID.  To learn more about what PID is, visit
-    // https://en.wikipedia.org/wiki/PID_controller
+    // https://en.wikipedia.org/wiki/PID_controller and to learn more about motion profiling visit
+    //
     //
     private double CalculateRampPower(double maxPower, int distance, double currentDistance) {
+        // out cutoffs on distance for this step up are:
+        //  0-10% - .6 of power
+        // 10-20% - .85 of power
+        // 20-80% - full power
+        // 80-90% - .85 power
+        // 90-100% - .6 power
         if (currentDistance <= (distance * .10)) {
             return .6 * maxPower;
         } else if (currentDistance <= (distance * .20)) {

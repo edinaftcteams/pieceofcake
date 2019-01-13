@@ -181,27 +181,27 @@ abstract class BaseAutoOpMode extends LinearOpMode {
 
     //
     // The following section is our many different states for our state machine which is used during autonomous.
-    // Each state returns a finished state which the calling machine uses to figure out what to do next
+    // Each state returns a finished state which the autonomous state machine uses to figure out what to do next
     // Each state can be used multiple times in the same machine if we want to.  That is why we went with a state
     // machine.  It was easy to build, modify, and test.  To learn more about state machines,
     // visit https://en.wikipedia.org/wiki/Finite-state_machine
     //
     // Our states are:
     //  Latch - Power the lift so it will hang on the lander
-    //  MoveToLeftWall
-    //  Drop
-    //  MoveLeftOffLatch
-    //  MoveForwardAndSlideBackToCenter
-    //  DriveToMineral
-    //  DriveToMineralOffLeftOffset
-    //  PushMineral
-    //  BackAwayFromMIneral
-    //  ExtendArm
-    //  DropMarker
-    //  TurnLeftTowardsCrater2
-    //  MoveTowardsDepot
-    //  TurnTowardsCrater
-    //  DriveTowardsCrater
+    //  MoveToLeftWall - slide from a mineral location to the left wall
+    //  Drop - drops the robot from the lander
+    //  MoveLeftOffLatch - we slide left to get detached from the hook and then move back to straighten out
+    //  MoveForwardAndSlideBackToCenter - we move forwards and center ourselves in front of the lander
+    //  DriveToMineral - drive to mineral from center position
+    //  DriveToMineralOffLeftOffset - drive to mineral right after we drop
+    //  PushMineral - we use TenserFlow to knock off the mineral
+    //  BackAwayFromMIneral - we back up from pushing the mineral off
+    //  ExtendArm - we extend our arm into the crater
+    //  DropMarker - we extend our arm out to drop the marker
+    //  TurnLeftTowardsCrater2 - we turn left 135 degrees towards the crater using RUN_WITH_ENCODER vs using RUN_TO_POSITION
+    //  MoveTowardsDepot - move off the wall a little and move towards the depot
+    //  TurnTowardsCrater - we turn 180 degrees towards the crater
+    //  DriveTowardsCrater - we drive towards the crater to extend the arm
     //
     public AutonomousStates Latch () {
         double currentPower = .12;
@@ -358,7 +358,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     }
 
     public AutonomousStates DriveToMineralOffLeftOffset(int slideLeftDistance, int slideRightDistance) {
-        // depending on the mineral location, move to the right spot to get ready to knowck it off
+        // depending on the mineral location, move to the right spot to get ready to knock it off
         // difference betweent his and the other one is that we will also move to the center
         robot.getSlide().setPower(.1);
 
@@ -402,7 +402,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
 
         // slide arm out
         robot.getSlide().setPower(-1);
-        // run for 1500 milliseconds
+        // run for 1000 milliseconds
         while (watch.milliseconds() < 1000) {
             idle();
         }
@@ -435,7 +435,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         // move slide back in
         watch.reset();
         robot.getSlide().setPower(1);
-        // run for 1500 milliseconds
+        // run for 1000 milliseconds
         while ((watch.milliseconds() < 1000)  && opModeIsActive()) {
             idle();
         }
