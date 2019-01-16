@@ -25,7 +25,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     protected int DrivePerInch = (int)(1120 / 18.85);
     private int FlatFlip = 1800;
     private int SlideOffLatchDistance = 275;
-    private int slideCenterPosition = 300;
+    private int slideCenterPosition = 250;
     private int Turn90 = 1225;
     private int Turn45 = Turn90/2;
     private ElapsedTime watch = new ElapsedTime();

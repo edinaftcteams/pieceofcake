@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.teamcode.enums.AutonomousStates;
 
 @Autonomous(name="CraterDepotCrater", group="Autonomous")
-//@Disabled
+@Disabled
 public class CraterDepotAndCraterOpMode extends BaseAutoOpMode{
     private int distanceFromLeftMineral = (int)(DrivePerInch * 19.5);
 
@@ -79,7 +79,22 @@ public class CraterDepotAndCraterOpMode extends BaseAutoOpMode{
                     currentState = MoveTowardsDepot();
                     break;
                 case AT_DEPOT:
+                    robot.getFrontFlip().setTargetPosition(1800);
+                    robot.getFrontFlip().setPower(.7);
+
+                    while (robot.getFrontFlip().isBusy()) {
+                        idle();
+                    }
+
                     currentState = AutonomousStates.DROPPED_MARKER; //DropMarker();
+
+                    robot.getFrontFlip().setTargetPosition(800);
+                    robot.getFrontFlip().setPower(.7);
+
+                    while (robot.getFrontFlip().isBusy()) {
+                        idle();
+                    }
+
                     break;
                 case DROPPED_MARKER:
                     currentState = TurnTowardsCrater();

@@ -168,7 +168,7 @@ public class Mecanum {
         // keep moving until we get close and the op mode is active.  close is 95% of what we want to get to
         while ((currentPosition < error) && opMode.opModeIsActive()) {
             currentPosition =  Math.abs(_frontRight.getCurrentPosition());
-            CalculateRampPower(power, distance, currentPosition);
+            currentPower = CalculateRampPower(power, distance, currentPosition);
             Move(-currentPower, -currentPower, -currentPower, -currentPower);
             opMode.idle();
         }
@@ -241,9 +241,9 @@ public class Mecanum {
             return .6 * maxPower;
         } else if (currentDistance <= (distance * .20)) {
             return  .85 * maxPower;
-        } else if (currentDistance <= (distance * .70)) {
-            return maxPower;
         } else if (currentDistance <= (distance * .80)) {
+            return maxPower;
+        } else if (currentDistance <= (distance * .90)) {
             return .85 * maxPower;
         } else {
             return .6 * maxPower;
