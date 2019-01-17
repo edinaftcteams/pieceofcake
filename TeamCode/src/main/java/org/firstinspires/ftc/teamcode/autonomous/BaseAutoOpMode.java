@@ -127,11 +127,12 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     }
 
     //
-    // Our mineral logic is different than what was provided by FIRST.  Our camera cannot see all three
-    // minerals, so we had to change the logic to look at all the things it found.  After some debugging,
-    // we determined the right top and bottom range of the minerals from the view of the camera
-    // We then figured out the left positions and used that with the top, bottom, and label to
-    // find the mineral location.  If we didn't see a gold mineral at all, we then picked the right one
+    // Our mineral logic is different than what was provided by FIRST.  Our camera cannot see all
+    // three minerals, so we had to change the logic to look at all the things it found.
+    // After some debugging, we determined the right top and bottom range of the minerals from the
+    // view of the camera We then figured out the left positions and used that with the top,
+    // bottom, and label to find the mineral location.  If we didn't see a gold mineral at all,
+    // we then picked the right one
     //
     public void LocateTFMineral() {
         if (tfod != null) {
@@ -143,13 +144,16 @@ abstract class BaseAutoOpMode extends LinearOpMode {
                 for (Recognition recognition : updatedRecognitions) {
                     telemetry.addData("Object", recognition);
                     //
-                    // We are looking for a gold mineral that is between 520 and 730 units from the phone.  This number can be changed
-                    // based on actual field testing at the competition
+                    // We are looking for a gold mineral that is between 520 and 730 units from the
+                    // phone.  This number can be changed based on actual field testing at the
+                    // competition
                     //
-                    if ((recognition.getLabel().equals(LABEL_GOLD_MINERAL)) && (recognition.getTop() > 520) && (recognition.getBottom() < 730)) {
+                    if ((recognition.getLabel().equals(LABEL_GOLD_MINERAL)) &&
+                            (recognition.getTop() > 520) && (recognition.getBottom() < 730)) {
                         //
-                        // Now we check the left position of the mineral to see if is the left or middle one.  This number can be changed
-                        // based on actual field testing at the competition
+                        // Now we check the left position of the mineral to see if is the left or
+                        // middle one.  This number can be changed based on actual field testing
+                        // at the competition
                         //
                         int goldMineralX = (int) recognition.getLeft();
                         if (goldMineralX < 430) {
@@ -180,11 +184,11 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     }
 
     //
-    // The following section is our many different states for our state machine which is used during
-    // autonomous.  Each state returns a finished state which the autonomous state machine uses to
-    // figure out what to do next.  Each state can be used multiple times in the same machine if
-    // we want to.  That is why we went with a state machine.  It was easy to build, modify,
-    // and test.  To learn more about state machines, visit
+    // The following section is our many different states for our state machine which is used
+    // during autonomous.  Each state returns a finished state which the autonomous state machine
+    // uses to figure out what to do next.  Each state can be used multiple times in the same
+    // machine if we want to.  That is why we went with a state machine.  It was easy to
+    // build, modify, and test.  To learn more about state machines, visit
     // https://en.wikipedia.org/wiki/Finite-state_machine
     //
     // Our states are:
