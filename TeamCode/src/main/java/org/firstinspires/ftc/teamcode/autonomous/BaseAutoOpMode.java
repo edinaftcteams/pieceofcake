@@ -217,15 +217,15 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         boolean bPressed = false;
 
         // loop while they adjust the power to get the robot to hang properly
-        while (!gamepad1.x) {
+        while (!gamepad2.x) {
             robot.getBackLift().setPower(-currentPower);
             robot.getFrontLift().setPower(currentPower);
 
-            if (gamepad1.a) {
+            if (gamepad2.a) {
                 aPressed = true;
             }
 
-            if (!gamepad1.a && aPressed) {
+            if (!gamepad2.a && aPressed) {
                 aPressed = false;
                 currentPower -= .01;
                 if (currentPower < .1) {
@@ -234,11 +234,11 @@ abstract class BaseAutoOpMode extends LinearOpMode {
                 }
             }
 
-            if (gamepad1.b) {
+            if (gamepad2.b) {
                 bPressed = true;
             }
 
-            if (!gamepad1.b && bPressed) {
+            if (!gamepad2.b && bPressed) {
                 bPressed = false;
                 currentPower += .01;
                 if (currentPower > .2) {
@@ -249,8 +249,8 @@ abstract class BaseAutoOpMode extends LinearOpMode {
 
             // display the status on the screen
             telemetry.addData("Current Power", currentPower);
-            telemetry.addData("Press Gamepad1 A", " to decrease power");
-            telemetry.addData("Press Gamepad1 B", " to increase power");
+            telemetry.addData("Press Gamepad2 A", " to decrease power");
+            telemetry.addData("Press Gamepad2 B", " to increase power");
             telemetry.addData("Press X to Exit", " and power will be locked in");
             telemetry.update();
         }
