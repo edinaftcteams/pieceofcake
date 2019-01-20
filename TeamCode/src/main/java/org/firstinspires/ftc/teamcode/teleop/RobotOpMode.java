@@ -18,18 +18,24 @@ public class RobotOpMode extends OpMode {
     private boolean listenToGamePad1 = false;
     private boolean listenToGamePad2 = false;
     private Mecanum mecanum = null;
+    private boolean TopFlipSet = false;
 
     @Override
     public void init(){
         robot.init(hardwareMap);
 
-        robot.getTopFlip().setPosition(1);
 
         mecanum = new Mecanum(robot.getFrontL(), robot.getFrontR(), robot.getBackL(), robot.getBackR(), true, telemetry);
     }
 
     @Override
     public void loop() {
+        if (TopFlipSet == false){
+            robot.getTopFlip().setPosition(1);
+
+            TopFlipSet = true;
+        }
+
         mecanum.Drive(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
 
         telemetry.addData("Back Lift", "%d", robot.getBackLift().getCurrentPosition());

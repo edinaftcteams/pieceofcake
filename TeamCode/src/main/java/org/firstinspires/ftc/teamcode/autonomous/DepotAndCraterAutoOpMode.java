@@ -67,7 +67,7 @@ public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
                     currentState = DriveToMineral(slideLeftPosition, slideRightPosition);
                     break;
                 case AT_MINERAL:
-                    currentState = PushMineral((int)(DrivePerInch * PushMineralDistance));
+                    currentState = PushMineral((int)(DrivePerInch * (PushMineralDistance+1)));
                     break;
                 case MINERAL_PUSHED:
                     currentState = BackAwayFromMIneral((int)(DrivePerInch * BackAwayFromMineralDistance));
@@ -91,6 +91,7 @@ public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
                     break;
             }
         }
+
 
         ShutdownTFOD();
     }
