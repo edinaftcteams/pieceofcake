@@ -488,4 +488,47 @@ abstract class BaseAutoOpMode extends LinearOpMode {
 
         return AutonomousStates.AT_CRATER;
     }
+
+    public AutonomousStates MoveToMiddleAtMineral(int slideLeftDistance, int slideRightDistance) {
+        if (mineralLocation == MineralLocation.LEFT) {
+            mecanum.SlideRight2(.5, slideLeftDistance, this);
+        } else if (mineralLocation == MineralLocation.RIGHT) {
+            mecanum.SlideLeft2(.5, slideRightDistance, this);
+        }
+
+        return AutonomousStates.BACK_AT_MIDDLE;
+    }
+
+    public AutonomousStates Mine() {
+        watch.reset();
+        // slide arm out
+        robot.getSlide().setPower(-1);
+        // run for 1000 milliseconds
+        while ((watch.milliseconds() < 1500)  && opModeIsActive()) { // TODO run longer if arm is not extended where we want it to be
+            idle();
+        }
+
+        robot.getSlide().setPower(0);
+
+        // flip the arm down so it doesn't get hit
+        robot.getTopFlip().setPosition(1);
+        robot.getFrontFlip().setTargetPosition(FlatFlip + 400); // TODO fix number to drop lower
+        robot.getFrontFlip().setPower(.7);
+
+        while (robot.getFrontFlip().isBusy() && opModeIsActive()) {
+            idle();
+        }
+
+        // spin the intake to get minerals
+        watch.reset();
+        robot.getIntake().setPower(1);
+        while ((watch.milliseconds() < 2000)  && opModeIsActive()) { // TODO change 2000 is we need to spin longer
+            idle();
+        }
+
+        robot.getIntake().setPower(0);
+
+        return AutonomousStates.MINED;
+
+    }
 }

@@ -48,7 +48,7 @@ public class CraterOpMode extends BaseAutoOpMode{
         //
         // Our state machine for what we do when we are landing from the crater.
         //
-        while (opModeIsActive() && (currentState != AutonomousStates.ARM_EXTENDED)) {
+        while (opModeIsActive() && (currentState != AutonomousStates.MINED)) {
             switch (currentState) {
                 case LATCHED:
                     currentState = Drop();
@@ -69,7 +69,10 @@ public class CraterOpMode extends BaseAutoOpMode{
                     currentState = BackAwayFromMIneral((int)(DrivePerInch * BackAwayFromMineralDistance));
                     break;
                 case BACKED_AWAY_FROM_MINERAL:
-                    currentState = ExtendArm();
+                    currentState = MoveToMiddleAtMineral(slideLeftPosition, slideRightPosition);
+                    break;
+                case BACK_AT_MIDDLE:
+                    currentState = Mine();
                     break;
             }
         }

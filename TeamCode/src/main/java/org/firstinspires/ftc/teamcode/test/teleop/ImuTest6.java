@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -15,10 +16,13 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.robot.PieceOfCake;
 
 @TeleOp(name = "Test: IMU6", group = "Teleop Test")
-@Disabled
+//@Disabled
 public class ImuTest6 extends LinearOpMode {
     BNO055IMU imu = null;
     Mecanum mecanum = null;
+    double currentAngle = 0;
+    int DrivePerInch = (int)(1120 / 18.85);
+    int slideRightPosition = DrivePerInch * 23;
 
     public void runOpMode() {
         long counter = 0;
@@ -41,6 +45,7 @@ public class ImuTest6 extends LinearOpMode {
             synchronized (this) {
                 try {
                     telemetry.addData("Current Angle", "%f", GetImuAngle());
+                    telemetry.addData("Corrected Angle", "%f", currentAngle);
                     telemetry.update();
                     this.wait();
                 } catch (InterruptedException e) {
@@ -53,8 +58,38 @@ public class ImuTest6 extends LinearOpMode {
         telemetry.addData("Starting", "now");
         telemetry.update();
 
+        mecanum.SlideLeft2(.7, slideRightPosition, this);
+
         TurnOMatic2 turner = new TurnOMatic2(imu, mecanum, telemetry, 135, this);
         turner.Turn(.05, 3000);
+
+        mecanum.SlideRight2(.4, 200, this);
+
+        ElapsedTime watch = new ElapsedTime();
+
+        watch.reset();
+        while (opModeIsActive() & (watch.milliseconds() < 2000)) {
+            idle();
+        }
+
+        mecanum.SlideLeft2(.4, 200, this);
+
+        watch.reset();
+        while (opModeIsActive() & (watch.milliseconds() < 5000)) {
+            telemetry.addData("Current Angle", "%f", GetImuAngle());
+            telemetry.addData("Corrected Angle", "%f", currentAngle);
+            telemetry.update();
+            idle();
+        }
+
+        turner = new TurnOMatic2(imu, mecanum, telemetry, 45, this);
+        turner.Turn(.03, 3000);
+
+        while (opModeIsActive()) {
+            telemetry.addData("Current Angle", "%f", GetImuAngle());
+            telemetry.addData("Corrected Angle", "%f", currentAngle);
+            telemetry.update();
+        }
     }
 
     private void SetupIMU() {
@@ -67,6 +102,12 @@ public class ImuTest6 extends LinearOpMode {
 
     private double GetImuAngle() {
         Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        currentAngle = angles.firstAngle;
+
+        if (currentAngle < 0)
+            currentAngle += 360;
+        else if (currentAngle > 180)
+            currentAngle -= 360;
 
         return angles.firstAngle;
     }

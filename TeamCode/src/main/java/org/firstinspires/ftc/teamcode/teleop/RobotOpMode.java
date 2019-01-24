@@ -61,9 +61,9 @@ public class RobotOpMode extends OpMode {
         telemetry.update();
     }
     private void ProcessSlide() {
-        if ((gamepad1.left_trigger > 0) || (gamepad2.left_trigger > 0)) {
+        if ((gamepad1.left_trigger > 0)) {
             robot.getSlide().setPower(1);
-        } else if ((gamepad1.right_trigger > 0) || (gamepad2.right_trigger > 0)) {
+        } else if ((gamepad1.right_trigger > 0)) {
             robot.getSlide().setPower(-.5);
         } else {
             robot.getSlide().setPower(0);
@@ -139,9 +139,9 @@ public class RobotOpMode extends OpMode {
 
     private void ProcessFrontFlip() {
         if (gamepad1.left_bumper || gamepad2.left_bumper) {
-            robot.getFrontFlip().setPower(.7);
+            robot.getFrontFlip().setPower(1);
         } else if (gamepad1.right_bumper || gamepad2.right_bumper) {
-            robot.getFrontFlip().setPower(-.7);
+            robot.getFrontFlip().setPower(-1);
         } else {
             robot.getFrontFlip().setPower(0);
         }
@@ -153,7 +153,9 @@ public class RobotOpMode extends OpMode {
     }
 
     private void ProcessTopFlip() {
-        if (gamepad2.right_stick_y != 0) {
+        if (gamepad2.left_trigger != 0) {
+            robot.getTopFlip().setPosition(.32);
+        } else if (gamepad2.right_trigger != 0) {
             robot.getTopFlip().setPosition(0);
         } else {
             robot.getTopFlip().setPosition(1);
