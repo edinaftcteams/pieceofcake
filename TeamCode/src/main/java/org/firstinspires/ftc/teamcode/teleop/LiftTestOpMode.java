@@ -27,11 +27,22 @@ public class LiftTestOpMode extends OpMode {
         telemetry.addData("a:", "%s", gamepad1.a);
 
         ProcessLift();
+        ProcessIntake();
 
         telemetry.update();
     }
     private void ProcessLift() {
         robot.getBackLift().setPower(-gamepad2.left_stick_y); // TODO - change these by either flipping the negative or adding/removing a negative
         robot.getFrontLift().setPower(gamepad2.left_stick_y);
+    }
+
+    private void ProcessIntake() {
+        if (gamepad2.a) {
+            robot.getIntake().setPower(1);
+        } else if (gamepad2.y) {
+            robot.getIntake().setPower(-1);
+        } else {
+            robot.getIntake().setPower(0);
+        }
     }
 }
