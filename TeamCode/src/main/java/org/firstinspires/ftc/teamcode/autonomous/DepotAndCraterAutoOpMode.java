@@ -1,11 +1,9 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.enums.AutonomousStates;
-import org.firstinspires.ftc.teamcode.enums.MineralLocation;
 
 @Autonomous(name="Depot And Crater", group="Autonomous")
 //@Disabled
@@ -70,7 +68,7 @@ public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
                     currentState = PushMineral((int)(DrivePerInch * (PushMineralDistance+1)));
                     break;
                 case MINERAL_PUSHED:
-                    currentState = BackAwayFromMIneral((int)(DrivePerInch * BackAwayFromMineralDistance));
+                    currentState = BackAwayFromMineral((int)(DrivePerInch * BackAwayFromMineralDistance));
                     break;
                 case BACKED_AWAY_FROM_MINERAL:
                     currentState = MoveToLeftWall(distanceFromLeftMineral, slideLeftPosition + distanceFromLeftMineral,

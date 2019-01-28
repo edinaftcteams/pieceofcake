@@ -66,7 +66,7 @@ public class CraterOpMode extends BaseAutoOpMode{
                     currentState = PushMineral((int)(DrivePerInch * PushMineralDistance));
                     break;
                 case MINERAL_PUSHED:
-                    currentState = BackAwayFromMIneral((int)(DrivePerInch * BackAwayFromMineralDistance));
+                    currentState = BackAwayFromMineral((int)(DrivePerInch * BackAwayFromMineralDistance));
                     break;
                 case BACKED_AWAY_FROM_MINERAL:
                     currentState = MoveToMiddleAtMineral(slideLeftPosition, slideRightPosition);

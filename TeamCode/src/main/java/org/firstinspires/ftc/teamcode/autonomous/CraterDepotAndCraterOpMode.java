@@ -59,7 +59,7 @@ public class CraterDepotAndCraterOpMode extends BaseAutoOpMode{
                     currentState = PushMineral((int)(DrivePerInch * PushMineralDistance));
                     break;
                 case MINERAL_PUSHED:
-                    currentState = BackAwayFromMIneral((int)(DrivePerInch * BackAwayFromMineralDistance));
+                    currentState = BackAwayFromMineral((int)(DrivePerInch * BackAwayFromMineralDistance));
                     break;
                 case BACKED_AWAY_FROM_MINERAL:
                     currentState = MoveToLeftWall(distanceFromLeftMineral, slideLeftPosition + distanceFromLeftMineral,
@@ -73,7 +73,7 @@ public class CraterDepotAndCraterOpMode extends BaseAutoOpMode{
 
                     break;
                 case AT_LEFT_WALL:
-                    currentState = TurnLeftTowardsCrater2();
+                    currentState = TurnLeftTowardsCrater();
                     break;
                 case TURNED_TOWARDS_CRATER:
                     currentState = MoveTowardsDepot();
@@ -97,7 +97,7 @@ public class CraterDepotAndCraterOpMode extends BaseAutoOpMode{
 
                     break;
                 case DROPPED_MARKER:
-                    currentState = TurnTowardsCrater();
+                    currentState = TurnTowardsCrater2();
                     break;
                 case FACING_CRATER:
                     currentState = DriveTowardsCrater();

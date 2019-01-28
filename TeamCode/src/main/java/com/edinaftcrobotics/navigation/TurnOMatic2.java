@@ -25,7 +25,7 @@ public class TurnOMatic2 {
     private double derivative = 0;
     private double integral = 0;
     private double previousError = 0;
-    private double Kp = 0.02, Ki = 0.00001, Kd = 1; // PID constant multipliers
+    private double Kp = 0.01, Ki = 0.001, Kd = .5; // PID constant multipliers
     private double previousOutput = 0;
     private double output = 0;
     private double previousTime;
@@ -46,17 +46,21 @@ public class TurnOMatic2 {
     public void Turn(double closeEnough, long ticksToWait) {
         previousTime = System.currentTimeMillis();
         int inARow = 0;
+        double percentOff = 0.0;
         opMode.sleep(100);
 
         do
         {
             ComputeOuptut();
-            telemetry.addData("S, C, E Angle", "%f, %f, %f", startAngle, GetImuAngle(), endAngle);
+
+            percentOff = Math.abs((GetImuAngle() - endAngle) / endAngle);
+
+            telemetry.addData("C, E, V Angle", "%f, %f, %f", GetImuAngle(), endAngle, percentOff);
             telemetry.addData("Proportional", "%f %f",  error, Kp * error);
             telemetry.addData("Integral", "%f %f", integral, Ki * integral);
             telemetry.addData("Derivative", "%f %f", derivative, Kd * derivative);
-            double left = -Range.clip(output, -1, 1) * .35;
-            double right = Range.clip(output, -1, 1) * .35;
+            double left = -Range.clip(output, -1, 1) * .45;
+            double right = Range.clip(output, -1, 1) * .45;
             telemetry.addData("Left Power: ", "%f", left);
             telemetry.addData("Right Power: ", "%f", right);
 
@@ -70,7 +74,7 @@ public class TurnOMatic2 {
                 inARow = 0;
             }
 
-        } while (opMode.opModeIsActive() && (inARow != 3) && Math.abs(output) > closeEnough);
+        } while (opMode.opModeIsActive() && (inARow != 3));
 
         mecanum.Stop();
     }
@@ -78,11 +82,6 @@ public class TurnOMatic2 {
     private double GetImuAngle() {
         Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         double currentAngle = angles.firstAngle;
-
-        if (currentAngle < 0)
-            currentAngle += 360;
-        else if (currentAngle > 180)
-            currentAngle -= 360;
 
         return currentAngle;
     }

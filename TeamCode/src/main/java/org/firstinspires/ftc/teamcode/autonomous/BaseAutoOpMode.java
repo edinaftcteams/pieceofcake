@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.autonomous;
 
 import com.edinaftcrobotics.drivetrain.Mecanum;
 import com.edinaftcrobotics.navigation.TurnOMatic;
+import com.edinaftcrobotics.navigation.TurnOMatic2;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -202,7 +203,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     //  DriveToMineral - drive to mineral from center position
     //  DriveToMineralOffLeftOffset - drive to mineral right after we drop
     //  PushMineral - we use TenserFlow to knock off the mineral
-    //  BackAwayFromMIneral - we back up from pushing the mineral off
+    //  BackAwayFromMineral - we back up from pushing the mineral off
     //  ExtendArm - we extend our arm into the crater
     //  DropMarker - we extend our arm out to drop the marker
     //  TurnLeftTowardsCrater2 - we turn left 135 degrees towards the crater using RUN_WITH_ENCODER
@@ -395,7 +396,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         return AutonomousStates.MINERAL_PUSHED;
     }
 
-    public AutonomousStates BackAwayFromMIneral(int backDistance) {
+    public AutonomousStates BackAwayFromMineral(int backDistance) {
         // lock the slide and back away from the mineral
         robot.getSlide().setPower(.1);
         mecanum.MoveBackwards2(.7, backDistance, this);
@@ -456,6 +457,13 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         return AutonomousStates.DROPPED_MARKER;
     }
 
+    public AutonomousStates TurnLeftTowardsCrater() {
+        TurnOMatic2 turner = new TurnOMatic2(imu, mecanum, telemetry, 135, this);
+        turner.Turn(.05, 3000);
+
+        return AutonomousStates.TURNED_TOWARDS_CRATER;
+    }
+
     public AutonomousStates TurnLeftTowardsCrater2() {
         // turn us left towards teh crater and get us close to the wall
         // we will turn 135 degrees
@@ -473,6 +481,13 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         mecanum.MoveForward2(.5, DrivePerInch * 20, this);
 
         return AutonomousStates.AT_DEPOT;
+    }
+
+    public AutonomousStates TurnTowardsCrater2() {
+        TurnOMatic2 turner = new TurnOMatic2(imu, mecanum, telemetry, -45, this);
+        turner.Turn(.03, 3000);
+
+        return AutonomousStates.FACING_CRATER;
     }
 
     public AutonomousStates TurnTowardsCrater() {
