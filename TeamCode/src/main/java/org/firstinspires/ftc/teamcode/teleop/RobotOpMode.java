@@ -153,7 +153,9 @@ public class RobotOpMode extends OpMode {
     }
 
     private void ProcessTopFlip() {
-        if (gamepad2.left_trigger != 0) {
+        if (gamepad2.right_stick_y < 0) {
+            robot.getTopFlip().setPosition(1 + gamepad2.right_stick_y);
+        } else if (gamepad2.left_trigger != 0) {
             robot.getTopFlip().setPosition(.32);
         } else if (gamepad2.right_trigger != 0) {
             robot.getTopFlip().setPosition(0);

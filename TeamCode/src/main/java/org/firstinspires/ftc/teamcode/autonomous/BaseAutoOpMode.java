@@ -527,7 +527,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
 
         // flip the arm down so it doesn't get hit
         robot.getTopFlip().setPosition(1);
-        robot.getFrontFlip().setTargetPosition(FlatFlip + 400); // TODO fix number to drop lower
+        robot.getFrontFlip().setTargetPosition(FlatFlip + 700); // TODO fix number to drop lower
         robot.getFrontFlip().setPower(.7);
 
         while (robot.getFrontFlip().isBusy() && opModeIsActive()) {
@@ -537,7 +537,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         // spin the intake to get minerals
         watch.reset();
         robot.getIntake().setPower(1);
-        while ((watch.milliseconds() < 2000)  && opModeIsActive()) { // TODO change 2000 is we need to spin longer
+        while ((watch.milliseconds() < 4000)  && opModeIsActive()) { // TODO change 2000 is we need to spin longer
             idle();
         }
 
