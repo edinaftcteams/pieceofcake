@@ -457,7 +457,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         return AutonomousStates.DROPPED_MARKER;
     }
 
-    public AutonomousStates TurnLeftTowardsCrater() {
+    public AutonomousStates TurnTowardsDepotFromCrater() {
         TurnOMatic2 turner = new TurnOMatic2(imu, mecanum, telemetry, 135, this);
         turner.Turn(.05, 3000);
 
@@ -483,14 +483,14 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         return AutonomousStates.AT_DEPOT;
     }
 
-    public AutonomousStates TurnTowardsCrater2() {
+    public AutonomousStates TurnTowardsCraterFromDepot2() {
         TurnOMatic2 turner = new TurnOMatic2(imu, mecanum, telemetry, -45, this);
         turner.Turn(.03, 3000);
 
         return AutonomousStates.FACING_CRATER;
     }
 
-    public AutonomousStates TurnTowardsCrater() {
+    public AutonomousStates TurnTowardsCraterFromDepot() {
         // turn 180 degrees back towards the crater
         mecanum.TurnLeft(.5, Turn90 + Turn90, this);
 
