@@ -64,7 +64,7 @@ public class RobotOpMode extends OpMode {
         if ((gamepad1.left_trigger > 0)) {
             robot.getSlide().setPower(1);
         } else if ((gamepad1.right_trigger > 0)) {
-            robot.getSlide().setPower(-.5);
+            robot.getSlide().setPower(-1);
         } else {
             robot.getSlide().setPower(0);
         }
@@ -139,7 +139,7 @@ public class RobotOpMode extends OpMode {
 
     private void ProcessFrontFlip() {
         if (gamepad1.left_bumper || gamepad2.left_bumper) {
-            robot.getFrontFlip().setPower(1);
+            robot.getFrontFlip().setPower(.75);
         } else if (gamepad1.right_bumper || gamepad2.right_bumper) {
             robot.getFrontFlip().setPower(-1);
         } else {
@@ -153,9 +153,7 @@ public class RobotOpMode extends OpMode {
     }
 
     private void ProcessTopFlip() {
-        if (gamepad2.right_stick_y < 0) {
-            robot.getTopFlip().setPosition(1 + gamepad2.right_stick_y);
-        } else if (gamepad2.left_trigger != 0) {
+        if (gamepad2.left_trigger != 0) {
             robot.getTopFlip().setPosition(.32);
         } else if (gamepad2.right_trigger != 0) {
             robot.getTopFlip().setPosition(0);

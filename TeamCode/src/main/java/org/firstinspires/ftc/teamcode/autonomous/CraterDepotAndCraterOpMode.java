@@ -16,12 +16,13 @@ public class CraterDepotAndCraterOpMode extends BaseAutoOpMode{
         AutonomousStates currentState = AutonomousStates.START;
 
         InitRobot();
-        InitGyro();
 
         robot.getFrontFlip().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.getFrontFlip().setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         currentState = Latch();
+
+        InitGyro();
 
         while (!isStarted()) {
             synchronized (this) {
@@ -63,9 +64,9 @@ public class CraterDepotAndCraterOpMode extends BaseAutoOpMode{
                     break;
                 case BACKED_AWAY_FROM_MINERAL:
                     currentState = MoveToLeftWall(distanceFromLeftMineral, slideLeftPosition + distanceFromLeftMineral,
-                            slideLeftPosition + slideRightPosition + distanceFromLeftMineral);
+                            slideLeftPosition + slideRightPosition + distanceFromLeftMineral, .9);
                     robot.getFrontFlip().setTargetPosition(800);
-                    robot.getFrontFlip().setPower(.7);
+                    robot.getFrontFlip().setPower(.9);
 
                     while (robot.getFrontFlip().isBusy()) {
                         idle();
@@ -74,14 +75,14 @@ public class CraterDepotAndCraterOpMode extends BaseAutoOpMode{
                     break;
                 case AT_LEFT_WALL:
                     currentState = TurnTowardsDepotFromCrater();
-                    mecanum.SlideRight2(.5,50,this);
+                    mecanum.SlideRight2(.9,1000,this);
                     break;
                 case TURNED_TOWARDS_CRATER:
                     currentState = MoveTowardsDepot();
                     break;
                 case AT_DEPOT:
                     robot.getFrontFlip().setTargetPosition(1800);
-                    robot.getFrontFlip().setPower(.7);
+                    robot.getFrontFlip().setPower(.9);
 
                     while (robot.getFrontFlip().isBusy()) {
                         idle();
@@ -90,7 +91,7 @@ public class CraterDepotAndCraterOpMode extends BaseAutoOpMode{
                     currentState = AutonomousStates.DROPPED_MARKER; //DropMarker();
 
                     robot.getFrontFlip().setTargetPosition(800);
-                    robot.getFrontFlip().setPower(.7);
+                    robot.getFrontFlip().setPower(.9);
 
                     while (robot.getFrontFlip().isBusy()) {
                         idle();

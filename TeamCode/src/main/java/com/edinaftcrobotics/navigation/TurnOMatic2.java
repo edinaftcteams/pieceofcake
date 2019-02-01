@@ -59,12 +59,12 @@ public class TurnOMatic2 {
             telemetry.addData("Proportional", "%f %f",  error, Kp * error);
             telemetry.addData("Integral", "%f %f", integral, Ki * integral);
             telemetry.addData("Derivative", "%f %f", derivative, Kd * derivative);
-            double left = -Range.clip(output, -1, 1) * .45;
-            double right = Range.clip(output, -1, 1) * .45;
+            double left = -Range.clip(output, -1, 1) * .60;
+            double right = Range.clip(output, -1, 1) * .60;
             telemetry.addData("Left Power: ", "%f", left);
             telemetry.addData("Right Power: ", "%f", right);
 
-            opMode.sleep(200);
+            opMode.sleep(100);
             mecanum.Move(left, right);
             telemetry.update();
 
@@ -74,7 +74,7 @@ public class TurnOMatic2 {
                 inARow = 0;
             }
 
-        } while (opMode.opModeIsActive() && (inARow != 3));
+        } while (opMode.opModeIsActive() && (inARow != 2));
 
         mecanum.Stop();
     }

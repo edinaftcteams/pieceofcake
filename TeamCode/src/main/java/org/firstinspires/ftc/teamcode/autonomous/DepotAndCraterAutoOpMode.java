@@ -72,7 +72,7 @@ public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
                     break;
                 case BACKED_AWAY_FROM_MINERAL:
                     currentState = MoveToLeftWall(distanceFromLeftMineral, slideLeftPosition + distanceFromLeftMineral,
-                            slideLeftPosition + slideRightPosition + distanceFromLeftMineral);
+                            slideLeftPosition + slideRightPosition + distanceFromLeftMineral, .5);
                     robot.getFrontFlip().setTargetPosition(800);
                     robot.getFrontFlip().setPower(.7);
 
@@ -85,7 +85,7 @@ public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
                     currentState = TurnLeftTowardsCrater2();
                     break;
                 case TURNED_TOWARDS_CRATER:
-                    currentState = ExtendArm();
+                    currentState = ExtendArmAndDropIntake();
                     break;
             }
         }
