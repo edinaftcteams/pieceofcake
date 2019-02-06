@@ -17,13 +17,14 @@ public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
         AutonomousStates currentState = AutonomousStates.START;
 
         InitRobot();
-        InitGyro();
 
         robot.getFrontFlip().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.getFrontFlip().setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         // hang the robot
         currentState = Latch();
+
+        InitGyro();
 
         while (!isStarted()) {
             synchronized (this) {
@@ -85,7 +86,7 @@ public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
                     currentState = TurnLeftTowardsCrater2();
                     break;
                 case TURNED_TOWARDS_CRATER:
-                    currentState = ExtendArmAndDropIntake();
+                    currentState = ExtendArm();
                     break;
             }
         }

@@ -87,7 +87,10 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
         parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
         imu.initialize(parameters);
-        while (!imu.isGyroCalibrated());
+        while (!imu.isGyroCalibrated()) {
+            telemetry.addData("I am trying to init the gyro", "so stop moving the lander or robot Jack!");
+            telemetry.update();
+        }
     }
 
     protected double GetImuAngle() {
@@ -209,8 +212,11 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     //  TurnLeftTowardsCrater2 - we turn left 135 degrees towards the crater using RUN_WITH_ENCODER
     //      vs using RUN_TO_POSITION
     //  MoveTowardsDepot - move off the wall a little and move towards the depot
-    //  TurnTowardsCrater - we turn 180 degrees towards the crater
+    //  TurnTowardsCraterFromDepot2 - we turn 180 degrees towards the crater using the imu
     //  DriveTowardsCrater - we drive towards the crater to extend the arm
+    //  MoveToMiddleAtMineral - after we knock of the mineral at crater we slide back to the middle
+    //      so we can mine
+    //  Mine - we go into the crater and try to grab minerals.
     //
     public AutonomousStates Latch () {
         double currentPower = .12;
@@ -250,9 +256,9 @@ abstract class BaseAutoOpMode extends LinearOpMode {
 
             // display the status on the screen
             telemetry.addData("Current Power", currentPower);
-            telemetry.addData("Press Gamepad2 A", " to decrease power");
-            telemetry.addData("Press Gamepad2 B", " to increase power");
-            telemetry.addData("Press X to Exit", " and power will be locked in");
+            telemetry.addData("Alex, press Gamepad2 A", " to decrease power");
+            telemetry.addData("Alex, press Gamepad2 B", " to increase power");
+            telemetry.addData("Alex, Press X to Exit", " and power will be locked in.");
             telemetry.update();
         }
 
@@ -406,7 +412,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         return AutonomousStates.BACKED_AWAY_FROM_MINERAL;
     }
 
-    public AutonomousStates ExtendArmAndDropIntake() {
+    public AutonomousStates ExtendArm() {
         // stick the arm out for things like crater parking
         watch.reset();
 
@@ -421,13 +427,6 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         }
 
         robot.getSlide().setPower(0);
-
-        robot.getFrontFlip().setTargetPosition(FlatFlip + 700); // TODO fix number to drop lower
-        robot.getFrontFlip().setPower(.7);
-
-        while (robot.getFrontFlip().isBusy() && opModeIsActive()) {
-            idle();
-        }
 
         return AutonomousStates.ARM_EXTENDED;
     }
@@ -498,13 +497,6 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         return AutonomousStates.FACING_CRATER;
     }
 
-    public AutonomousStates TurnTowardsCraterFromDepot() {
-        // turn 180 degrees back towards the crater
-        mecanum.TurnLeft(.5, Turn90 + Turn90, this);
-
-        return AutonomousStates.FACING_CRATER;
-    }
-
     public AutonomousStates DriveTowardsCrater(){
         // drive towards the crater
         mecanum.MoveForward2(.7, DrivePerInch * 20,this);
@@ -512,7 +504,8 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         return AutonomousStates.AT_CRATER;
     }
 
-    public AutonomousStates MoveToMiddleAtMineral(int slideLeftDistance, int slideRightDistance) {
+    public AutonomousStates MoveToMiddleAtMineral(int slideLeftDistance,
+                                                  int slideRightDistance) {
         if (mineralLocation == MineralLocation.LEFT) {
             mecanum.SlideRight2(.5, slideLeftDistance, this);
         } else if (mineralLocation == MineralLocation.RIGHT) {
@@ -527,31 +520,39 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         // slide arm out
         robot.getSlide().setPower(-1);
         // run for 1000 milliseconds
-        while ((watch.milliseconds() < 1000)  && opModeIsActive()) { // TODO run longer if arm is not extended where we want it to be
+        while ((watch.milliseconds() < 1000)  && opModeIsActive()) {
             idle();
         }
 
         robot.getSlide().setPower(0);
 
-        // flip the arm down so it doesn't get hit
         robot.getTopFlip().setPosition(1);
-        robot.getFrontFlip().setTargetPosition(FlatFlip + 700); // TODO fix number to drop lower
+
+        // drop the intake
+        robot.getFrontFlip().setTargetPosition(FlatFlip + 700);
         robot.getFrontFlip().setPower(.7);
+
+        // spin the intake to get minerals
+        robot.getIntake().setPower(1);
 
         while (robot.getFrontFlip().isBusy() && opModeIsActive()) {
             idle();
         }
 
-        // spin the intake to get minerals
         watch.reset();
-        robot.getIntake().setPower(1);
         robot.getSlide().setPower(-1);
-        while ((watch.milliseconds() < 4000)  && opModeIsActive()) { // TODO change 2000 is we need to spin longer
+        while ((watch.milliseconds() < 4000)  && opModeIsActive()) {
             idle();
             if (watch.milliseconds() > 500) {
                 robot.getSlide().setPower(0);
             }
+
         }
+
+        // make the robot twist left and right to help it dig
+        mecanum.TurnLeft(.5, 300, this);
+        mecanum.TurnRight(.5, 600, this);
+        mecanum.TurnLeft(.5, 300, this);
 
         robot.getIntake().setPower(0);
 
