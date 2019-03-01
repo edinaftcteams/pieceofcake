@@ -65,6 +65,7 @@ public class RobotOpMode extends OpMode {
         ProcessLift();
         ProcessTopFlip();
         ProcessPower();
+        ProcessLiftLocations();
 
         telemetry.update();
     }
@@ -84,16 +85,11 @@ public class RobotOpMode extends OpMode {
 
         if (gamepad1.a || gamepad1.y){
             listenToGamePad1 = true;
-        } else if (gamepad2.a || gamepad2.y) {
-            listenToGamePad2 = true;
         }
 
         if (listenToGamePad1) {
             yValue = gamepad1.y;
             aValue = gamepad1.a;
-        } else if (listenToGamePad2) {
-            yValue = gamepad2.y;
-            aValue = gamepad2.a;
         }
 
         if (yValue && !intakeYPressed) {
@@ -111,7 +107,6 @@ public class RobotOpMode extends OpMode {
             }
 
             listenToGamePad1 = false;
-            listenToGamePad2 = false;
             intakeYPressed = false;
             intakeAPressed = false;
         } else if (aValue && !intakeAPressed) {
@@ -129,7 +124,6 @@ public class RobotOpMode extends OpMode {
             }
 
             listenToGamePad1 = false;
-            listenToGamePad2 = false;
             intakeAPressed = false;
             intakeYPressed = false;
         }
@@ -177,7 +171,7 @@ public class RobotOpMode extends OpMode {
                 robot.getFrontLift().setPower(0);
                 liftAPressed = liftBPressed = liftXPressed = liftYPressed = liftMoving = false;
             } else {
-                int pos = robot.getBackLift().getCurrentPosition();
+                int pos = robot.getFrontLift().getCurrentPosition();
                 if ((liftLocation - pos) > 0) {
                     if (Math.abs(liftLocation - pos) < 10) {
                         // close enough so stop
@@ -185,8 +179,8 @@ public class RobotOpMode extends OpMode {
                         robot.getFrontLift().setPower(0);
                         liftAPressed = liftBPressed = liftXPressed = liftYPressed = liftMoving = false;
                     } else {
-                        robot.getBackLift().setPower(.2);
-                        robot.getFrontLift().setPower(-.2);
+                        robot.getBackLift().setPower(1);
+                        robot.getFrontLift().setPower(-1);
                     }
                 } else if ((liftLocation - pos) < 0) {
                     if (Math.abs(liftLocation - pos) < 10) {
@@ -196,8 +190,8 @@ public class RobotOpMode extends OpMode {
                         liftAPressed = liftBPressed = liftXPressed = liftYPressed = liftMoving = false;
                     } else {
                         // move down
-                        robot.getBackLift().setPower(-.2);
-                        robot.getFrontLift().setPower(.2);
+                        robot.getBackLift().setPower(-1);
+                        robot.getFrontLift().setPower(1);
                     }
                 }
             }
@@ -208,15 +202,15 @@ public class RobotOpMode extends OpMode {
             liftMoving = liftAPressed = true;
             liftBPressed = liftXPressed = liftYPressed = false;
         } else if (gamepad2.x && !liftXPressed) {
-            liftLocation = 2000;
+            liftLocation = 200;
             liftMoving = liftXPressed = true;
             liftAPressed = liftYPressed = liftBPressed = false;
         } else if (gamepad2.y && !liftYPressed) {
-            liftLocation = 2500;
+            liftLocation = 400;
             liftMoving = liftYPressed = true;
             liftAPressed = liftXPressed = liftBPressed = false;
         } else if (gamepad2.b && !liftBPressed) {
-            liftLocation = 3000;
+            liftLocation = 600;
             liftMoving = liftBPressed = true;
             liftAPressed = liftXPressed = liftYPressed = false;
         }
