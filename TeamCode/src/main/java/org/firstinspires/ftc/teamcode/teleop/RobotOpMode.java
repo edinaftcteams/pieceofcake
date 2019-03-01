@@ -19,6 +19,14 @@ public class RobotOpMode extends OpMode {
     private boolean listenToGamePad2 = false;
     private Mecanum mecanum = null;
     private boolean TopFlipSet = false;
+    private boolean liftXPressed = false;
+    private boolean liftYPressed = false;
+    private boolean liftAPressed = false;
+    private boolean liftBPressed = false;
+    private boolean liftMoving = false;
+    private int liftLocation = 0;
+    private boolean intakeArmActive = false;
+    private int timeCount = 0;
 
     @Override
     public void init(){
@@ -159,6 +167,107 @@ public class RobotOpMode extends OpMode {
             robot.getTopFlip().setPosition(0);
         } else {
             robot.getTopFlip().setPosition(1);
+        }
+    }
+
+    private void ProcessLiftLocations() {
+        if (liftMoving == true) {
+            if ((gamepad2.left_stick_y != 0) || (gamepad2.left_trigger != 0) || (gamepad2.right_trigger !=0)){
+                robot.getBackLift().setPower(0);
+                robot.getFrontLift().setPower(0);
+                liftAPressed = liftBPressed = liftXPressed = liftYPressed = liftMoving = false;
+            } else {
+                int pos = robot.getBackLift().getCurrentPosition();
+                if ((liftLocation - pos) > 0) {
+                    if (Math.abs(liftLocation - pos) < 10) {
+                        // close enough so stop
+                        robot.getBackLift().setPower(0);
+                        robot.getFrontLift().setPower(0);
+                        liftAPressed = liftBPressed = liftXPressed = liftYPressed = liftMoving = false;
+                    } else {
+                        robot.getBackLift().setPower(.2);
+                        robot.getFrontLift().setPower(-.2);
+                    }
+                } else if ((liftLocation - pos) < 0) {
+                    if (Math.abs(liftLocation - pos) < 10) {
+                        // close enough so stop
+                        robot.getBackLift().setPower(0);
+                        robot.getFrontLift().setPower(0);
+                        liftAPressed = liftBPressed = liftXPressed = liftYPressed = liftMoving = false;
+                    } else {
+                        // move down
+                        robot.getBackLift().setPower(-.2);
+                        robot.getFrontLift().setPower(.2);
+                    }
+                }
+            }
+        }
+
+        if (gamepad2.a && !liftAPressed) {
+            liftLocation = 0;
+            liftMoving = liftAPressed = true;
+            liftBPressed = liftXPressed = liftYPressed = false;
+        } else if (gamepad2.x && !liftXPressed) {
+            liftLocation = 2000;
+            liftMoving = liftXPressed = true;
+            liftAPressed = liftYPressed = liftBPressed = false;
+        } else if (gamepad2.y && !liftYPressed) {
+            liftLocation = 2500;
+            liftMoving = liftYPressed = true;
+            liftAPressed = liftXPressed = liftBPressed = false;
+        } else if (gamepad2.b && !liftBPressed) {
+            liftLocation = 3000;
+            liftMoving = liftBPressed = true;
+            liftAPressed = liftXPressed = liftYPressed = false;
+        }
+    }
+
+    private void ProcessLiftButtons() {
+        if (intakeArmActive == true); {
+            int pos = robot.getFrontFlip().getCurrentPosition();
+            if (pos < 2000) {
+                robot.getFrontFlip().setPower(-0.3);
+            } else if (pos > 2000) {
+                robot.getFrontFlip().setPower(0.3);
+            } else {
+                robot.getFrontFlip().setPower(0);
+            }
+
+            boolean limit = true;
+            if ((pos > 1000) && (limit == false)) {
+                robot.getSlide().setPower(0.75);
+            } else {
+                robot.getSlide().setPower(0);
+            }
+            int pol = robot.getBackLift().getCurrentPosition();
+            if (pol > 10) {
+                robot.getBackLift().setPower(-0.4);
+                robot.getFrontLift().setPower(0.4);
+            } else {
+                robot.getBackLift().setPower(0);
+                robot.getFrontLift().setPower(0);
+            }
+            if ((pol < 11) && (limit == true) && (pos > 10)) {
+                robot.getFrontFlip().setPower(-0.4);
+            } else {
+                robot.getFrontFlip().setPower(0);
+            }
+            if ((timeCount < 11) && (pos <= 10) && (limit == true)) {
+                timeCount++;
+            }
+            if (timeCount == 10) {
+                if (pos < 2000) {
+                    robot.getFrontFlip().setPower(0.4);
+
+                } else {
+                    robot.getFrontFlip().setPower(0);
+                    intakeArmActive = false;
+                    timeCount = 0;
+                }
+            }
+        if (gamepad1.b) {
+            intakeArmActive = true;
+            }
         }
     }
 }

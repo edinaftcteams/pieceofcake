@@ -55,10 +55,12 @@ public class TurnOMatic2 {
 
             percentOff = Math.abs((GetImuAngle() - endAngle) / endAngle);
 
-            telemetry.addData("C, E, V Angle", "%f, %f, %f", GetImuAngle(), endAngle, percentOff);
+            telemetry.addData("C, E, V Angle", "%f, %f, %f", GetImuAngle(), endAngle,
+                    percentOff);
             telemetry.addData("Proportional", "%f %f",  error, Kp * error);
             telemetry.addData("Integral", "%f %f", integral, Ki * integral);
-            telemetry.addData("Derivative", "%f %f", derivative, Kd * derivative);
+            telemetry.addData("Derivative", "%f %f", derivative,
+                    Kd * derivative);
             double left = -Range.clip(output, -1, 1) * .60;
             double right = Range.clip(output, -1, 1) * .60;
             telemetry.addData("Left Power: ", "%f", left);
