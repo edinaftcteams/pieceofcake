@@ -3,8 +3,10 @@ package org.firstinspires.ftc.teamcode.teleop;
 import com.edinaftcrobotics.drivetrain.Mecanum;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.robot.PieceOfCake;
+import org.opencv.core.Mat;
 
 @TeleOp(name="Teleop", group="Teleop")
 public class RobotOpMode extends OpMode {
@@ -27,6 +29,18 @@ public class RobotOpMode extends OpMode {
     private int liftLocation = 0;
     private boolean intakeArmActive = false;
     private int timeCount = 0;
+    private MineralDeposit currentMDState = MineralDeposit.WAITING_TO_START;
+
+    private enum MineralDeposit {
+        WAITING_TO_START,
+        START,
+        FRONT_FLIPPING,
+        SLIDING,
+        FRONT_FLIPPING_AGAIN,
+        FRONT_FLIPPING_BACK,
+        BACK_LIFT_DOWN,
+        WAITING_FOR_LIFT_AND_FLIP
+    }
 
     @Override
     public void init(){
@@ -173,7 +187,10 @@ public class RobotOpMode extends OpMode {
             } else {
                 int pos = robot.getFrontLift().getCurrentPosition();
                 if ((liftLocation - pos) > 0) {
-                    if (Math.abs(liftLocation - pos) < 10) {
+                    if (Math.abs(liftLocation - pos) < 50) {
+                        robot.getFrontLift().setPower(.5);
+                        robot.getBackLift().setPower(-.5);
+                    } else if (Math.abs(liftLocation - pos) < 10) {
                         // close enough so stop
                         robot.getBackLift().setPower(0);
                         robot.getFrontLift().setPower(0);
@@ -183,7 +200,10 @@ public class RobotOpMode extends OpMode {
                         robot.getFrontLift().setPower(-1);
                     }
                 } else if ((liftLocation - pos) < 0) {
-                    if (Math.abs(liftLocation - pos) < 10) {
+                    if (Math.abs(liftLocation - pos) < 50) {
+                        robot.getFrontLift().setPower(.5);
+                        robot.getBackLift().setPower(-.5);
+                    } else if (Math.abs(liftLocation - pos) < 10) {
                         // close enough so stop
                         robot.getBackLift().setPower(0);
                         robot.getFrontLift().setPower(0);
@@ -216,52 +236,70 @@ public class RobotOpMode extends OpMode {
         }
     }
 
-    private void ProcessLiftButtons() {
-        if (intakeArmActive == true); {
-            int pos = robot.getFrontFlip().getCurrentPosition();
-            if (pos < 2000) {
-                robot.getFrontFlip().setPower(-0.3);
-            } else if (pos > 2000) {
-                robot.getFrontFlip().setPower(0.3);
-            } else {
+    private void ProcessLiftButtons () {
+        if (gamepad1.b) {
+            currentMDState = MineralDeposit.START;
+            intakeArmActive = true;
+        }
+        if (intakeArmActive) {
+            if ((gamepad2.left_stick_y != 0) || (gamepad2.left_bumper) ||
+                    (gamepad2.right_bumper) || (gamepad1.left_bumper) ||
+                    (gamepad1.right_bumper) || (gamepad2.left_trigger != 0) ||
+                    (gamepad2.right_trigger !=0) || (gamepad1.left_trigger != 0) ||
+                    (gamepad1.right_trigger !=0)){
+                robot.getBackLift().setPower(0);
+                robot.getBackLift().setPower(0);
                 robot.getFrontFlip().setPower(0);
-            }
-
-            boolean limit = true;
-            if ((pos > 1000) && (limit == false)) {
-                robot.getSlide().setPower(0.75);
-            } else {
+                robot.getFrontFlip().setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 robot.getSlide().setPower(0);
+                intakeArmActive = false;
+                currentMDState = MineralDeposit.WAITING_TO_START;
             }
-            int pol = robot.getBackLift().getCurrentPosition();
-            if (pol > 10) {
+        }
+        switch (currentMDState) {
+            case START:
+                robot.getFrontFlip().setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.getFrontFlip().setTargetPosition(800);
+                robot.getFrontFlip().setPower(0.3);
                 robot.getBackLift().setPower(-0.4);
                 robot.getFrontLift().setPower(0.4);
-            } else {
-                robot.getBackLift().setPower(0);
-                robot.getFrontLift().setPower(0);
-            }
-            if ((pol < 11) && (limit == true) && (pos > 10)) {
-                robot.getFrontFlip().setPower(-0.4);
-            } else {
-                robot.getFrontFlip().setPower(0);
-            }
-            if ((timeCount < 11) && (pos <= 10) && (limit == true)) {
-                timeCount++;
-            }
-            if (timeCount == 10) {
-                if (pos < 2000) {
-                    robot.getFrontFlip().setPower(0.4);
-
-                } else {
-                    robot.getFrontFlip().setPower(0);
-                    intakeArmActive = false;
-                    timeCount = 0;
+                currentMDState = MineralDeposit.FRONT_FLIPPING;
+                break;
+            case FRONT_FLIPPING:
+                if (robot.getFrontFlip().getCurrentPosition() < 1000) {
+                    robot.getSlide().setPower(0.75);
+                    currentMDState = MineralDeposit.WAITING_FOR_LIFT_AND_FLIP;
                 }
-            }
-        if (gamepad1.b) {
-            intakeArmActive = true;
-            }
+                break;
+            case WAITING_FOR_LIFT_AND_FLIP:
+                int pos = robot.getBackLift().getCurrentPosition();
+                boolean limit = true;
+                if ((pos < 1) && (limit == true) && (robot.getFrontFlip().getCurrentPosition() < 810)) {
+                    currentMDState = MineralDeposit.FRONT_FLIPPING_AGAIN;
+                    robot.getFrontFlip().setTargetPosition(50);
+                    timeCount = 0;
+                    robot.getBackLift().setPower(0);
+                    robot.getFrontLift().setPower(0);
+                }
+                break;
+            case FRONT_FLIPPING_AGAIN:
+                if (robot.getFrontFlip().getCurrentPosition() < 50) {
+                    timeCount++;
+                }
+                if (timeCount > 10) {
+                    robot.getFrontFlip().setTargetPosition(810);
+                    currentMDState = MineralDeposit.FRONT_FLIPPING_BACK;
+                }
+                break;
+            case FRONT_FLIPPING_BACK:
+                if (robot.getFrontFlip().getCurrentPosition() > 790) {
+                    robot.getFrontFlip().setPower(0);
+                    robot.getFrontFlip().setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    currentMDState = MineralDeposit.WAITING_TO_START;
+                    intakeArmActive = false;
+                }
+                break;
+
         }
     }
 }
