@@ -66,6 +66,8 @@ abstract class BaseAutoOpMode extends LinearOpMode {
 
         initVuforia();
 
+        robot.StopAndResetAllEncoders();
+
         if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
             initTfod();
         } else {
