@@ -76,11 +76,15 @@ public class RobotOpMode extends OpMode {
             ProcessSlide();
             ProcessIntake();
             ProcessFrontFlip();
+        }
+
+        if (!intakeArmActive && !liftMoving) {
             ProcessLift();
         }
 
         ProcessTopFlip();
         ProcessPower();
+
         ProcessLiftLocations();
         ProcessLiftButtons();
 
@@ -190,28 +194,29 @@ public class RobotOpMode extends OpMode {
                 liftAPressed = liftBPressed = liftXPressed = liftYPressed = liftMoving = false;
             } else {
                 int pos = robot.getFrontLift().getCurrentPosition();
+                telemetry.addData("Difference", (liftLocation - pos));
                 if ((liftLocation - pos) > 0) {
-                    if (Math.abs(liftLocation - pos) < 50) {
-                        robot.getFrontLift().setPower(.5);
-                        robot.getBackLift().setPower(-.5);
-                    } else if (Math.abs(liftLocation - pos) < 10) {
+                    if (Math.abs(liftLocation - pos) < 5) {
                         // close enough so stop
                         robot.getBackLift().setPower(0);
                         robot.getFrontLift().setPower(0);
                         liftAPressed = liftBPressed = liftXPressed = liftYPressed = liftMoving = false;
+                    } else if (Math.abs(liftLocation - pos) < 50) {
+                        robot.getBackLift().setPower(.5);
+                        robot.getFrontLift().setPower(-.5);
                     } else {
                         robot.getBackLift().setPower(1);
                         robot.getFrontLift().setPower(-1);
                     }
                 } else if ((liftLocation - pos) < 0) {
-                    if (Math.abs(liftLocation - pos) < 50) {
-                        robot.getFrontLift().setPower(.5);
-                        robot.getBackLift().setPower(-.5);
-                    } else if (Math.abs(liftLocation - pos) < 10) {
+                    if (Math.abs(liftLocation - pos) < 5) {
                         // close enough so stop
                         robot.getBackLift().setPower(0);
                         robot.getFrontLift().setPower(0);
                         liftAPressed = liftBPressed = liftXPressed = liftYPressed = liftMoving = false;
+                    } else if (Math.abs(liftLocation - pos) < 50) {
+                        robot.getBackLift().setPower(-.5);
+                        robot.getFrontLift().setPower(.5);
                     } else {
                         // move down
                         robot.getBackLift().setPower(-1);
@@ -284,7 +289,8 @@ public class RobotOpMode extends OpMode {
 
                 case FRONT_FLIPPING:
                     if (robot.getFrontFlip().getCurrentPosition() < 1900) {
-                        robot.getSlide().setPower(1);
+                        robot.getSlide().setPower(0.7);
+                        robot.getSlide().setPower(0.7);
                         currentMDState = MineralDeposit.WAITING_FOR_LIFT_AND_FLIP;
                     }
                     break;
@@ -301,9 +307,13 @@ public class RobotOpMode extends OpMode {
                     if ((pos <= 10) &&(robot.getFrontFlip().getCurrentPosition() < 50)) {
                         timeCount++;
                     }
+                    if (timeCount > 0) {
+                        robot.getIntake().setPower(1);
+                    }
 
                     if (timeCount > 5) {
                         robot.getFrontFlip().setTargetPosition(750);
+                        robot.getIntake().setPower(0);
                         currentMDState = MineralDeposit.FRONT_FLIPPING_BACK;
                     }
                     break;
