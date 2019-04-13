@@ -1,18 +1,19 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.enums.AutonomousStates;
 
-@Autonomous(name="CraterDepotCrater", group="Autonomous")
+@Autonomous(name="Depot And Crater with Mineral", group="Autonomous")
 //@Disabled
-public class CraterDepotAndCraterOpMode extends BaseAutoOpMode{
-    private int distanceFromLeftMineral = (int)(DrivePerInch * 19.5);
+public class DepotAndCraterWithMineralAutoOpMode extends BaseAutoOpMode {
+    private int distanceFromLeftMineral = DrivePerInch * 21;
 
-    public void runOpMode(){
-
+    public void runOpMode() {
+        //
+        // get the robot setup and ready to run
+        //
         AutonomousStates currentState = AutonomousStates.START;
 
         InitRobot();
@@ -20,6 +21,7 @@ public class CraterDepotAndCraterOpMode extends BaseAutoOpMode{
         robot.getFrontFlip().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.getFrontFlip().setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
+        // hang the robot
         currentState = Latch();
 
         InitGyro();
@@ -27,6 +29,7 @@ public class CraterDepotAndCraterOpMode extends BaseAutoOpMode{
         while (!isStarted()) {
             synchronized (this) {
                 try {
+                    // look for the mineral and tell us what the camera sees
                     LocateTFMineral();
                     telemetry.addData("Mineral Location", mineralLocation);
                     telemetry.addData("Last Recognition", LastRecognition);
@@ -42,7 +45,10 @@ public class CraterDepotAndCraterOpMode extends BaseAutoOpMode{
             }
         }
 
-        while (opModeIsActive() && (currentState != AutonomousStates.AT_CRATER)) {
+        //
+        // Our state machine for what we do when we are landing from the depot side.
+        //
+        while (opModeIsActive() && (currentState != AutonomousStates.ARM_EXTENDED)) {
             switch (currentState) {
                 case LATCHED:
                     currentState = Drop();
@@ -51,22 +57,28 @@ public class CraterDepotAndCraterOpMode extends BaseAutoOpMode{
                     currentState = MoveLeftOffLatch();
                     break;
                 case MOVED_OFF_LATCH:
-                    currentState = MoveForward(driveForwardPosition);
+                    currentState = MoveForwardAndSlideBackToCenter(driveForwardPosition);
                     break;
-                case MOVED_FORWARD:
-                    currentState = DriveToMineralOffLeftOffset(slideLeftPosition, slideRightPosition);
+                case MOVED_BACK_TO_CENTER:
+                    currentState = DropMarker();
+                    break;
+                case DROPPED_MARKER:
+                    currentState = PickUpAndDepositMineral();
+/*
+                    currentState = DriveToMineral(slideLeftPosition, slideRightPosition);
                     break;
                 case AT_MINERAL:
-                    currentState = PushMineral((int)(DrivePerInch * PushMineralDistance));
+                    currentState = PushMineral((int)(DrivePerInch * (PushMineralDistance+1)));
                     break;
                 case MINERAL_PUSHED:
                     currentState = BackAwayFromMineral((int)(DrivePerInch * BackAwayFromMineralDistance));
                     break;
+*/
                 case BACKED_AWAY_FROM_MINERAL:
-                    currentState = MoveToLeftWall(distanceFromLeftMineral, slideLeftPosition + distanceFromLeftMineral,
-                            slideLeftPosition + slideRightPosition + distanceFromLeftMineral, .9);
+                    currentState = MoveToLeftWall(slideLeftPosition + distanceFromLeftMineral, slideLeftPosition + distanceFromLeftMineral,
+                            slideLeftPosition + distanceFromLeftMineral, .5);
                     robot.getFrontFlip().setTargetPosition(800);
-                    robot.getFrontFlip().setPower(.9);
+                    robot.getFrontFlip().setPower(.7);
 
                     while (robot.getFrontFlip().isBusy()) {
                         idle();
@@ -77,33 +89,12 @@ public class CraterDepotAndCraterOpMode extends BaseAutoOpMode{
                     currentState = TurnLeftTowardsCrater2();
                     break;
                 case TURNED_TOWARDS_CRATER:
-                    currentState = MoveTowardsDepot();
-                    break;
-                case AT_DEPOT:
-                    robot.getFrontFlip().setTargetPosition(1800);
-                    robot.getFrontFlip().setPower(.9);
-
-                    while (robot.getFrontFlip().isBusy()) {
-                        idle();
-                    }
-
-                    currentState = AutonomousStates.DROPPED_MARKER; //DropMarker();
-
-                    robot.getFrontFlip().setTargetPosition(800);
-                    robot.getFrontFlip().setPower(.9);
-
-                    while (robot.getFrontFlip().isBusy()) {
-                        idle();
-                    }
-
-                    break;
-                case DROPPED_MARKER:
-                    currentState = TurnTowardsCraterFromDepot();
-                    break;
-                case FACING_CRATER:
-                    currentState = DriveTowardsCrater();
+                    currentState = ExtendArm();
                     break;
             }
         }
+
+
+        ShutdownTFOD();
     }
 }

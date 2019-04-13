@@ -19,8 +19,6 @@ public class RobotOpMode extends OpMode {
     private boolean bumpersPressed = false;
     private boolean intakeInToggledOn = false;
     private boolean intakeOutToggledOn = false;
-    private boolean listenToGamePad1 = false;
-    private boolean listenToGamePad2 = false;
     private Mecanum mecanum = null;
     private boolean TopFlipSet = false;
     private boolean liftXPressed = false;
@@ -38,10 +36,8 @@ public class RobotOpMode extends OpMode {
         WAITING_TO_START,
         START,
         FRONT_FLIPPING,
-        SLIDING,
         FRONT_FLIPPING_AGAIN,
         FRONT_FLIPPING_BACK,
-        BACK_LIFT_DOWN,
         WAITING_FOR_LIFT_AND_FLIP
     }
 
@@ -51,6 +47,17 @@ public class RobotOpMode extends OpMode {
 
 
         mecanum = new Mecanum(robot.getFrontL(), robot.getFrontR(), robot.getBackL(), robot.getBackR(), true, telemetry);
+        mecanum.SetCurrentPower(1.4);
+    }
+
+    @Override
+    public void init_loop() {
+        if (gamepad2.dpad_up){
+            robot.getFrontFlip().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.getFrontFlip().setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
+        telemetry.addData("Front Flip", "%d", robot.getFrontFlip().getCurrentPosition());
+        telemetry.update();
     }
 
     @Override
@@ -102,22 +109,10 @@ public class RobotOpMode extends OpMode {
     }
 
     private void ProcessIntake() {
-        boolean yValue = false;
-        boolean aValue = false;
-
-        if (gamepad1.a || gamepad1.y){
-            listenToGamePad1 = true;
-        }
-
-        if (listenToGamePad1) {
-            yValue = gamepad1.y;
-            aValue = gamepad1.a;
-        }
-
-        if (yValue && !intakeYPressed) {
+        if (gamepad1.y && !intakeYPressed) {
             intakeYPressed = true;
             intakeAPressed = false;
-        } else if (!yValue && intakeYPressed) {
+        } else if (!gamepad1.y && intakeYPressed) {
             if (!intakeInToggledOn) {
                 robot.getIntake().setPower(-1);  // TODO - negative this if it spins the wrong way
                 intakeInToggledOn = true;
@@ -128,13 +123,12 @@ public class RobotOpMode extends OpMode {
                 intakeOutToggledOn = false;
             }
 
-            listenToGamePad1 = false;
             intakeYPressed = false;
             intakeAPressed = false;
-        } else if (aValue && !intakeAPressed) {
+        } else if (gamepad1.a && !intakeAPressed) {
             intakeAPressed = true;
             intakeYPressed = false;
-        } else if (!aValue && intakeAPressed) {
+        } else if (!gamepad1.a && intakeAPressed) {
             if (!intakeOutToggledOn) {
                 robot.getIntake().setPower(1); // TODO - negative this is if spinis the wrong way
                 intakeInToggledOn = false;
@@ -145,7 +139,6 @@ public class RobotOpMode extends OpMode {
                 intakeOutToggledOn = false;
             }
 
-            listenToGamePad1 = false;
             intakeAPressed = false;
             intakeYPressed = false;
         }
@@ -231,15 +224,15 @@ public class RobotOpMode extends OpMode {
             liftMoving = liftAPressed = true;
             liftBPressed = liftXPressed = liftYPressed = false;
         } else if (gamepad2.x && !liftXPressed) {
-            liftLocation = 200;
+            liftLocation = 1038;
             liftMoving = liftXPressed = true;
             liftAPressed = liftYPressed = liftBPressed = false;
         } else if (gamepad2.y && !liftYPressed) {
-            liftLocation = 400;
+            liftLocation = 515;
             liftMoving = liftYPressed = true;
             liftAPressed = liftXPressed = liftBPressed = false;
         } else if (gamepad2.b && !liftBPressed) {
-            liftLocation = 600;
+            liftLocation = 1300;
             liftMoving = liftBPressed = true;
             liftAPressed = liftXPressed = liftYPressed = false;
         }
@@ -277,7 +270,7 @@ public class RobotOpMode extends OpMode {
             switch (currentMDState) {
                 case START:
                     robot.getFrontFlip().setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    robot.getFrontFlip().setTargetPosition(800);
+                    robot.getFrontFlip().setTargetPosition(1400);
                     robot.getFrontFlip().setPower(0.7);
                     if (pos > 10) {
                         robot.getBackLift().setPower(-0.8);
@@ -289,14 +282,13 @@ public class RobotOpMode extends OpMode {
 
                 case FRONT_FLIPPING:
                     if (robot.getFrontFlip().getCurrentPosition() < 1900) {
-                        robot.getSlide().setPower(0.7);
-                        robot.getSlide().setPower(0.7);
+                        robot.getSlide().setPower(1);
                         currentMDState = MineralDeposit.WAITING_FOR_LIFT_AND_FLIP;
                     }
                     break;
 
                 case WAITING_FOR_LIFT_AND_FLIP:
-                    if ((pos <= 10) && (robot.getFrontFlip().getCurrentPosition() < 810) && limitHit) {
+                    if ((pos <= 10) && (robot.getFrontFlip().getCurrentPosition() < 1410) && limitHit) {
                         currentMDState = MineralDeposit.FRONT_FLIPPING_AGAIN;
                         robot.getFrontFlip().setTargetPosition(50);
                         timeCount = 0;
@@ -307,13 +299,9 @@ public class RobotOpMode extends OpMode {
                     if ((pos <= 10) &&(robot.getFrontFlip().getCurrentPosition() < 50)) {
                         timeCount++;
                     }
-                    if (timeCount > 0) {
-                        robot.getIntake().setPower(1);
-                    }
 
                     if (timeCount > 5) {
                         robot.getFrontFlip().setTargetPosition(750);
-                        robot.getIntake().setPower(0);
                         currentMDState = MineralDeposit.FRONT_FLIPPING_BACK;
                     }
                     break;

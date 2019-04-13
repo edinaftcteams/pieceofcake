@@ -478,7 +478,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         // we will turn 135 degrees
         mecanum.TurnLeft(.5, Turn45 + Turn90, this);
 
-        mecanum.SlideRight2(.5, DrivePerInch * 15, this);
+        mecanum.SlideRight2(.5, DrivePerInch * 20, this);
 
         return AutonomousStates.TURNED_TOWARDS_CRATER;
     }
@@ -492,6 +492,11 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         return AutonomousStates.AT_DEPOT;
     }
 
+    public AutonomousStates TurnTowardsCraterFromDepot() {
+        mecanum.TurnLeft(.5,Turn90 + Turn90, this);
+        return AutonomousStates.FACING_CRATER;
+    }
+
     public AutonomousStates TurnTowardsCraterFromDepot2() {
         TurnOMatic2 turner = new TurnOMatic2(imu, mecanum, telemetry, -45, this);
         turner.Turn(.03, 3000);
@@ -501,7 +506,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
 
     public AutonomousStates DriveTowardsCrater(){
         // drive towards the crater
-        mecanum.MoveForward2(.7, DrivePerInch * 20,this);
+        mecanum.MoveForward2(.7, DrivePerInch * 30,this);
 
         return AutonomousStates.AT_CRATER;
     }
@@ -560,5 +565,130 @@ abstract class BaseAutoOpMode extends LinearOpMode {
 
         return AutonomousStates.MINED;
 
+    }
+
+    public AutonomousStates PickUpAndDepositMineral() {
+        int counter = 0;
+        int slideTimer = 0;
+
+        mecanum.MoveBackwards2(0.8, DrivePerInch * 5,this);
+
+        if (mineralLocation == MineralLocation.LEFT) {
+            mecanum.TurnLeft(0.5,Turn45,this);
+        } else if (mineralLocation == MineralLocation.RIGHT) {
+            mecanum.TurnRight(0.5, Turn45, this);
+        }
+
+        while (counter != -1 && opModeIsActive()) {
+            int pos = robot.getBackLift().getCurrentPosition();
+
+            if (pos > 10) {
+                robot.getBackLift().setPower(-0.8);
+                robot.getFrontLift().setPower(0.8);
+            } else {
+                robot.getBackLift().setPower(0);
+                robot.getFrontLift().setPower(0);
+            }
+
+            if (counter == 0) {
+                robot.getFrontFlip().setTargetPosition(2600);
+                robot.getFrontFlip().setPower(1);
+                if (robot.getFrontFlip().getCurrentPosition() > 2550) {
+                    robot.getFrontFlip().setPower(0);
+                    robot.getIntake().setPower(1);
+                    counter = 1;
+                    watch.reset();
+                }
+            } else if (counter == 1) {
+                robot.getSlide().setPower(.5);
+                if ((mineralLocation == MineralLocation.MIDDLE) && (watch.milliseconds() > 1000)) {
+                    robot.getSlide().setPower(0);
+                    counter = 2;
+                    watch.reset();
+                } else if (watch.milliseconds() > 2000) {
+                    robot.getSlide().setPower(0);
+                    counter = 2;
+                    watch.reset();
+                }
+            } else if (counter == 2) {
+                if (watch.milliseconds() > 2000) {
+                    robot.getFrontFlip().setTargetPosition(800);
+                    robot.getFrontFlip().setPower(1);
+                    counter = 3;
+                    watch.reset();
+                }
+
+            } else if (counter == 3) {
+                robot.getSlide().setPower(-.5);
+                if ((mineralLocation == MineralLocation.MIDDLE) && (watch.milliseconds() > 1000)) {
+                    robot.getSlide().setPower(0);
+                    counter = 4;
+                    watch.reset();
+                } else if (watch.milliseconds() > 2000) {
+                    robot.getSlide().setPower(0);
+                    counter = 4;
+                    watch.reset();
+                }
+
+            } else if (counter == 4) {
+                if (pos < 10) {
+                    robot.getFrontFlip().setTargetPosition(0);
+                    robot.getFrontFlip().setPower(0.5);
+                    watch.reset();
+                    counter = 5;
+                }
+            } else if (counter == 5) {
+                if (watch.milliseconds() > 1000) {
+                    robot.getFrontFlip().setTargetPosition(800);
+                    robot.getFrontFlip().setPower(0.5);
+                }
+            } else if (counter == 6) {
+                robot.getFrontFlip().setPower(0);
+                robot.getIntake().setPower(0);
+                counter = 7;
+            }
+            else if (counter == 7) {
+                counter = -1;
+            }
+        }
+
+        if (mineralLocation == MineralLocation.LEFT) {
+            mecanum.TurnRight(0.5,Turn45,this);
+        } else if (mineralLocation == MineralLocation.RIGHT) {
+            mecanum.TurnLeft(0.5, Turn45, this);
+        }
+
+        mecanum.MoveBackwards2(0.8, DrivePerInch * 12, this);
+
+        counter = 0;
+        while (counter != -1 && opModeIsActive()) {
+            int pos = robot.getBackLift().getCurrentPosition();
+
+            if (counter == 0)
+            {
+                if (pos < 1038) {
+                    robot.getBackLift().setPower(0.8);
+                    robot.getFrontLift().setPower(-0.8);
+                } else {
+                    robot.getBackLift().setPower(0);
+                    robot.getFrontLift().setPower(0);
+                    robot.getTopFlip().setPosition(0);
+                    counter = 1;
+                    watch.reset();
+                }
+            } else if (counter == 1) {
+                if (watch.milliseconds() > 1000) {
+                    robot.getTopFlip().setPosition(1);
+                    counter = 4;
+                }
+            }
+            else if (counter == 4) {
+                counter = -1;
+            }
+        }
+
+        mecanum.MoveForward2(0.8, DrivePerInch * 17, this);
+
+        return AutonomousStates.BACKED_AWAY_FROM_MINERAL;
     }
 }
