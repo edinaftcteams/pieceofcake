@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.enums.AutonomousStates;
+import org.firstinspires.ftc.teamcode.enums.MineralLocation;
 
 @Autonomous(name="Depot And Crater", group="Autonomous")
 //@Disabled
@@ -21,6 +22,9 @@ public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
         robot.getFrontFlip().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.getFrontFlip().setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
+        robot.getBackLift().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.getBackLift().setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         // hang the robot
         currentState = Latch();
 
@@ -36,6 +40,7 @@ public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
                     telemetry.addData("Angle", GetImuAngle());
                     telemetry.addData("Latch Power: ", robot.getBackLift().getPower());
                     telemetry.addData("Flip Position", robot.getFrontFlip().getCurrentPosition());
+                    telemetry.addData("Lift Position", robot.getBackLift().getCurrentPosition());
                     telemetry.update();
                     this.wait();
                 } catch (InterruptedException e) {
@@ -48,7 +53,7 @@ public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
         //
         // Our state machine for what we do when we are landing from the depot side.
         //
-        while (opModeIsActive() && (currentState != AutonomousStates.ARM_EXTENDED)) {
+        while (opModeIsActive() && (currentState != AutonomousStates.INTAKE_ON)) {
             switch (currentState) {
                 case LATCHED:
                     currentState = Drop();
@@ -60,24 +65,52 @@ public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
                     currentState = MoveForwardAndSlideBackToCenter(driveForwardPosition);
                     break;
                 case MOVED_BACK_TO_CENTER:
-                    currentState = DropMarker();
+                    if (mineralLocation == MineralLocation.RIGHT) {
+                        currentState = AutonomousStates.MINERAL_RIGHT;
+                    } else {
+                        currentState = AutonomousStates.MINERALS_CENTER_LEFT;
+                    }
+                    break;
+                case MINERAL_RIGHT:
+                    currentState = DriveToRightMineral(slideRightPosition);
+                    break;
+                case MINERALS_CENTER_LEFT:
+                    currentState = DropMarkerForLeftOrCenterMineral();
                     break;
                 case DROPPED_MARKER:
-                    currentState = DriveToMineral(slideLeftPosition, slideRightPosition);
+                    currentState = DriveToLeftOrCenterMineral(slideLeftPosition);
                     break;
                 case AT_MINERAL:
-                    currentState = PushMineral((int)(DrivePerInch * (PushMineralDistance+1)));
+                    currentState = PushLeftOrCenterMineral((int)(DrivePerInch *
+                            (PushMineralDistance+1)));
+                    break;
+                case AT_RIGHT_MINERAL:
+                    currentState = PushRightMineral((int)(DrivePerInch * (PushMineralDistance+1)));
                     break;
                 case MINERAL_PUSHED:
-                    currentState = BackAwayFromMineral((int)(DrivePerInch * BackAwayFromMineralDistance));
+                    currentState = BackAwayFromLeftOrCenterMineral((int)(DrivePerInch *
+                            BackAwayFromMineralDistance));
                     break;
+                case MINERAL_RIGHT_PUSHED:
+                    currentState = BackAwayFromRightMineral((int)(DrivePerInch *
+                            BackAwayFromMineralDistance));
+                    break;
+                case BACKED_AWAY_FROM_RIGHT_MINERAL:
+                    currentState = MoveBackToMiddleFromRightMineral(slideRightPosition);
+                    break;
+                case BACK_AT_CENTER:
+                    currentState = DropMarkerForRightMineral();
+                    break;
+
                 case BACKED_AWAY_FROM_MINERAL:
-                    currentState = MoveToLeftWall(distanceFromLeftMineral, slideLeftPosition + distanceFromLeftMineral,
-                            slideLeftPosition + slideRightPosition + distanceFromLeftMineral, .5);
+                    currentState = MoveToLeftWall(distanceFromLeftMineral,
+                            slideLeftPosition + distanceFromLeftMineral,
+                            slideLeftPosition  + distanceFromLeftMineral,
+                            .5);
                     robot.getFrontFlip().setTargetPosition(800);
                     robot.getFrontFlip().setPower(.7);
 
-                    while (robot.getFrontFlip().isBusy()) {
+                    while (robot.getFrontFlip().isBusy() && opModeIsActive()) {
                         idle();
                     }
 
@@ -87,6 +120,15 @@ public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
                     break;
                 case TURNED_TOWARDS_CRATER:
                     currentState = ExtendArm();
+                    break;
+                case ARM_EXTENDED:
+                    currentState = BringLiftDown();
+                    break;
+                case LIFT_DOWN:
+                    currentState = DropFrontFlip();
+                    break;
+                case FLIP_DOWN:
+                    currentState = TurnIntakeOn();
                     break;
             }
         }

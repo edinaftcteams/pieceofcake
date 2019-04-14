@@ -27,6 +27,7 @@ public class RobotOpMode extends OpMode {
     private boolean liftBPressed = false;
     private boolean liftMoving = false;
     private boolean limitHit = false;
+    private boolean topFlipTriggerPressed = false;
     private int liftLocation = 0;
     private boolean intakeArmActive = false;
     private int timeCount = 0;
@@ -45,7 +46,6 @@ public class RobotOpMode extends OpMode {
     public void init(){
         robot.init(hardwareMap);
 
-
         mecanum = new Mecanum(robot.getFrontL(), robot.getFrontR(), robot.getBackL(), robot.getBackR(), true, telemetry);
         mecanum.SetCurrentPower(1.4);
     }
@@ -56,6 +56,7 @@ public class RobotOpMode extends OpMode {
             robot.getFrontFlip().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             robot.getFrontFlip().setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
+
         telemetry.addData("Front Flip", "%d", robot.getFrontFlip().getCurrentPosition());
         telemetry.update();
     }
@@ -73,6 +74,7 @@ public class RobotOpMode extends OpMode {
         telemetry.addData("Back Lift", "%d", robot.getBackLift().getCurrentPosition());
         telemetry.addData("Front Lift", "%d", robot.getFrontLift().getCurrentPosition());
         telemetry.addData("Front Flip", "%d", robot.getFrontFlip().getCurrentPosition());
+        telemetry.addData("Speed", "%f", mecanum.GetCurrentPower());
         telemetry.addData("Lf, rf, lb, rb: ", "%d %d %d %d", robot.getFrontL().getCurrentPosition(),
                 robot.getFrontR().getCurrentPosition(), robot.getBackL().getCurrentPosition(),
                 robot.getBackR().getCurrentPosition());
@@ -167,6 +169,9 @@ public class RobotOpMode extends OpMode {
     private void ProcessLift() {
         robot.getBackLift().setPower(-gamepad2.left_stick_y); // TODO - change these by either flipping the negative or adding/removing a negative
         robot.getFrontLift().setPower(gamepad2.left_stick_y);
+        if (gamepad2.left_stick_y != 0) {
+            topFlipTriggerPressed = false;
+        }
     }
 
     private void ProcessTopFlip() {
@@ -174,8 +179,21 @@ public class RobotOpMode extends OpMode {
             robot.getTopFlip().setPosition(.35);
         } else if (gamepad2.right_trigger != 0) {
             robot.getTopFlip().setPosition(0);
+            topFlipTriggerPressed = true;
         } else {
             robot.getTopFlip().setPosition(1);
+
+            if (topFlipTriggerPressed) {
+                int pos = robot.getFrontLift().getCurrentPosition();
+                if (pos > 20) {
+                    robot.getFrontLift().setPower(1);
+                    robot.getBackLift().setPower(-1);
+                } else {
+                    topFlipTriggerPressed = false;
+                    robot.getFrontLift().setPower(0);
+                    robot.getBackLift().setPower(0);
+                }
+            }
         }
     }
 
@@ -248,7 +266,7 @@ public class RobotOpMode extends OpMode {
         }
 
         if (intakeArmActive) {
-            if (!limit) {
+            if ((!limit)){
                 limitHit = true;
             }
 
@@ -271,7 +289,7 @@ public class RobotOpMode extends OpMode {
                 case START:
                     robot.getFrontFlip().setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     robot.getFrontFlip().setTargetPosition(1400);
-                    robot.getFrontFlip().setPower(0.7);
+                    robot.getFrontFlip().setPower(1);
                     if (pos > 10) {
                         robot.getBackLift().setPower(-0.8);
                         robot.getFrontLift().setPower(0.8);
@@ -300,7 +318,7 @@ public class RobotOpMode extends OpMode {
                         timeCount++;
                     }
 
-                    if (timeCount > 5) {
+                    if (timeCount > 2) {
                         robot.getFrontFlip().setTargetPosition(750);
                         currentMDState = MineralDeposit.FRONT_FLIPPING_BACK;
                     }

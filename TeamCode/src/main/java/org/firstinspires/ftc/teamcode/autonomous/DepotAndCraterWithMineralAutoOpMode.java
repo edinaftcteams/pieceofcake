@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.enums.AutonomousStates;
+import org.firstinspires.ftc.teamcode.enums.MineralLocation;
 
 @Autonomous(name="Depot And Crater with Mineral", group="Autonomous")
 //@Disabled
@@ -48,7 +49,7 @@ public class DepotAndCraterWithMineralAutoOpMode extends BaseAutoOpMode {
         //
         // Our state machine for what we do when we are landing from the depot side.
         //
-        while (opModeIsActive() && (currentState != AutonomousStates.ARM_EXTENDED)) {
+        while (opModeIsActive() && (currentState != AutonomousStates.BACKED_AWAY_FROM_MINERAL)) {
             switch (currentState) {
                 case LATCHED:
                     currentState = Drop();
@@ -64,19 +65,9 @@ public class DepotAndCraterWithMineralAutoOpMode extends BaseAutoOpMode {
                     break;
                 case DROPPED_MARKER:
                     currentState = PickUpAndDepositMineral();
-/*
-                    currentState = DriveToMineral(slideLeftPosition, slideRightPosition);
-                    break;
-                case AT_MINERAL:
-                    currentState = PushMineral((int)(DrivePerInch * (PushMineralDistance+1)));
-                    break;
-                case MINERAL_PUSHED:
-                    currentState = BackAwayFromMineral((int)(DrivePerInch * BackAwayFromMineralDistance));
-                    break;
-*/
                 case BACKED_AWAY_FROM_MINERAL:
-                    currentState = MoveToLeftWall(slideLeftPosition + distanceFromLeftMineral, slideLeftPosition + distanceFromLeftMineral,
-                            slideLeftPosition + distanceFromLeftMineral, .5);
+                    mecanum.SlideLeft2(1, slideLeftPosition + distanceFromLeftMineral - (DrivePerInch * 2), this);
+
                     robot.getFrontFlip().setTargetPosition(800);
                     robot.getFrontFlip().setPower(.7);
 
@@ -91,6 +82,7 @@ public class DepotAndCraterWithMineralAutoOpMode extends BaseAutoOpMode {
                 case TURNED_TOWARDS_CRATER:
                     currentState = ExtendArm();
                     break;
+
             }
         }
 

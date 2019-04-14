@@ -276,6 +276,9 @@ public class Mecanum {
         _currentPower = power;
     }
 
+    public double GetCurrentPower() {
+        return _currentPower;
+    }
     //
     // These are our helper method to set the motors to what we need for the other steps
     // They are the three different ways you can run a motor
