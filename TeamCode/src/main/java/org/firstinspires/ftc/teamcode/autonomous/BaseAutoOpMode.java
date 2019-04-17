@@ -615,7 +615,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
 
     public AutonomousStates PickUpAndDepositMineral(boolean craterSide) {
         int counter = 0;
-        int turnAmount = (int)(Turn45 / 1.5);
+        int turnAmount = (int)(Turn45 / 1.4);
         int pos = robot.getFrontLift().getCurrentPosition();
 
         robot.getTopFlip().setPosition(1);
@@ -691,7 +691,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
                     counter = 5;
                 }
             } else if (counter == 5) {
-                if (watch.milliseconds() > 500) {
+                if (watch.milliseconds() > 750) {
                     robot.getFrontFlip().setTargetPosition(800);
                     robot.getFrontFlip().setPower(1);
                     robot.getIntake().setPower(0);
@@ -735,10 +735,10 @@ abstract class BaseAutoOpMode extends LinearOpMode {
 
         if (craterSide)
         {
-            mecanum.SlideLeft2(0.5,DrivePerInch * 6, this );
+            mecanum.SlideLeft2(0.5,DrivePerInch * 9, this );
         }
 
-        mecanum.MoveBackwards2(0.8, DrivePerInch * 8, this);
+        mecanum.MoveBackwards2(0.8, DrivePerInch * 9, this);
 
         robot.getTopFlip().setPosition(0);
         watch.reset();
@@ -754,22 +754,41 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         return AutonomousStates.BACKED_AWAY_FROM_MINERAL;
     }
 
-    public AutonomousStates BringLiftDown() {
+    public AutonomousStates BringLiftDownAndExtendArm() {
+        // stick the arm out for things like crater parking
         int pos = robot.getFrontLift().getCurrentPosition();
+
+        robot.getFrontFlip().setTargetPosition(FlatFlip);
+        robot.getFrontFlip().setPower(.7);
 
         telemetry.addData("Lift Position", robot.getFrontLift().getCurrentPosition());
         telemetry.update();
 
-        while (pos > 10 && opModeIsActive()) {
-            robot.getBackLift().setPower(-1);
-            robot.getFrontLift().setPower(1);
+        // slide arm out
+        robot.getSlide().setPower(-1);
+        robot.getBackLift().setPower(-1);
+        robot.getFrontLift().setPower(1);
+        watch.reset();
+
+        while ((pos > 10 || (watch.milliseconds() < 1500)) && opModeIsActive()) {
 
             pos = robot.getFrontLift().getCurrentPosition();
+
+            if (pos <= 10) {
+                robot.getBackLift().setPower(0);
+                robot.getFrontLift().setPower(0);
+            }
+
+            if (watch.milliseconds() > 1500) {
+                robot.getSlide().setPower(0);
+            }
+
             idle();
         }
 
         robot.getBackLift().setPower(0);
         robot.getFrontLift().setPower(0);
+        robot.getSlide().setPower(0);
 
         return AutonomousStates.LIFT_DOWN;
     }
@@ -795,6 +814,57 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         while (watch.milliseconds() < 3000 && opModeIsActive()) {
             idle();
         }
+
+        return AutonomousStates.INTAKE_ON;
+    }
+
+    public AutonomousStates BringLiftDownAndExtendArmForCrater()  {
+        int pos = robot.getFrontLift().getCurrentPosition();
+
+        robot.getFrontFlip().setTargetPosition(FlatFlip);
+        robot.getFrontFlip().setPower(.7);
+
+        telemetry.addData("Lift Position", robot.getFrontLift().getCurrentPosition());
+        telemetry.update();
+
+        // slide arm out
+        robot.getSlide().setPower(-1);
+        robot.getBackLift().setPower(-1);
+        robot.getFrontLift().setPower(1);
+        watch.reset();
+
+        while ((pos > 10 || (watch.milliseconds() < 500)) && opModeIsActive()) {
+
+            pos = robot.getFrontLift().getCurrentPosition();
+
+            if (pos <= 10) {
+                robot.getBackLift().setPower(0);
+                robot.getFrontLift().setPower(0);
+            }
+
+            if (watch.milliseconds() > 500) {
+                robot.getSlide().setPower(0);
+            }
+
+            idle();
+        }
+
+        robot.getBackLift().setPower(0);
+        robot.getFrontLift().setPower(0);
+        robot.getSlide().setPower(0);
+
+        DropFrontFlip();
+        robot.getIntake().setPower(1);
+
+        watch.reset();
+
+        robot.getSlide().setPower(-0.6);
+        while ((watch.milliseconds() < 1500) && opModeIsActive()) {
+            idle();
+        }
+
+        robot.getSlide().setPower(0);
+
 
         return AutonomousStates.INTAKE_ON;
     }

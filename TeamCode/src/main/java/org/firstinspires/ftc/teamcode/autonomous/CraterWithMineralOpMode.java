@@ -65,18 +65,8 @@ public class CraterWithMineralOpMode extends BaseAutoOpMode {
                     currentState = PickUpAndDepositMineral(true);
                     break;
                 case BACKED_AWAY_FROM_MINERAL:
-                    currentState = ExtendArm();
+                    currentState = BringLiftDownAndExtendArmForCrater();
                     break;
-                case ARM_EXTENDED:
-                    currentState = BringLiftDown();
-                    break;
-                case LIFT_DOWN:
-                    currentState = DropFrontFlip();
-                    break;
-                case FLIP_DOWN:
-                    currentState = TurnIntakeOn();
-                    break;
-
             }
             telemetry.addData("Mineral Location", mineralLocation);
             telemetry.addData("Last Recognition", LastRecognition);

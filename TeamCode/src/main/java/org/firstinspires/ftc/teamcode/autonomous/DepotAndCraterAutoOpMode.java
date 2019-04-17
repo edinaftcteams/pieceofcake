@@ -120,10 +120,7 @@ public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
                     currentState = TurnLeftTowardsCrater2();
                     break;
                 case TURNED_TOWARDS_CRATER:
-                    currentState = ExtendArm();
-                    break;
-                case ARM_EXTENDED:
-                    currentState = BringLiftDown();
+                    currentState = BringLiftDownAndExtendArm();
                     break;
                 case LIFT_DOWN:
                     currentState = DropFrontFlip();
