@@ -35,6 +35,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
     protected int slideRightPosition = DrivePerInch * 23;
     protected int slideLeftPosition = DrivePerInch * 23;
     protected int driveForwardPosition = (int)(DrivePerInch * 19);
+    protected int driveForwardCraterPosition = (int)(DrivePerInch * 14);
 
     private static final String VUFORIA_KEY = "ASA9XvT/////AAABmUnq30r9sU3Nmf/+RS+Xx0CHgJj/JtD5ycahnuM/0B2SFvbMRPIZCbLi4LeOkfse9Dymor5W7vNMYI+vmqVx9kpEaKE8VM7cFMUb/T1LLwlCPdX9QKOruzTcRdlYswR7ULh4K11GuFZDO/45pSks+Nf25kT5cnV+IN3TsscA0o7I6XPIeUoAJJPsjw+AycsmRk2uffr3Bnupexr93iRfHylniqP+ss4cRcT1lOqS5Zhh7FQaoelR58qL/RUorGpknjy9ufCn9ervc6Mz01u3ZkM/EOa5wUPT8bDzPZ6nMDaadqumorT5Py+GtJSUosUgz4Gd3iR++fdEk6faFZq3L9xfBSagNykwhiyYx+oqwVqe";
     private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
@@ -492,7 +493,7 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         // spin the intake to dump marker
         watch.reset();
         robot.getIntake().setPower(-1);
-        while ((watch.milliseconds() < 1750)  && opModeIsActive()) {
+        while ((watch.milliseconds() < 750)  && opModeIsActive()) {
             idle();
         }
 
@@ -612,14 +613,16 @@ abstract class BaseAutoOpMode extends LinearOpMode {
 
     }
 
-    public AutonomousStates PickUpAndDepositMineral() {
+    public AutonomousStates PickUpAndDepositMineral(boolean craterSide) {
         int counter = 0;
         int turnAmount = (int)(Turn45 / 1.5);
         int pos = robot.getFrontLift().getCurrentPosition();
 
         robot.getTopFlip().setPosition(1);
 
-        mecanum.MoveBackwards2(0.8, DrivePerInch * 5,this);
+        if (craterSide == false) {
+            mecanum.MoveBackwards2(0.8, DrivePerInch * 5, this);
+        }
 
         if (pos > 10) {
             robot.getBackLift().setPower(-0.8);
@@ -650,12 +653,12 @@ abstract class BaseAutoOpMode extends LinearOpMode {
                     watch.reset();
                 }
             } else if (counter == 1) {
-                robot.getSlide().setPower(-.5);
-                if ((mineralLocation == MineralLocation.MIDDLE) && (watch.milliseconds() > 1500)) {
+                robot.getSlide().setPower(-.7);
+                if ((mineralLocation == MineralLocation.MIDDLE) && (watch.milliseconds() > 1200)) {
                     robot.getSlide().setPower(0);
                     counter = 2;
                     watch.reset();
-                } else if (watch.milliseconds() > 2000) {
+                } else if (watch.milliseconds() > 1600) {
                     robot.getSlide().setPower(0);
                     counter = 2;
                     watch.reset();
@@ -682,8 +685,8 @@ abstract class BaseAutoOpMode extends LinearOpMode {
 
             } else if (counter == 4) {
                 if (pos < 10) {
-                    robot.getFrontFlip().setTargetPosition(0);
-                    robot.getFrontFlip().setPower(1);
+                    robot.getFrontFlip().setTargetPosition(0);     // TOO MUCH STATE MACHINES!!!
+                    robot.getFrontFlip().setPower(1);           // STATE MACHINE INSIDE A STATE MACHINE !!!  MADNESS!!
                     watch.reset();
                     counter = 5;
                 }
@@ -711,41 +714,42 @@ abstract class BaseAutoOpMode extends LinearOpMode {
             mecanum.TurnLeft(0.5, turnAmount, this);
         }
 
-        mecanum.SlideLeft2(0.8,DrivePerInch * 2, this);
-        mecanum.MoveBackwards2(0.8, DrivePerInch * 5, this);
-
-        counter = 0;
         pos = robot.getFrontLift().getCurrentPosition();
 
-        if (pos < 1038) {
-            robot.getBackLift().setPower(0.8);
-            robot.getFrontLift().setPower(-0.8);
+        robot.getBackLift().setPower(1);
+        robot.getFrontLift().setPower(-1);
+
+        int liftHeight = 1038;
+
+        if (craterSide) {
+            liftHeight = 1290;
         }
 
-        while (counter != -1 && opModeIsActive()) {
+        while (pos < liftHeight && opModeIsActive()) {
             pos = robot.getFrontLift().getCurrentPosition();
-
-            if (counter == 0)
-            {
-                if (pos > 1038) {
-                    robot.getBackLift().setPower(0);
-                    robot.getFrontLift().setPower(0);
-                    robot.getTopFlip().setPosition(0);
-                    counter = 1;
-                    watch.reset();
-                }
-            } else if (counter == 1) {
-                if (watch.milliseconds() > 500) {
-                    robot.getTopFlip().setPosition(1);
-                    counter = 4;
-                }
-            }
-            else if (counter == 4) {
-                counter = -1;
-            }
+            idle();
         }
 
-        mecanum.MoveForward2(0.8, DrivePerInch * 5, this);
+        robot.getBackLift().setPower(0);
+        robot.getFrontLift().setPower(0);
+
+        if (craterSide)
+        {
+            mecanum.SlideLeft2(0.5,DrivePerInch * 6, this );
+        }
+
+        mecanum.MoveBackwards2(0.8, DrivePerInch * 8, this);
+
+        robot.getTopFlip().setPosition(0);
+        watch.reset();
+
+        while (watch.milliseconds() < 1000 && opModeIsActive()) {
+            idle();
+        }
+
+        robot.getTopFlip().setPosition(1);
+
+        mecanum.MoveForward2(0.8, DrivePerInch * 19, this);
 
         return AutonomousStates.BACKED_AWAY_FROM_MINERAL;
     }
@@ -757,8 +761,8 @@ abstract class BaseAutoOpMode extends LinearOpMode {
         telemetry.update();
 
         while (pos > 10 && opModeIsActive()) {
-            robot.getBackLift().setPower(-0.5);
-            robot.getFrontLift().setPower(0.5);
+            robot.getBackLift().setPower(-1);
+            robot.getFrontLift().setPower(1);
 
             pos = robot.getFrontLift().getCurrentPosition();
             idle();

@@ -49,7 +49,7 @@ public class DepotAndCraterWithMineralAutoOpMode extends BaseAutoOpMode {
         //
         // Our state machine for what we do when we are landing from the depot side.
         //
-        while (opModeIsActive() && (currentState != AutonomousStates.BACKED_AWAY_FROM_MINERAL)) {
+        while (opModeIsActive() && (currentState != AutonomousStates.INTAKE_ON)) {
             switch (currentState) {
                 case LATCHED:
                     currentState = Drop();
@@ -64,23 +64,26 @@ public class DepotAndCraterWithMineralAutoOpMode extends BaseAutoOpMode {
                     currentState = DropMarker();
                     break;
                 case DROPPED_MARKER:
-                    currentState = PickUpAndDepositMineral();
+                    currentState = PickUpAndDepositMineral(false);
+                    break;
                 case BACKED_AWAY_FROM_MINERAL:
                     mecanum.SlideLeft2(1, slideLeftPosition + distanceFromLeftMineral - (DrivePerInch * 2), this);
-
-                    robot.getFrontFlip().setTargetPosition(800);
-                    robot.getFrontFlip().setPower(.7);
-
-                    while (robot.getFrontFlip().isBusy()) {
-                        idle();
-                    }
-
+                    currentState = AutonomousStates.AT_LEFT_WALL;
                     break;
                 case AT_LEFT_WALL:
                     currentState = TurnLeftTowardsCrater2();
                     break;
                 case TURNED_TOWARDS_CRATER:
                     currentState = ExtendArm();
+                    break;
+                case ARM_EXTENDED:
+                    currentState = BringLiftDown();
+                    break;
+                case LIFT_DOWN:
+                    currentState = DropFrontFlip();
+                    break;
+                case FLIP_DOWN:
+                    currentState = TurnIntakeOn();
                     break;
 
             }

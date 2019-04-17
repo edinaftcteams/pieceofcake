@@ -1,13 +1,14 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.enums.AutonomousStates;
 import org.firstinspires.ftc.teamcode.enums.MineralLocation;
 
 @Autonomous(name="Depot And Crater", group="Autonomous")
-//@Disabled
+@Disabled
 public class DepotAndCraterAutoOpMode extends BaseAutoOpMode {
     private int distanceFromLeftMineral = DrivePerInch * 21;
 
