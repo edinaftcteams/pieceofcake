@@ -309,6 +309,23 @@ public class Mecanum {
         _backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
+    public void TurnBrakeOn()
+    {
+        _frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        _frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        _backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        _backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    }
+
+    public void TurnBrakeOff()
+    {
+        _frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        _frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        _backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        _backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
+    }
+
     public void StopAndResetMotors3() {
         _frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         _frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
