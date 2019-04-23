@@ -172,6 +172,10 @@ public class RobotOpMode extends OpMode {
         if (gamepad2.left_stick_y != 0) {
             topFlipTriggerPressed = false;
         }
+        if (gamepad2.dpad_down) {
+            robot.getFrontLift().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.getFrontLift().setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
     }
 
     private void ProcessTopFlip() {
