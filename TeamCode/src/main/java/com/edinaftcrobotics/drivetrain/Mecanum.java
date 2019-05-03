@@ -276,6 +276,9 @@ public class Mecanum {
         _currentPower = power;
     }
 
+    public double GetCurrentPower() {
+        return _currentPower;
+    }
     //
     // These are our helper method to set the motors to what we need for the other steps
     // They are the three different ways you can run a motor
@@ -304,6 +307,23 @@ public class Mecanum {
         _backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         _backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         _backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    public void TurnBrakeOn()
+    {
+        _frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        _frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        _backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        _backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    }
+
+    public void TurnBrakeOff()
+    {
+        _frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        _frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        _backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        _backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
     }
 
     public void StopAndResetMotors3() {
